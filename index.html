@@ -1027,6 +1027,7 @@ function startLocal() {
   db = LocalDB;
   const seed = !lsGet(LS.seeded); lsSet(LS.seeded, "1");
   attach(seed);
+  setTimeout(maybeHandleShare, 300);
   showBanner(hasFirebase() ? "지금은 이 휴대폰에만 저장돼요. 설정에서 가족 코드를 만들면 같이 볼 수 있어요." : (getKey() ? "" : "오른쪽 위 '설정'에서 제미나이 API 키를 넣어 주세요."));
 }
 
@@ -1035,13 +1036,49 @@ function startFamily(code, isNew) {
   fam = fs.doc(`families/${code}`);
   db = { collection: n => fs.collection(`families/${code}/${n}`) };
   attach(isNew);
+  setTimeout(maybeHandleShare, 600);
   unsubs.push(fam.onSnapshot(s => {
     familyKey = str(s.data()?.geminiKey, 200);
     showBanner(getKey() ? "" : "오른쪽 위 '설정'에서 제미나이 API 키를 넣어 주세요. 한 분만 넣으면 같이 써요.");
   }, () => {}));
 }
 
+// ---------- Share target (Android share sheet → 영웅이노트) ----------
+let shareHandled = false;
+async function maybeHandleShare() {
+  if (shareHandled || !/[?&]share=1/.test(location.search)) return;
+  shareHandled = true;
+  try { history.replaceState(null, "", location.pathname); } catch {}
+  let meta = null; const files = [];
+  try {
+    const c = await caches.open("yw-share");
+    const mr = await c.match(new URL("shared/meta", location.href).href);
+    if (mr) meta = await mr.json();
+    for (const f of meta?.files || []) {
+      const r = await c.match(f.key); if (!r) continue;
+      const blob = await r.blob();
+      files.push(new File([blob], f.name || "shared", { type: f.type || blob.type }));
+    }
+    for (const k of await c.keys()) await c.delete(k);
+  } catch {}
+  if (!meta) return;
+  const all = [meta.url, meta.text, meta.title].join(" ");
+  const link = (all.match(/https?:\/\/[^\s]+/) || [""])[0];
+  const rest = [meta.title, meta.text].join("\n").replace(link, "").replace(/\n{2,}/g, "\n").trim();
+  openAdd();
+  if (link) $("#urlIn").value = link;
+  if (rest && rest !== link) $("#txtIn").value = rest;
+  linkHint();
+  const vids = files.filter(f => f.type.startsWith("video/")), pics = files.filter(f => f.type.startsWith("image/"));
+  if (pics.length) addImages(pics);
+  if (vids.length) await addVideo(vids[0]);
+  // Start right away when there is something Gemini can analyze.
+  if (getKey() && (videoFile || ytUrl(link) || pics.length)) runAI();
+  else if (isInsta(link) && !videoFile) setStatus("인스타 링크를 받았어요. 이 릴스의 공유 → '다운로드'로 영상을 저장한 뒤, 위의 '릴스 영상 올리기'로 골라 주세요. 갤러리에서 영상을 영웅이노트로 공유해도 돼요.");
+}
+
 async function boot() {
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
   renderDday(); render();
   $("#setBtn").addEventListener("click", openSettings);
   if (!hasFirebase()) {
