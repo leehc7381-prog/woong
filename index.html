@@ -1022,7 +1022,11 @@ function startFamily(code, isNew) {
 async function boot() {
   renderDday(); render();
   $("#setBtn").addEventListener("click", openSettings);
-  if (!hasFirebase()) { startLocal(); return; }
+  if (!hasFirebase()) {
+    startLocal();
+    if (window.FIREBASE_CONFIG && !window.firebase) showBanner("공유 저장소에 연결하지 못해서 지금은 이 휴대폰에만 저장돼요. 인터넷 연결을 확인하고 새로고침해 주세요.");
+    return;
+  }
   try {
     firebase.initializeApp(window.FIREBASE_CONFIG);
     try { await firebase.firestore().enablePersistence({ synchronizeTabs: true }); } catch {}
