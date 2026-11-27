@@ -127,6 +127,10 @@ button { cursor: pointer; }
 .badge { font-size: .7rem; padding: 1px 7px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
 .badge.ex { background: var(--yolk-soft); border-color: transparent; color: var(--ink); }
 .badge.when { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
+.badge.auto { background: #E2E9FA; border-color: transparent; color: var(--ink); }
+.srcs { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.srcs a { color: var(--accent); word-break: break-all; }
+.srcs small { color: var(--muted); }
 .prog { font-variant-numeric: tabular-nums; }
 .star { color: var(--yolk); }
 .empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 16px; padding: 24px 18px; text-align: center; color: var(--muted); display: grid; gap: 8px; justify-items: center; }
@@ -262,7 +266,9 @@ function subsOf(id) {
 const DUE = new Date(2026, 11, 15);
 
 // ---------- State ----------
-let tips = [];          // [{id, ...data}]
+let tips = [];          // [{id, ...data}] shown to the user
+let allTips = [];       // includes hidden auto-collected tips
+let autoOff = false;    // family turned off auto-collected tips
 let loaded = false;
 let selCat = null, selSub = null, query = "";
 let db = null, tipsCol = null, catsCol = null, sample = null, imgLimits = null;
@@ -367,6 +373,7 @@ function renderList() {
         el("span", { class: "cl" }, el("span", { class: "dot" }), `${(catById[t.category] || {}).name || "기타"} · ${t.subcategory || "기타"}`),
         t.when ? el("span", { class: "badge when", text: t.when }) : null,
         t.example ? el("span", { class: "badge ex", text: "예시" }) : null,
+        t.auto ? el("span", { class: "badge auto", text: "자동 수집" }) : null,
         t.starred ? el("span", { class: "star", "aria-label": "즐겨찾기", text: "★" }) : null),
       el("h3", { text: t.title || "제목 없음" }),
       t.summary ? el("p", { text: t.summary }) : null,
@@ -714,16 +721,17 @@ function openDetail(id) {
   });
 
   const confirmBox = el("div", { class: "confirm", hidden: true },
-    el("span", { text: "이 꿀팁을 지울까요? 되돌릴 수 없어요." }),
+    el("span", { text: t.auto ? "이 꿀팁을 목록에서 뺄까요? 다시 들어오지 않아요." : "이 꿀팁을 지울까요? 되돌릴 수 없어요." }),
     el("div", { class: "actions" },
       el("button", { class: "btn ghost", text: "취소", onclick: () => { confirmBox.hidden = true; } }),
-      el("button", { class: "btn danger", text: "지우기", onclick: async () => { try { await ref.delete(); closeSheet(); } catch {} } })));
+      el("button", { class: "btn danger", text: "지우기", onclick: async () => { try { await (t.auto ? ref.update({ hidden: true }) : ref.delete()); closeSheet(); } catch {} } })));
 
   const href = safeUrl(t.url);
   const body = el("div", { class: "detail", style: `--cc: var(${c.c})` },
     el("div", { class: "card", style: "box-shadow:none;padding:0;background:none" },
       el("div", { class: "meta" }, el("span", { class: "cl" }, el("span", { class: "dot" }), `${c.name} · ${t.subcategory || "기타"}`),
-        t.when ? el("span", { class: "badge when", text: t.when }) : null, t.example ? el("span", { class: "badge ex", text: "예시" }) : null)),
+        t.when ? el("span", { class: "badge when", text: t.when }) : null, t.example ? el("span", { class: "badge ex", text: "예시" }) : null,
+        t.auto ? el("span", { class: "badge auto", text: "자동 수집" }) : null)),
     validThumb(t.thumb) ? el("img", { class: "detail-thumb", src: t.thumb, alt: "릴스 장면" }) : null,
     el("h3", { text: t.title }),
     t.summary ? el("div", { class: "summary", text: t.summary }) : null,
@@ -732,7 +740,12 @@ function openDetail(id) {
     (t.checklist || []).length ? el("div", { class: "blk" }, el("h4", { text: "할 일" }), checks) : null,
     list("주의할 점", t.cautions, false, "warn"),
     (t.tags || []).length ? el("div", { class: "tags" }, t.tags.map(s => el("span", { text: "#" + s }))) : null,
-    href ? el("div", { class: "blk src" }, el("h4", { text: "원본" }), el("a", { href, target: "_blank", rel: "noopener noreferrer", text: `${t.source || sourceOf(href)}에서 다시 보기` })) : null,
+    t.auto && (t.sources || []).length ? el("div", { class: "blk src" }, el("h4", { text: "출처" }),
+      el("ul", { class: "srcs" }, t.sources.map(x => el("li", {},
+        safeUrl(x.url) ? el("a", { href: safeUrl(x.url), target: "_blank", rel: "noopener noreferrer", text: x.name }) : el("span", { text: x.name }),
+        x.date ? el("small", { text: ` · ${x.date}` }) : null))),
+      el("p", { class: "note", text: `${t.checkedAt ? t.checkedAt + "에 " : ""}Claude가 공식 자료를 보고 모았어요. 금액·기한은 바뀔 수 있으니 신청 전 출처에서 한 번 더 확인해 주세요.` })) : null,
+    !t.auto && href ? el("div", { class: "blk src" }, el("h4", { text: "원본" }), el("a", { href, target: "_blank", rel: "noopener noreferrer", text: `${t.source || sourceOf(href)}에서 다시 보기` })) : null,
     t.original ? el("details", { class: "orig" }, el("summary", { text: "넣었던 원래 내용 보기" }), el("pre", { text: t.original })) : null,
     el("div", { class: "row" },
       el("div", { class: "field" }, el("label", { for: "dCat", text: "카테고리 옮기기" }), catSel)),
@@ -800,7 +813,7 @@ const LocalDB = (() => {
 
 // ---------- Gemini ----------
 const GBASE = "https://generativelanguage.googleapis.com";
-const LS = { key: "yw.geminiKey", model: "yw.geminiModel", seeded: "yw.seeded", family: "yw.family" };
+const LS = { key: "yw.geminiKey", model: "yw.geminiModel", seeded: "yw.seeded", family: "yw.family", autoOff: "yw.autoOff" };
 const lsGet = k => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
 const lsSet = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} };
 let familyKey = "";
@@ -921,6 +934,16 @@ function openSettings() {
         finally { e.target.disabled = false; }
       } })),
     el("div", { class: "blk" },
+      el("h4", { text: "자동 수집 꿀팁" }),
+      el("p", { class: "note", text: "Claude가 정부24·복지로·질병관리청·미국소아과학회 같은 공식 자료에서 최신 꿀팁을 모아 출처와 함께 넣어 줘요. 앱을 열 때 새 꿀팁이 있으면 자동으로 들어와요." }),
+      el("label", { class: "check", for: "autoChk" },
+        el("input", { type: "checkbox", id: "autoChk", checked: !autoOff, onchange: async e => {
+          const on = e.target.checked;
+          try { if (fam) await fam.set({ autoFeed: on }, { merge: true }); else lsSet(LS.autoOff, on ? "" : "1"); } catch {}
+          autoOff = !on; applyVisible(); render(); if (on) syncFeed();
+        } }),
+        el("span", { text: "자동 수집 꿀팁 받기 (끄면 목록에서 숨겨요)" }))),
+    el("div", { class: "blk" },
       el("h4", { text: "백업" }),
       el("p", { class: "note", text: "꿀팁 전체를 파일로 저장하거나 불러올 수 있어요." }),
       el("div", { class: "actions" },
@@ -1015,17 +1038,52 @@ function attach(seedIfEmpty) {
   let first = true;
   unsubs.push(tipsCol.orderBy("createdAt", "desc").onSnapshot(snap => {
     loaded = true;
-    tips = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (first && seedIfEmpty && !tips.length) EXAMPLES.forEach(ex => tipsCol.doc(ex.id).set(ex.data).catch(() => {}));
+    allTips = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    applyVisible();
+    if (first && seedIfEmpty && !allTips.length) EXAMPLES.forEach(ex => tipsCol.doc(ex.id).set(ex.data).catch(() => {}));
+    if (first) setTimeout(syncFeed, 800);
     first = false;
     render();
   }, () => { loaded = true; showBanner("꿀팁 목록에 연결하지 못했어요. 새로고침해 주세요."); render(); }));
+}
+
+// ---------- Auto-collected tips (tips-feed.json, curated by Claude with sources) ----------
+function applyVisible() { tips = allTips.filter(t => !t.hidden && !(autoOff && t.auto)); }
+let feedBusy = false;
+async function syncFeed() {
+  if (autoOff || feedBusy || !tipsCol) return;
+  feedBusy = true;
+  try {
+    const r = await fetch("tips-feed.json?t=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) return;
+    const feed = await r.json();
+    const known = Object.fromEntries(allTips.map(t => [t.id, t]));
+    for (const f of Array.isArray(feed.tips) ? feed.tips : []) {
+      if (!f || !/^[a-z0-9-]{3,60}$/.test(f.id || "")) continue;
+      const id = "auto-" + f.id, cur = known[id], rev = Number(f.rev) || 1;
+      if (cur && (cur.hidden || (Number(cur.rev) || 0) >= rev)) continue;
+      const srcs = (Array.isArray(f.sources) ? f.sources : []).map(x => ({ name: str(x?.name, 60), url: safeUrl(x?.url) || "", date: str(x?.date, 20) })).filter(x => x.name).slice(0, 5);
+      const cat = catById[f.category] ? f.category : "docs";
+      const doneOf = Object.fromEntries((cur?.checklist || []).map(c => [c.text, !!c.done]));
+      const data = {
+        title: str(f.title, 80), summary: str(f.summary, 600), when: str(f.when, 40),
+        points: arr(f.points), steps: arr(f.steps), cautions: arr(f.cautions), tags: arr(f.tags).slice(0, 8),
+        checklist: arr(f.checklist).map(text => ({ text, done: !!doneOf[text] })),
+        sources: srcs, url: srcs[0]?.url || "", source: srcs[0]?.name || "자동 수집",
+        checkedAt: str(f.checkedAt || feed.updatedAt, 20), rev, auto: true, ai: false, original: "",
+      };
+      if (cur) await tipsCol.doc(id).update(data);   // keep the family's star and category
+      else await tipsCol.doc(id).set({ ...data, category: cat, subcategory: str(f.subcategory, 30) || "기타", starred: false,
+        createdAt: Date.parse(f.checkedAt || feed.updatedAt) || Date.now() - 864e5 });
+    }
+  } catch {} finally { feedBusy = false; }
 }
 
 function startLocal() {
   fam = null; familyKey = "";
   db = LocalDB;
   const seed = !lsGet(LS.seeded); lsSet(LS.seeded, "1");
+  autoOff = lsGet(LS.autoOff) === "1";
   attach(seed);
   setTimeout(maybeHandleShare, 300);
   showBanner(hasFirebase() ? "지금은 이 휴대폰에만 저장돼요. 설정에서 가족 코드를 만들면 같이 볼 수 있어요." : (getKey() ? "" : "오른쪽 위 '설정'에서 제미나이 API 키를 넣어 주세요."));
@@ -1039,6 +1097,8 @@ function startFamily(code, isNew) {
   setTimeout(maybeHandleShare, 600);
   unsubs.push(fam.onSnapshot(s => {
     familyKey = str(s.data()?.geminiKey, 200);
+    const off = s.data()?.autoFeed === false;
+    if (off !== autoOff) { autoOff = off; applyVisible(); render(); if (!off) syncFeed(); }
     showBanner(getKey() ? "" : "오른쪽 위 '설정'에서 제미나이 API 키를 넣어 주세요. 한 분만 넣으면 같이 써요.");
   }, () => {}));
 }
