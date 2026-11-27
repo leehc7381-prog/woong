@@ -95,6 +95,51 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .th.ph { display: grid; place-items: center; background: color-mix(in srgb, var(--cc, var(--accent)) 16%, var(--surface)); color: var(--cc, var(--accent)); font-family: var(--f-display); font-size: 1.5rem; }
 .fav .th.ph { font-size: 2rem; }
 .more-stage { justify-self: start; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 3px; }
+.tab { text-align: center; padding: 7px 0; border-radius: 9px; color: var(--muted); text-decoration: none; font-weight: 700; font-size: .9rem; }
+.tab[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.grow-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.grow-h h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; margin: 0; }
+.grow-h small { color: var(--muted); }
+.gcard { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 14px; display: grid; gap: 12px; min-width: 0; }
+.gcard h3 { margin: 0; font-size: 1.02rem; }
+.gcard-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.gcard-h small { color: var(--muted); }
+.sexpick { display: flex; gap: 4px; }
+.sexpick button { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 3px 12px; font-size: .8rem; }
+.sexpick button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.metric { background: var(--surface-2); border-radius: 12px; padding: 10px; display: grid; gap: 2px; min-width: 0; }
+.metric .k { font-size: .72rem; color: var(--muted); }
+.metric .v { font-family: var(--f-display); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+.metric .p { font-size: .72rem; color: var(--accent); font-weight: 700; }
+.mtabs { display: flex; gap: 6px; }
+.mtabs button { flex: 1; border: 1px solid var(--line); background: none; border-radius: 10px; padding: 5px 0; font-size: .82rem; }
+.mtabs button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); font-weight: 700; background: var(--accent-soft); }
+.chart { overflow-x: auto; }
+.chart svg { display: block; width: 100%; height: auto; min-width: 300px; }
+.chart .band { fill: var(--accent); }
+.chart .mid { stroke: var(--accent); }
+.chart .edge { stroke: var(--line); }
+.chart .grid { stroke: var(--line); stroke-dasharray: 2 4; }
+.chart text { fill: var(--muted); font-size: 10px; font-family: var(--f-body); font-variant-numeric: tabular-nums; }
+.chart .pt { fill: var(--yolk); stroke: var(--ink); stroke-width: 1.5; }
+.chart .ln { stroke: var(--ink); fill: none; stroke-width: 1.5; }
+.chart .today { stroke: var(--yolk); stroke-width: 1.5; }
+.addrec summary { cursor: pointer; color: var(--accent); font-weight: 700; font-size: .9rem; }
+.recform { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.recform label { display: grid; gap: 4px; font-size: .78rem; color: var(--muted); min-width: 0; }
+.recform input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.recform .btn { grid-column: 1 / -1; }
+.recs { display: grid; gap: 4px; }
+.rec { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: .82rem; padding: 6px 2px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.rec .d { color: var(--muted); }
+.rec button { border: 0; background: none; color: var(--muted); font-size: .8rem; }
+.ms { display: grid; gap: 10px; }
+.ms h4 { margin: 0; font-size: .76rem; color: var(--muted); letter-spacing: .04em; }
+.ms .grp { display: grid; gap: 4px; }
+.period { display: grid; gap: 6px; font-size: .92rem; }
+.period ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
 button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -259,7 +304,12 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
 
   <div class="banner" id="banner" hidden></div>
 
-  <section class="ask" aria-label="꿀팁 물어보기">
+  <nav class="tabs" aria-label="화면">
+    <a href="#" class="tab" id="tabTips">꿀팁</a>
+    <a href="#grow" class="tab" id="tabGrow">발달</a>
+  </nav>
+
+  <section class="ask" id="askSec" aria-label="꿀팁 물어보기">
     <form id="askForm" class="ask-form">
       <div class="ask-row">
         <textarea id="askIn" rows="1" aria-label="무엇이 궁금해요?" placeholder="무엇이 궁금해요? 예: 신생아 목욕 방법"></textarea>
@@ -283,6 +333,46 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
     </section>
 
     <button class="btn ghost all-btn" id="allBtn">모든 꿀팁 보기</button>
+  </div>
+
+  <div id="growView" class="view" hidden>
+    <div class="grow-h"><h2 id="growTitle">영웅이 발달</h2><small id="growSub"></small></div>
+
+    <section class="gcard">
+      <div class="gcard-h"><h3>영웅이는</h3><div class="sexpick" id="sexPick" role="group" aria-label="성장 기준 성별"></div></div>
+      <div class="metrics" id="metrics"></div>
+      <div class="mtabs" id="mtabs" role="tablist" aria-label="그래프 항목"></div>
+      <div class="chart" id="chart"></div>
+      <p class="note" id="chartNote"></p>
+      <details class="addrec" id="addRec">
+        <summary>키·몸무게 기록 추가</summary>
+        <form id="recForm" class="recform">
+          <label>날짜<input type="date" id="recDate" required></label>
+          <label>몸무게(kg)<input type="number" id="recW" step="0.01" min="1" max="30" inputmode="decimal" placeholder="3.4"></label>
+          <label>키(cm)<input type="number" id="recL" step="0.1" min="30" max="130" inputmode="decimal" placeholder="50.5"></label>
+          <label>머리둘레(cm)<input type="number" id="recH" step="0.1" min="25" max="60" inputmode="decimal" placeholder="34.5"></label>
+          <button class="btn" type="submit">저장</button>
+        </form>
+      </details>
+      <div class="recs" id="recs"></div>
+    </section>
+
+    <section class="gcard">
+      <div class="gcard-h"><h3 id="msTitle">이 시기에 많이 하는 것</h3><small id="msCount"></small></div>
+      <div class="stages" id="msBands" role="tablist" aria-label="발달 시기"></div>
+      <p class="note" id="msIntro"></p>
+      <div class="ms" id="msList"></div>
+    </section>
+
+    <section class="gcard">
+      <h3>이 시기에는</h3>
+      <div id="periodInfo" class="period"></div>
+      <div class="blk src">
+        <h4>출처</h4>
+        <ul class="srcs" id="growSrcs"></ul>
+      </div>
+      <p class="note">아기마다 크는 속도가 많이 달라요. 백분위나 체크리스트는 참고용이고, 걱정되는 점이 있으면 영유아검진이나 소아청소년과에서 상담해 주세요.</p>
+    </section>
   </div>
 
   <div id="allView" class="view" hidden>
@@ -527,10 +617,14 @@ function renderHome() {
 }
 
 function showView() {
-  const all = location.hash === "#all";
-  $("#homeView").hidden = all; $("#allView").hidden = !all;
+  const h = location.hash, all = h === "#all", grow = h === "#grow";
+  $("#homeView").hidden = all || grow; $("#allView").hidden = !all; $("#growView").hidden = !grow;
+  $("#askSec").hidden = grow;
+  $("#tabTips").toggleAttribute("aria-current", !grow); if (!grow) $("#tabTips").setAttribute("aria-current", "page");
+  $("#tabGrow").toggleAttribute("aria-current", grow); if (grow) { $("#tabGrow").setAttribute("aria-current", "page"); renderGrow(); }
+  $("#addBtn").hidden = grow;
 }
-function render() { renderHome(); renderCats(); renderList(); }
+function render() { renderHome(); renderCats(); renderList(); if (location.hash === "#grow") renderGrow(); }
 
 // ---------- Sheet ----------
 function openSheet(title, body) {
@@ -1277,6 +1371,7 @@ function startFamily(code, isNew) {
   setTimeout(maybeHandleShare, 600);
   unsubs.push(fam.onSnapshot(s => {
     familyKey = str(s.data()?.geminiKey, 200);
+    onFamilyGrowth(s.data()?.growth);
     const bd = str(s.data()?.birthDate, 10); if (bd && bd !== (birthDate && ymd(birthDate))) { setBirth(bd); selStage = null; renderDday(); render(); }
     const off = s.data()?.autoFeed === false;
     if (off !== autoOff) { autoOff = off; applyVisible(); render(); if (!off) syncFeed(); }
@@ -1492,6 +1587,205 @@ async function paintTips(list) {
   } finally { painting = false; }
 }
 
+// ---------- Development tab ----------
+const MILESTONES = [
+  { id: "m1", m: 1, name: "1개월", src: "aap1", groups: [
+    ["사회·감정", ["엄마 아빠 얼굴을 잠깐씩 바라봐요", "안아 주면 조금씩 진정해요"]],
+    ["언어", ["울음 말고 작은 소리를 내요", "큰 소리에 깜짝 놀라요"]],
+    ["몸 움직임", ["엎드리면 잠깐 고개를 들어요", "손에 닿는 것을 꽉 쥐어요(쥐기 반사)"]]] },
+  { id: "m2", m: 2, name: "2개월", src: "cdc2", groups: [
+    ["사회·감정", ["말을 걸거나 안아 주면 진정해요", "얼굴을 바라봐요", "말을 걸거나 웃어 주면 따라 웃어요"]],
+    ["언어", ["울음 말고 다른 소리를 내요", "큰 소리에 반응해요"]],
+    ["인지", ["움직이는 사람을 눈으로 따라가요", "장난감을 몇 초 동안 바라봐요"]],
+    ["몸 움직임", ["엎드리면 고개를 들어요", "팔다리를 둘 다 움직여요", "손을 잠깐씩 펴요"]]] },
+  { id: "m4", m: 4, name: "4개월", src: "cdc4", groups: [
+    ["사회·감정", ["관심을 끌려고 웃어요", "말을 걸면 소리 내어 웃어요(아직 완전한 웃음이 아니어도 돼요)"]],
+    ["언어", ["'우', '아' 같은 옹알이를 해요", "말을 걸면 소리로 대답해요", "목소리 나는 쪽으로 고개를 돌려요"]],
+    ["인지", ["배고프면 젖병이나 젖을 보고 입을 벌려요", "자기 손을 신기한 듯 바라봐요"]],
+    ["몸 움직임", ["안고 있으면 고개를 혼자 가눠요", "손에 쥐여 준 장난감을 잡고 있어요", "손을 입으로 가져가요", "엎드리면 팔꿈치로 상체를 들어요"]]] },
+  { id: "m6", m: 6, name: "6개월", src: "cdc6", groups: [
+    ["사회·감정", ["아는 사람을 알아봐요", "거울 속 자기 모습 보는 걸 좋아해요", "소리 내어 웃어요"]],
+    ["언어", ["주고받듯이 소리를 내요", "입술로 '푸르르' 소리를 내요", "꺅 하는 소리를 내요"]],
+    ["인지", ["물건을 입에 넣어 탐색해요", "장난감을 잡으려고 손을 뻗어요", "그만 먹고 싶으면 입을 다물어요"]],
+    ["몸 움직임", ["엎드린 자세에서 뒤집어 누워요", "엎드려서 팔을 펴고 상체를 들어요", "앉을 때 손으로 바닥을 짚어 버텨요"]]] },
+  { id: "m9", m: 9, name: "9개월", src: "cdc9", groups: [
+    ["사회·감정", ["낯선 사람을 보면 낯을 가려요", "여러 가지 표정을 지어요", "이름을 부르면 쳐다봐요", "엄마 아빠가 나가면 반응해요", "까꿍 놀이에 웃어요"]],
+    ["언어", ["'마마마', '바바바' 같은 소리를 내요", "안아 달라고 팔을 들어요"]],
+    ["인지", ["눈앞에서 사라진 물건을 찾아요", "물건 두 개를 맞부딪쳐요"]],
+    ["몸 움직임", ["혼자 앉아요", "물건을 한 손에서 다른 손으로 옮겨요", "손가락으로 음식을 긁어 와요", "기대지 않고 앉아 있어요"]]] },
+  { id: "m12", m: 12, name: "12개월", src: "cdc12", groups: [
+    ["사회·감정", ["짝짜꿍 같은 놀이를 함께해요"]],
+    ["언어", ["'빠이빠이' 손을 흔들어요", "엄마나 아빠를 부르는 말을 해요", "'안 돼'를 알아들어요"]],
+    ["인지", ["통 안에 물건을 넣어요", "숨기는 걸 본 물건을 찾아요"]],
+    ["몸 움직임", ["무언가를 잡고 일어서요", "가구를 잡고 걸어요", "엄지와 검지로 작은 것을 집어요"]]] },
+  { id: "m15", m: 15, name: "15개월", src: "cdc15", groups: [
+    ["사회·감정", ["다른 아이를 따라 해요", "좋아하는 물건을 보여 줘요", "신나면 박수를 쳐요", "인형을 안아 줘요"]],
+    ["언어", ["엄마 아빠 말고 한두 단어를 말하려 해요", "이름을 말하면 그 물건을 쳐다봐요", "손짓과 말로 하는 지시를 따라요", "원하는 걸 손가락으로 가리켜요"]],
+    ["인지", ["컵, 책 같은 물건을 제대로 쓰려 해요", "작은 물건을 두 개 이상 쌓아요"]],
+    ["몸 움직임", ["혼자 몇 걸음 걸어요", "손가락으로 음식을 집어 먹어요"]]] },
+  { id: "m18", m: 18, name: "18개월", src: "cdc18", groups: [
+    ["사회·감정", ["떨어져 놀다가도 엄마 아빠가 근처에 있는지 확인해요", "재미있는 걸 손가락으로 가리켜 보여 줘요", "책을 함께 몇 장 넘겨 봐요", "옷 입을 때 팔을 넣어 도와요"]],
+    ["언어", ["엄마 아빠 말고 세 단어 이상 말하려 해요", "손짓 없이 한 단계 지시를 따라요"]],
+    ["인지", ["집안일 하는 모습을 따라 해요", "장난감을 간단한 방법으로 가지고 놀아요"]],
+    ["몸 움직임", ["잡지 않고 걸어요", "끄적끄적 낙서를 해요", "숟가락을 쓰려고 해요", "소파에 혼자 오르내려요"]]] },
+  { id: "m24", m: 24, name: "24개월", src: "cdc24", groups: [
+    ["사회·감정", ["다른 사람이 다치거나 속상하면 알아채요", "어떻게 반응할지 엄마 아빠 얼굴을 살펴요"]],
+    ["언어", ["책에서 물어본 그림을 가리켜요", "'우유 더'처럼 두 단어를 붙여 말해요", "몸의 부분을 두 군데 이상 가리켜요", "뽀뽀 날리기, 고개 끄덕이기 같은 몸짓을 해요"]],
+    ["인지", ["한 손으로 잡고 다른 손으로 다른 걸 해요", "스위치나 버튼을 눌러 보려 해요", "장난감 여러 개를 함께 가지고 놀아요"]],
+    ["몸 움직임", ["공을 차요", "뛰어요", "계단을 몇 칸 걸어 올라가요", "숟가락으로 먹어요"]]] },
+];
+const GROW_SRCS = {
+  who: ["WHO 아동 성장 기준 (Child Growth Standards)", "https://www.who.int/tools/child-growth-standards"],
+  kdca: ["질병관리청 · 2017 소아청소년 성장도표 (36개월 미만은 WHO 기준 사용)", "https://knhanes.kdca.go.kr/knhanes/main.do"],
+  nhis: ["국민건강보험공단 · 영유아 건강검진", "https://www.nhis.or.kr/"],
+  aap1: ["미국소아과학회(AAP) · 1개월 발달", "https://www.healthychildren.org/English/ages-stages/baby/Pages/Developmental-Milestones-1-Month.aspx"],
+  cdc: ["미국 CDC · 발달 이정표 (Learn the Signs. Act Early.)", "https://www.cdc.gov/act-early/milestones/index.html"],
+};
+const CHECKUPS = [[0.5, 1.2, "1차 영유아검진 (생후 14~35일)"], [4, 6, "2차 영유아검진 (생후 4~6개월)"], [9, 12, "3차 영유아검진 (생후 9~12개월)"], [18, 24, "4차 영유아검진 (생후 18~24개월)"], [30, 36, "5차 영유아검진 (생후 30~36개월)"]];
+const METRICS = { weight: { name: "몸무게", unit: "kg", key: "w", dp: 2 }, length: { name: "키", unit: "cm", key: "l", dp: 1 }, head: { name: "머리둘레", unit: "cm", key: "h", dp: 1 } };
+let WHO = null, growth = { sex: "", records: {}, done: {} }, growthUnsub = null, chartMetric = "weight", msBand = null;
+
+async function loadWho() { if (WHO) return WHO; try { WHO = await (await fetch("growth-who.json")).json(); } catch { WHO = null; } return WHO; }
+function lmsAt(metric, sex, months) {
+  const t = WHO?.[metric]?.[sex === "f" ? "girls" : "boys"]; if (!t) return null;
+  const m = Math.max(0, Math.min(60, months)), i = Math.min(59, Math.floor(m)), f = m - i;
+  return t[i].map((v, k) => v + (t[i + 1][k] - v) * f);
+}
+function zOf(x, [L, M, S]) { return Math.abs(L) < 1e-6 ? Math.log(x / M) / S : (Math.pow(x / M, L) - 1) / (L * S); }
+function xOf(z, [L, M, S]) { return Math.abs(L) < 1e-6 ? M * Math.exp(S * z) : M * Math.pow(1 + L * S * z, 1 / L); }
+function phi(z) { const t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989423 * Math.exp(-z * z / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return z > 0 ? 1 - p : p; }
+function monthsAt(dateStr) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr || ""); if (!m) return NaN; return (new Date(+m[1], +m[2] - 1, +m[3]) - birth()) / (30.4375 * 864e5); }
+function pctText(p) { const n = Math.round(p * 100); if (n <= 0) return "100명 중 가장 작은 편"; if (n >= 100) return "100명 중 가장 큰 편"; return `100명 중 작은 쪽부터 ${n}번째쯤`; }
+
+function growthDocRef() { return fam || null; }
+function readGrowth(x) {
+  const g = x && typeof x === "object" ? x : {};
+  const recs = {}; for (const [id, r] of Object.entries(g.records || {})) if (r && /^\d{4}-\d{2}-\d{2}$/.test(r.d || "")) recs[id] = { d: r.d, w: +r.w || 0, l: +r.l || 0, h: +r.h || 0 };
+  const done = {}; for (const [id, v] of Object.entries(g.done || {})) if (typeof v === "string") done[id] = v.slice(0, 10);
+  return { sex: g.sex === "m" || g.sex === "f" ? g.sex : "", records: recs, done };
+}
+async function saveGrowth() {
+  const data = { sex: growth.sex, records: growth.records, done: growth.done };
+  try {
+    if (fam) await fam.update({ growth: data });
+    else { lsSet("yw.growth", JSON.stringify(data)); }
+  } catch (e) { showBanner("발달 기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+}
+function onFamilyGrowth(x) { growth = readGrowth(x); if (location.hash === "#grow") renderGrow(); }
+
+function bandFor(months) { let b = MILESTONES[0]; for (const x of MILESTONES) if (months >= x.m - 0.5) b = x; return b; }
+
+function svgEl(tag, attrs, kids = []) { const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); kids.forEach(k => n.append(k)); return n; }
+function drawChart(metric, sex, nowM) {
+  const box = $("#chart"); box.replaceChildren();
+  if (!WHO) { box.append(el("p", { class: "note", text: "성장 기준 데이터를 불러오지 못했어요. 새로고침해 주세요." })); return; }
+  const recs = Object.values(growth.records).map(r => ({ m: monthsAt(r.d), v: r[METRICS[metric].key] })).filter(r => r.v > 0 && r.m >= -0.1 && r.m <= 60).sort((a, b) => a.m - b.m);
+  const maxM = Math.min(60, Math.max(6, Math.ceil(Math.max(nowM, ...recs.map(r => r.m), 0) / 3) * 3 + 3));
+  const W = 340, H = 210, pl = 34, pr = 26, pt = 10, pb = 24;
+  const zs = [-1.881, -1.036, 0, 1.036, 1.881];   // 3rd, 15th, 50th, 85th, 97th
+  const steps = []; for (let m = 0; m <= maxM + 1e-9; m += maxM / 60) steps.push(m);
+  const curves = zs.map(z => steps.map(m => [m, xOf(z, lmsAt(metric, sex, m))]));
+  const lo = Math.min(...curves[0].map(p => p[1]), ...recs.map(r => r.v)), hi = Math.max(...curves[4].map(p => p[1]), ...recs.map(r => r.v));
+  const pad = (hi - lo) * 0.05, y0 = lo - pad, y1 = hi + pad;
+  const X = m => pl + (m / maxM) * (W - pl - pr), Y = v => pt + (1 - (v - y0) / (y1 - y0)) * (H - pt - pb);
+  const path = pts => pts.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${METRICS[metric].name} 성장 그래프` });
+  // y grid
+  const yStep = metric === "weight" ? (y1 - y0 > 12 ? 4 : 2) : (y1 - y0 > 40 ? 10 : 5);
+  for (let v = Math.ceil(y0 / yStep) * yStep; v <= y1; v += yStep) {
+    svg.append(svgEl("line", { x1: pl, x2: W - pr, y1: Y(v), y2: Y(v), class: "grid" }), svgEl("text", { x: pl - 4, y: Y(v) + 3, "text-anchor": "end" }, [document.createTextNode(String(v))]));
+  }
+  const xStep = maxM <= 12 ? 1 : maxM <= 24 ? 3 : 6;
+  for (let m = 0; m <= maxM; m += xStep) svg.append(svgEl("text", { x: X(m), y: H - 8, "text-anchor": "middle" }, [document.createTextNode(m ? `${m}` : "0")]));
+  svg.append(svgEl("text", { x: W - pr, y: H - 8, "text-anchor": "start" }, [document.createTextNode("개월")]));
+  // bands: 3-97 light, 15-85 stronger
+  const area = (a, b) => path(a) + b.slice().reverse().map(p => `L${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("") + "Z";
+  svg.append(svgEl("path", { d: area(curves[0], curves[4]), class: "band", "fill-opacity": ".10" }), svgEl("path", { d: area(curves[1], curves[3]), class: "band", "fill-opacity": ".16" }));
+  svg.append(svgEl("path", { d: path(curves[2]), class: "mid", fill: "none", "stroke-width": "1.5" }));
+  [["3", curves[0]], ["50", curves[2]], ["97", curves[4]]].forEach(([lab, c]) => { const p = c[c.length - 1]; svg.append(svgEl("text", { x: X(p[0]) + 3, y: Y(p[1]) + 3 }, [document.createTextNode(lab)])); });
+  if (nowM >= 0 && nowM <= maxM) svg.append(svgEl("line", { x1: X(nowM), x2: X(nowM), y1: pt, y2: H - pb, class: "today", "stroke-dasharray": "3 3" }));
+  if (recs.length > 1) svg.append(svgEl("path", { d: path(recs.map(r => [r.m, r.v])), class: "ln" }));
+  recs.forEach(r => svg.append(svgEl("circle", { cx: X(r.m), cy: Y(r.v), r: 3.5, class: "pt" })));
+  box.append(svg);
+  $("#chartNote").textContent = `진한 띠는 또래 100명 중 가운데 70명(15~85번째), 연한 띠는 94명(3~97번째)이 있는 범위예요. 가운데 선이 평균이에요.${recs.length ? "" : " 기록을 넣으면 영웅이 점이 찍혀요."}`;
+}
+
+async function renderGrow() {
+  await loadWho();
+  const t0 = new Date(), dd = Math.round((birth() - new Date(t0.getFullYear(), t0.getMonth(), t0.getDate())) / 864e5);
+  const nowM = -dd / 30.4375, born = dd <= 0;
+  $("#growTitle").textContent = born ? `영웅이 생후 ${1 - dd}일` : "영웅이 발달";
+  $("#growSub").textContent = born ? `${Math.floor(nowM)}개월 ${Math.floor((nowM % 1) * 30.4375)}일` : `태어나기 ${dd}일 전`;
+  // sex
+  const sexBox = $("#sexPick");
+  sexBox.replaceChildren(...[["m", "남아"], ["f", "여아"]].map(([v, n]) => el("button", { type: "button", "aria-pressed": String(growth.sex === v), text: n,
+    onclick: () => { growth.sex = v; saveGrowth(); renderGrow(); } })));
+  const sex = growth.sex || "m";
+  // latest metrics
+  const recs = Object.entries(growth.records).map(([id, r]) => ({ id, ...r })).sort((a, b) => b.d.localeCompare(a.d));
+  const mbox = $("#metrics"); mbox.replaceChildren();
+  for (const [metric, M] of Object.entries(METRICS)) {
+    const r = recs.find(x => x[M.key] > 0);
+    let p = "";
+    if (r && growth.sex) { const am = monthsAt(r.d); if (am >= 0) p = pctText(phi(zOf(r[M.key], lmsAt(metric, sex, am)))); }
+    mbox.append(el("div", { class: "metric" }, el("span", { class: "k", text: M.name }),
+      el("span", { class: "v", text: r ? `${r[M.key].toFixed(M.dp)}${M.unit}` : "–" }),
+      el("span", { class: "p", text: r ? (growth.sex ? p : "성별을 고르면 비교돼요") : "기록 없음" })));
+  }
+  $("#mtabs").replaceChildren(...Object.entries(METRICS).map(([k, M]) => el("button", { type: "button", role: "tab", "aria-selected": String(chartMetric === k), text: M.name,
+    onclick: () => { chartMetric = k; renderGrow(); } })));
+  drawChart(chartMetric, sex, born ? nowM : 0);
+  if (!$("#recDate").value) $("#recDate").value = ymd(new Date());
+  $("#recs").replaceChildren(...recs.slice(0, 20).map(r => el("div", { class: "rec" },
+    el("span", { class: "d", text: r.d.slice(2).replace(/-/g, ".") }),
+    el("span", { text: [r.w ? `${r.w}kg` : "", r.l ? `${r.l}cm` : "", r.h ? `머리 ${r.h}cm` : ""].filter(Boolean).join(" · ") }),
+    el("button", { type: "button", "aria-label": "기록 지우기", text: "지우기", onclick: () => { delete growth.records[r.id]; saveGrowth(); renderGrow(); } }))));
+  // milestones
+  const cur = bandFor(born ? nowM : 0);
+  if (!msBand) msBand = cur.id;
+  const band = MILESTONES.find(b => b.id === msBand) || cur;
+  $("#msBands").replaceChildren(...MILESTONES.map(b => el("button", { class: "stage", role: "tab", "aria-selected": String(b.id === band.id),
+    onclick: () => { msBand = b.id; renderGrow(); } }, b.name, b.id === cur.id && born ? el("span", { class: "now", text: "지금" }) : null)));
+  const items = band.groups.flatMap(([g, list]) => list.map((txt, i) => ({ id: `${band.id}-${g}-${i}`, g, txt })));
+  const doneN = items.filter(x => growth.done[x.id]).length;
+  $("#msTitle").textContent = `${band.name}쯤 많이 하는 것`;
+  $("#msCount").textContent = `영웅이 ${doneN}/${items.length}`;
+  $("#msIntro").textContent = band.id === cur.id && born ? "영웅이가 하는 걸 체크해 두면 가족과 함께 볼 수 있어요. 또래 대부분(약 75%)이 이 시기까지 하는 것들이에요." : "또래 대부분(약 75%)이 이 시기까지 하는 것들이에요. 미리 알아 두면 좋아요.";
+  $("#msList").replaceChildren(...band.groups.map(([g, list]) => el("div", { class: "grp" }, el("h4", { text: g }),
+    ...list.map((txt, i) => { const id = `${band.id}-${g}-${i}`, on = !!growth.done[id];
+      const cb = el("input", { type: "checkbox", id: "ms-" + id, checked: on, disabled: !born });
+      cb.addEventListener("change", () => { if (cb.checked) growth.done[id] = ymd(new Date()); else delete growth.done[id]; saveGrowth(); renderGrow(); });
+      return el("label", { class: "check" + (on ? " done" : ""), for: "ms-" + id }, cb, el("span", { text: txt + (on ? ` (${growth.done[id].slice(5).replace("-", "/")})` : "") })); }))));
+  // period info
+  const pm = born ? nowM : 0, info = $("#periodInfo"); info.replaceChildren();
+  const med = k => { const l = lmsAt(k, sex, Math.max(0, pm)); return l ? l[1] : 0; }, rng = k => { const l = lmsAt(k, sex, Math.max(0, pm)); return l ? [xOf(-1.881, l), xOf(1.881, l)] : [0, 0]; };
+  if (WHO) {
+    const [wl, wh] = rng("weight"), [ll, lh] = rng("length"), [hl, hh] = rng("head");
+    info.append(el("p", { text: `${born ? `생후 ${Math.floor(pm)}개월쯤` : "갓 태어났을 때"} ${growth.sex ? (sex === "f" ? "여자아이" : "남자아이") : "아기"}의 평균(WHO 기준)이에요. 성별을 안 고르면 남아 기준으로 보여요.` }),
+      el("ul", {},
+        el("li", { text: `몸무게: 평균 ${med("weight").toFixed(1)}kg (또래 대부분 ${wl.toFixed(1)}~${wh.toFixed(1)}kg)` }),
+        el("li", { text: `키: 평균 ${med("length").toFixed(1)}cm (또래 대부분 ${ll.toFixed(1)}~${lh.toFixed(1)}cm)` }),
+        el("li", { text: `머리둘레: 평균 ${med("head").toFixed(1)}cm (또래 대부분 ${hl.toFixed(1)}~${hh.toFixed(1)}cm)` })));
+  }
+  const next = CHECKUPS.find(c => pm <= c[1]);
+  if (next) info.append(el("p", { text: pm >= next[0] && born ? `지금 받을 때예요: ${next[2]}. 무료예요.` : `다음 검진: ${next[2]}. 무료로 받을 수 있어요.` }));
+  // sources
+  const srcKeys = ["who", "kdca", band.src === "aap1" ? "aap1" : "cdc", "nhis"];
+  $("#growSrcs").replaceChildren(...srcKeys.map(k => { const [n, u] = GROW_SRCS[k]; return el("li", {}, el("a", { href: u, target: "_blank", rel: "noopener noreferrer", text: n })); }));
+}
+
+function setupGrow() {
+  $("#recForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const d = $("#recDate").value, w = parseFloat($("#recW").value) || 0, l = parseFloat($("#recL").value) || 0, h = parseFloat($("#recH").value) || 0;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || !(w || l || h)) { showBanner("날짜와 몸무게·키·머리둘레 중 하나 이상을 넣어 주세요."); return; }
+    growth.records["r" + Date.now().toString(36)] = { d, w: Math.round(w * 100) / 100, l: Math.round(l * 10) / 10, h: Math.round(h * 10) / 10 };
+    $("#recW").value = $("#recL").value = $("#recH").value = "";
+    $("#addRec").open = false; showBanner(""); saveGrowth(); renderGrow();
+  });
+}
+
 // ---------- Share target (Android share sheet → 영웅이노트) ----------
 let shareHandled = false;
 async function maybeHandleShare() {
@@ -1528,6 +1822,8 @@ async function maybeHandleShare() {
 
 async function boot() {
   setupAsk();
+  setupGrow();
+  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); } catch {}
   setBirth(lsGet("yw.birth"));
   showView();
   window.addEventListener("hashchange", () => { showView(); window.scrollTo(0, 0); });
