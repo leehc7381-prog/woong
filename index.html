@@ -119,6 +119,27 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .sexpick button { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 3px 12px; font-size: .8rem; }
 .sexpick button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.metrics.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.metric .n { font-size: .72rem; color: var(--muted); line-height: 1.35; }
+.metric .warn { color: var(--danger); }
+.daynav { display: flex; align-items: center; gap: 6px; font-size: .85rem; }
+.daynav button { width: 30px; height: 30px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 50%; font-size: 1rem; line-height: 1; padding: 0; color: var(--ink); }
+.daynav button:disabled { opacity: .35; }
+.qadd { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.qadd button { display: grid; justify-items: center; gap: 2px; padding: 10px 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-2); font-size: .82rem; font-weight: 700; color: var(--ink); }
+.qadd button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.qadd .e { font-size: 1.4rem; line-height: 1.2; }
+.seg { grid-column: 1 / -1; display: flex; gap: 6px; }
+.seg button { flex: 1; border: 1px solid var(--line); background: none; border-radius: 10px; padding: 7px 0; font-size: .82rem; color: var(--ink); }
+.seg button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 700; background: var(--accent-soft); }
+.chat { display: grid; gap: 8px; }
+.chat .msgs { display: grid; gap: 8px; }
+.chat .qm { justify-self: end; max-width: 85%; background: var(--accent-soft); border-radius: 14px 14px 4px 14px; padding: 8px 12px; font-size: .9rem; white-space: pre-wrap; }
+.chat .am { justify-self: start; max-width: 92%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; padding: 8px 12px; font-size: .9rem; display: grid; gap: 6px; }
+.chat .am p { margin: 0; white-space: pre-wrap; line-height: 1.55; }
+.chat .am ul { margin: 0; padding-left: 1.1em; font-size: .78rem; }
+.chat form { display: flex; gap: 6px; }
+.chat textarea { flex: 1; min-width: 0; resize: none; padding: 9px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font: inherit; font-size: .9rem; color: var(--ink); }
 .metric { background: var(--surface-2); border-radius: 12px; padding: 10px; display: grid; gap: 2px; min-width: 0; }
 .metric .k { font-size: .72rem; color: var(--muted); }
 .metric .v { font-family: var(--f-display); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
@@ -316,7 +337,7 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
 
   <nav class="tabs" aria-label="화면">
     <a href="#" class="tab" id="tabTips">꿀팁</a>
-    <a href="#grow" class="tab" id="tabGrow">발달</a>
+    <a href="#grow" class="tab" id="tabGrow">기록·발달</a>
   </nav>
 
   <section class="ask" id="askSec" aria-label="꿀팁 물어보기">
@@ -344,25 +365,21 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
   </div>
 
   <div id="growView" class="view" hidden>
-    <div class="grow-h"><h2 id="growTitle">영웅이 발달</h2><small id="growSub"></small></div>
+    <div class="grow-h"><h2 id="growTitle">영웅이 기록</h2><small id="growSub"></small></div>
 
     <section class="gcard">
-      <div class="gcard-h"><h3>영웅이는</h3><div class="sexpick" id="sexPick" role="group" aria-label="성장 기준 성별"></div></div>
-      <div class="metrics" id="metrics"></div>
-      <div class="mtabs" id="mtabs" role="tablist" aria-label="그래프 항목"></div>
-      <div class="chart" id="chart"></div>
-      <p class="note" id="chartNote"></p>
-      <details class="addrec" id="addRec">
-        <summary>키·몸무게 기록 추가</summary>
-        <form id="recForm" class="recform">
-          <label>날짜<input type="date" id="recDate" required></label>
-          <label>몸무게(kg)<input type="number" id="recW" step="0.01" min="1" max="30" inputmode="decimal" placeholder="3.4"></label>
-          <label>키(cm)<input type="number" id="recL" step="0.1" min="30" max="130" inputmode="decimal" placeholder="50.5"></label>
-          <label>머리둘레(cm)<input type="number" id="recH" step="0.1" min="25" max="60" inputmode="decimal" placeholder="34.5"></label>
-          <button class="btn" type="submit">저장</button>
-        </form>
-      </details>
-      <div class="recs" id="recs"></div>
+      <div class="gcard-h"><h3>영웅이는</h3>
+        <div class="daynav"><button type="button" id="dayPrev" aria-label="전날">‹</button><b id="dayLabel"></b><button type="button" id="dayNext" aria-label="다음날">›</button></div></div>
+      <div class="qadd" role="group" aria-label="기록 추가">
+        <button type="button" data-k="feed"><span class="e" aria-hidden="true">🍼</span>수유</button>
+        <button type="button" data-k="pee"><span class="e" aria-hidden="true">💧</span>소변</button>
+        <button type="button" data-k="poop"><span class="e" aria-hidden="true">💩</span>대변</button>
+        <button type="button" data-k="sleep"><span class="e" aria-hidden="true">😴</span>잠</button>
+      </div>
+      <form id="careForm" class="recform" hidden></form>
+      <div class="metrics two" id="careSum"></div>
+      <div class="recs" id="careList"></div>
+      <p class="note" id="careNote"></p>
     </section>
 
     <section class="gcard">
@@ -379,7 +396,7 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
         <h4>출처</h4>
         <ul class="srcs" id="growSrcs"></ul>
       </div>
-      <p class="note">아기마다 크는 속도가 많이 달라요. 백분위나 체크리스트는 참고용이고, 걱정되는 점이 있으면 영유아검진이나 소아청소년과에서 상담해 주세요.</p>
+      <p class="note">아기마다 먹는 양과 자는 시간이 많이 달라요. 범위나 체크리스트는 참고용이고, 걱정되는 점이 있으면 영유아검진이나 소아청소년과에서 상담해 주세요.</p>
     </section>
   </div>
 
@@ -433,6 +450,11 @@ function subsOf(id) {
   return [...c.subs, ...extra];
 }
 const DUE = new Date(2026, 11, 15);
+const REGION = "광주광역시";
+function familyContext() {
+  const t = new Date(), d = Math.round((new Date(t.getFullYear(), t.getMonth(), t.getDate()) - birth()) / 864e5);
+  return `가족: ${REGION}에 사는 부부, 첫 아이 영웅이(남자아이). ${d < 0 ? `출산 예정일 ${ymd(birth())} (${-d}일 남음)` : `${ymd(birth())} 출생, 오늘 생후 ${d + 1}일`}. 오늘은 ${ymd(t)}.`;
+}
 
 // ---------- State ----------
 let tips = [];          // [{id, ...data}] shown to the user
@@ -576,7 +598,7 @@ function renderList() {
   const q = query.trim().toLowerCase(), fav = selCat === "fav", c = !fav && selCat && catById[selCat];
   const useStage = !q && !fav && selStage !== "all";
   $("#stages").hidden = !!q || fav;
-  $("#stages").replaceChildren(...[...STAGES, { id: "all", name: "전체 시기" }].map(x => el("button", { class: "stage", role: "tab", "aria-selected": String(selStage === x.id),
+  $("#stages").replaceChildren(...[{ id: "all", name: "전체 시기" }, ...STAGES].map(x => el("button", { class: "stage", role: "tab", "aria-selected": String(selStage === x.id),
     onclick: () => { selStage = x.id; renderList(); } }, x.name, x.id === cur ? el("span", { class: "now", text: "지금" }) : null)));
   const st = STAGES.find(x => x.id === selStage);
   const t0 = new Date(), dd = Math.round((birth() - new Date(t0.getFullYear(), t0.getMonth(), t0.getDate())) / 864e5);
@@ -1002,8 +1024,63 @@ function openDetail(id) {
       el("button", { class: "btn ghost", text: t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기", onclick: async e => {
         try { await ref.update({ starred: !t.starred }); t.starred = !t.starred; e.target.textContent = t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기"; } catch {} } }),
       el("button", { class: "btn danger", text: "지우기", onclick: () => { confirmBox.hidden = false; } })),
-    confirmBox);
+    confirmBox,
+    tipChat(t, ref));
   openSheet("꿀팁", body);
+}
+
+// ---------- Tip chat: follow-up questions about one tip (saved on the tip, so both parents see it) ----------
+function tipChatPrompt(t, q, noSearch) {
+  const tip = { 제목: t.title, 카테고리: (catById[t.category] || {}).name, 요약: t.summary, 핵심: t.points, 방법: t.steps, 주의: t.cautions, 시기: t.when,
+    출처: (t.sources || []).map(x => `${x.name} ${x.url || ""}`.trim()) };
+  const prev = (t.chat || []).slice(-4).map(m => `부모: ${m.q}\n도우미: ${m.a}`).join("\n\n");
+  return `너는 한국에 사는 초보 부모를 돕는 육아 도우미야. ${familyContext()}
+부모가 아래 꿀팁을 보다가 궁금한 걸 물어봤어. 꿀팁 내용을 바탕으로 답하되, ${noSearch ? "지금은 검색을 못 하니 확실히 아는 일반적인 내용만 말하고 금액·기한 같은 숫자는 공식 사이트에서 확인하라고 해." : "구글 검색으로 최신 공식 정보(정부24, 복지로, 질병관리청, 보건소, 미국소아과학회 등)를 확인해서 답해. 지역 정보가 필요하면 " + REGION + " 기준으로 찾아."}
+- 쉬운 말로 2~6문장, "~해요"체. 목록이 필요하면 줄을 바꿔 "- "로.
+- 모르면 모른다고 해. 지어내지 마.
+- 열, 숨쉬기, 처짐처럼 걱정되는 증상이면 바로 소아과나 119에 연락하라고 먼저 말해.
+- 답만 써. JSON이나 마크다운 굵은 글씨는 쓰지 마.
+
+꿀팁:
+${JSON.stringify(tip, null, 1)}
+${prev ? `\n앞서 나눈 대화:\n${prev}\n` : ""}
+부모의 질문: """${q}"""`;
+}
+function tipChat(t, ref) {
+  const msgs = el("div", { class: "msgs" });
+  const draw = () => msgs.replaceChildren(...(t.chat || []).flatMap(m => [
+    el("div", { class: "qm", text: m.q }),
+    el("div", { class: "am" }, el("p", { text: m.a }),
+      (m.sources || []).length ? el("ul", {}, m.sources.map(x => el("li", {}, safeUrl(x.url) ? el("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", text: x.name }) : x.name))) : null,
+      m.ns ? el("span", { class: "note", text: "검색 없이 답했어요. 공식 사이트에서 한 번 더 확인해 주세요." }) : null)]));
+  draw();
+  const input = el("textarea", { rows: "1", "aria-label": "이 꿀팁에 대해 묻기", placeholder: "예: 광주에서는 어디서 신청해요?" });
+  const btn = el("button", { class: "btn", type: "submit", text: "묻기" });
+  const status = el("div");
+  const ask = async (q, noSearch) => {
+    q = str(q, 400); if (!q || btn.disabled) return;
+    if (!getKey()) { status.replaceChildren(el("div", { class: "status err", text: ERR.no_key })); return; }
+    btn.disabled = true; btn.textContent = "답 찾는 중…"; status.replaceChildren(el("div", { class: "working" }, el("span", { class: "spin" }), el("span", { text: "제미나이가 찾아보는 중이에요." })));
+    try {
+      const j = await generate({ contents: [{ role: "user", parts: [{ text: tipChatPrompt(t, q, noSearch) }] }], ...(noSearch ? {} : { tools: [{ google_search: {} }] }), generationConfig: { temperature: 0.3 } });
+      const cand = j.candidates?.[0];
+      if (!cand || j.promptFeedback?.blockReason || cand.finishReason === "SAFETY") throw { code: "blocked" };
+      const a = str((cand.content?.parts || []).map(p => p.text || "").join("").replace(/\*\*/g, ""), 3000) || "답을 만들지 못했어요. 다르게 물어봐 주세요.";
+      const seen = new Set();
+      const sources = (cand.groundingMetadata?.groundingChunks || []).map(c => c.web).filter(w => w && safeUrl(w.uri) && !seen.has(w.title) && seen.add(w.title))
+        .slice(0, 4).map(w => ({ name: str(w.title, 60) || "검색 출처", url: w.uri }));
+      t.chat = [...(t.chat || []), { q, a, sources, at: Date.now(), ...(noSearch ? { ns: true } : {}) }].slice(-20);
+      draw(); input.value = ""; status.replaceChildren();
+      try { await ref.update({ chat: t.chat }); } catch {}
+    } catch (e) {
+      status.replaceChildren(errBox(e, "답을 찾다가 문제가 생겼어요. 잠시 뒤 다시 눌러 주세요."),
+        e?.code === "quota_zero" && !noSearch ? el("button", { class: "btn ghost", type: "button", text: "검색 없이 답 받기", onclick: () => ask(q, true) }) : "");
+    } finally { btn.disabled = false; btn.textContent = "묻기"; }
+  };
+  const form = el("form", { onsubmit: e => { e.preventDefault(); ask(input.value); } }, input, btn);
+  input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); ask(input.value); } });
+  return el("div", { class: "blk chat" }, el("h4", { text: "이 꿀팁에 대해 물어보기" }), msgs, status, form,
+    el("p", { class: "note", text: "질문과 답은 이 꿀팁에 저장돼서 가족이 같이 볼 수 있어요." }));
 }
 
 // ---------- Wiring ----------
@@ -1422,7 +1499,7 @@ function startFamily(code, isNew) {
   setTimeout(maybeHandleShare, 600);
   unsubs.push(fam.onSnapshot(s => {
     familyKey = str(s.data()?.geminiKey, 200);
-    onFamilyGrowth(s.data()?.growth);
+    onFamilyGrowth(s.data()?.growth); onFamilyCare(s.data()?.care);
     const bd = str(s.data()?.birthDate, 10); if (bd && bd !== (birthDate && ymd(birthDate))) { setBirth(bd); selStage = null; renderDday(); render(); }
     const off = s.data()?.autoFeed === false;
     if (off !== autoOff) { autoOff = off; applyVisible(); render(); if (!off) syncFeed(); }
@@ -1431,7 +1508,7 @@ function startFamily(code, isNew) {
 }
 
 // ---------- Ask Gemini (search-grounded tips) ----------
-const ASK_SUGGEST = ["출생신고하는 법", "출산 지원금 총정리", "신생아 목욕 방법", "신생아 수유 간격", "아기 열날 때 대처", "산후조리 꿀팁"];
+const ASK_SUGGEST = ["출생신고하는 법", "광주광역시 출산 지원금", "출산 지원금 총정리", "신생아 목욕 방법", "신생아 수유 간격", "아기 열날 때 대처", "산후조리 꿀팁"];
 const TRUSTED = "정부24(gov.kr), 복지로(bokjiro.go.kr), 아이사랑(childcare.go.kr), 보건복지부(mohw.go.kr), 질병관리청(kdca.go.kr), 예방접종도우미(nip.kdca.go.kr), 국민건강보험(nhis.or.kr), 고용노동부(moel.go.kr), 대한소아청소년과학회(pediatrics.or.kr), 서울아산·서울대·삼성서울병원 등 대학병원, 세계보건기구(who.int), 미국소아과학회(healthychildren.org), 미국 CDC(cdc.gov)";
 let askBusy = false;
 
@@ -1439,7 +1516,8 @@ function askPrompt(q, noSearch) {
   const catText = CATS.map(c => `- ${c.id} (${c.name}): ${subsOf(c.id).join(", ") || "(없음)"}`).join("\n");
   const have = tips.slice(0, 150).map(t => `- [${t.category}] ${t.title}`).join("\n") || "(없음)";
   const today = new Date().toISOString().slice(0, 10);
-  return `너는 한국에 사는 초보 부모를 돕는 육아 정보 정리 도우미야. 오늘은 ${today}이고, 아기 영웅이는 2026년 12월 15일 출생 예정이야.
+  return `너는 한국에 사는 초보 부모를 돕는 육아 정보 정리 도우미야. ${familyContext()}
+지원금·대여·보건소처럼 지역마다 다른 정보는 전국 제도와 함께 ${REGION}(시·구청, 보건소) 것도 찾아서 따로 꿀팁으로 정리해.
 부모의 요청: """${q}"""
 
 할 일:
@@ -1624,112 +1702,144 @@ const MILESTONES = [
     ["몸 움직임", ["공을 차요", "뛰어요", "계단을 몇 칸 걸어 올라가요", "숟가락으로 먹어요"]]] },
 ];
 const GROW_SRCS = {
-  who: ["WHO 아동 성장 기준 (Child Growth Standards)", "https://www.who.int/tools/child-growth-standards"],
-  kdca: ["질병관리청 · 2017 소아청소년 성장도표 (36개월 미만은 WHO 기준 사용)", "https://knhanes.kdca.go.kr/knhanes/main.do"],
+  aapFeed: ["미국소아과학회(AAP) · 아기는 얼마나 자주, 얼마나 먹나요", "https://www.healthychildren.org/English/ages-stages/baby/feeding-nutrition/Pages/how-often-and-how-much-should-your-baby-eat.aspx"],
+  cdcFormula: ["미국 CDC · 분유 얼마나, 얼마나 자주", "https://www.cdc.gov/infant-toddler-nutrition/formula-feeding/how-much-and-how-often.html"],
+  cdcSleep: ["미국 CDC · 수면 시간 (NHLBI 기준)", "https://www.cdc.gov/sleep/about_sleep/how_much_sleep.html"],
+  aasm: ["미국수면의학회(AASM) · 아이 수면 시간 권고", "https://aasm.org/advocacy/position-statements/child-sleep-duration-health-advisory/"],
   nhis: ["국민건강보험공단 · 영유아 건강검진", "https://www.nhis.or.kr/"],
   aap1: ["미국소아과학회(AAP) · 1개월 발달", "https://www.healthychildren.org/English/ages-stages/baby/Pages/Developmental-Milestones-1-Month.aspx"],
   cdc: ["미국 CDC · 발달 이정표 (Learn the Signs. Act Early.)", "https://www.cdc.gov/act-early/milestones/index.html"],
 };
 const CHECKUPS = [[0.5, 1.2, "1차 영유아검진 (생후 14~35일)"], [4, 6, "2차 영유아검진 (생후 4~6개월)"], [9, 12, "3차 영유아검진 (생후 9~12개월)"], [18, 24, "4차 영유아검진 (생후 18~24개월)"], [30, 36, "5차 영유아검진 (생후 30~36개월)"]];
-const METRICS = { weight: { name: "몸무게", unit: "kg", key: "w", dp: 2 }, length: { name: "키", unit: "cm", key: "l", dp: 1 }, head: { name: "머리둘레", unit: "cm", key: "h", dp: 1 } };
-let WHO = null, growth = { sex: "", records: {}, done: {} }, growthUnsub = null, chartMetric = "weight", msBand = null;
+let growth = { done: {} }, msBand = null;
 
-async function loadWho() { if (WHO) return WHO; try { WHO = await (await fetch("growth-who.json")).json(); } catch { WHO = null; } return WHO; }
-function lmsAt(metric, sex, months) {
-  const t = WHO?.[metric]?.[sex === "f" ? "girls" : "boys"]; if (!t) return null;
-  const m = Math.max(0, Math.min(60, months)), i = Math.min(59, Math.floor(m)), f = m - i;
-  return t[i].map((v, k) => v + (t[i + 1][k] - v) * f);
-}
-function zOf(x, [L, M, S]) { return Math.abs(L) < 1e-6 ? Math.log(x / M) / S : (Math.pow(x / M, L) - 1) / (L * S); }
-function xOf(z, [L, M, S]) { return Math.abs(L) < 1e-6 ? M * Math.exp(S * z) : M * Math.pow(1 + L * S * z, 1 / L); }
-function phi(z) { const t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989423 * Math.exp(-z * z / 2);
-  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return z > 0 ? 1 - p : p; }
-function monthsAt(dateStr) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr || ""); if (!m) return NaN; return (new Date(+m[1], +m[2] - 1, +m[3]) - birth()) / (30.4375 * 864e5); }
-function pctText(p) { const n = Math.round(p * 100); if (n <= 0) return "100명 중 가장 작은 편"; if (n >= 100) return "100명 중 가장 큰 편"; return `100명 중 작은 쪽부터 ${n}번째쯤`; }
-
-function growthDocRef() { return fam || null; }
 function readGrowth(x) {
   const g = x && typeof x === "object" ? x : {};
-  const recs = {}; for (const [id, r] of Object.entries(g.records || {})) if (r && /^\d{4}-\d{2}-\d{2}$/.test(r.d || "")) recs[id] = { d: r.d, w: +r.w || 0, l: +r.l || 0, h: +r.h || 0 };
   const done = {}; for (const [id, v] of Object.entries(g.done || {})) if (typeof v === "string") done[id] = v.slice(0, 10);
-  return { sex: g.sex === "m" || g.sex === "f" ? g.sex : "", records: recs, done };
+  return { done };
 }
 async function saveGrowth() {
-  const data = { sex: growth.sex, records: growth.records, done: growth.done };
-  try {
-    if (fam) await fam.update({ growth: data });
-    else { lsSet("yw.growth", JSON.stringify(data)); }
-  } catch (e) { showBanner("발달 기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+  try { if (fam) await fam.update({ "growth.done": growth.done }); else lsSet("yw.growth", JSON.stringify(growth)); }
+  catch { showBanner("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
 }
 function onFamilyGrowth(x) { growth = readGrowth(x); if (location.hash === "#grow") renderGrow(); }
-
 function bandFor(months) { let b = MILESTONES[0]; for (const x of MILESTONES) if (months >= x.m - 0.5) b = x; return b; }
 
-function svgEl(tag, attrs, kids = []) { const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); kids.forEach(k => n.append(k)); return n; }
-function drawChart(metric, sex, nowM) {
-  const box = $("#chart"); box.replaceChildren();
-  if (!WHO) { box.append(el("p", { class: "note", text: "성장 기준 데이터를 불러오지 못했어요. 새로고침해 주세요." })); return; }
-  const recs = Object.values(growth.records).map(r => ({ m: monthsAt(r.d), v: r[METRICS[metric].key] })).filter(r => r.v > 0 && r.m >= -0.1 && r.m <= 60).sort((a, b) => a.m - b.m);
-  const maxM = Math.min(60, Math.max(6, Math.ceil(Math.max(nowM, ...recs.map(r => r.m), 0) / 3) * 3 + 3));
-  const W = 340, H = 210, pl = 34, pr = 26, pt = 10, pb = 24;
-  const zs = [-1.881, -1.036, 0, 1.036, 1.881];   // 3rd, 15th, 50th, 85th, 97th
-  const steps = []; for (let m = 0; m <= maxM + 1e-9; m += maxM / 60) steps.push(m);
-  const curves = zs.map(z => steps.map(m => [m, xOf(z, lmsAt(metric, sex, m))]));
-  const lo = Math.min(...curves[0].map(p => p[1]), ...recs.map(r => r.v)), hi = Math.max(...curves[4].map(p => p[1]), ...recs.map(r => r.v));
-  const pad = (hi - lo) * 0.05, y0 = lo - pad, y1 = hi + pad;
-  const X = m => pl + (m / maxM) * (W - pl - pr), Y = v => pt + (1 - (v - y0) / (y1 - y0)) * (H - pt - pb);
-  const path = pts => pts.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");
-  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${METRICS[metric].name} 성장 그래프` });
-  // y grid
-  const yStep = metric === "weight" ? (y1 - y0 > 12 ? 4 : 2) : (y1 - y0 > 40 ? 10 : 5);
-  for (let v = Math.ceil(y0 / yStep) * yStep; v <= y1; v += yStep) {
-    svg.append(svgEl("line", { x1: pl, x2: W - pr, y1: Y(v), y2: Y(v), class: "grid" }), svgEl("text", { x: pl - 4, y: Y(v) + 3, "text-anchor": "end" }, [document.createTextNode(String(v))]));
+// ---------- Daily care log (family doc field care.{dYYYYMMDD}.{id}) ----------
+const CARE_K = { feed: "수유", pee: "소변", poop: "대변", sleep: "잠" };
+const FEED_T = { formula: "분유", pumped: "유축 모유", breast: "직접 수유" };
+let care = {}, careDay = null, careOpen = null, feedType = "formula";
+const dayKey = d => "d" + ymd(d).replace(/-/g, "");
+const today0 = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
+const hm = d => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+function readCare(x) {
+  const out = {};
+  for (const [d, day] of Object.entries(x && typeof x === "object" ? x : {})) {
+    if (!/^d\d{8}$/.test(d) || !day || typeof day !== "object") continue;
+    for (const [id, e] of Object.entries(day)) {
+      if (!e || !CARE_K[e.k] || !/^\d{2}:\d{2}$/.test(e.t || "")) continue;
+      (out[d] ||= {})[id] = { k: e.k, t: e.t, ft: FEED_T[e.ft] ? e.ft : "", ml: Math.max(0, Math.min(400, +e.ml || 0)), min: Math.max(0, Math.min(1440, +e.min || 0)) };
+    }
   }
-  const xStep = maxM <= 12 ? 1 : maxM <= 24 ? 3 : 6;
-  for (let m = 0; m <= maxM; m += xStep) svg.append(svgEl("text", { x: X(m), y: H - 8, "text-anchor": "middle" }, [document.createTextNode(m ? `${m}` : "0")]));
-  svg.append(svgEl("text", { x: W - pr, y: H - 8, "text-anchor": "start" }, [document.createTextNode("개월")]));
-  // bands: 3-97 light, 15-85 stronger
-  const area = (a, b) => path(a) + b.slice().reverse().map(p => `L${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("") + "Z";
-  svg.append(svgEl("path", { d: area(curves[0], curves[4]), class: "band", "fill-opacity": ".10" }), svgEl("path", { d: area(curves[1], curves[3]), class: "band", "fill-opacity": ".16" }));
-  svg.append(svgEl("path", { d: path(curves[2]), class: "mid", fill: "none", "stroke-width": "1.5" }));
-  [["3", curves[0]], ["50", curves[2]], ["97", curves[4]]].forEach(([lab, c]) => { const p = c[c.length - 1]; svg.append(svgEl("text", { x: X(p[0]) + 3, y: Y(p[1]) + 3 }, [document.createTextNode(lab)])); });
-  if (nowM >= 0 && nowM <= maxM) svg.append(svgEl("line", { x1: X(nowM), x2: X(nowM), y1: pt, y2: H - pb, class: "today", "stroke-dasharray": "3 3" }));
-  if (recs.length > 1) svg.append(svgEl("path", { d: path(recs.map(r => [r.m, r.v])), class: "ln" }));
-  recs.forEach(r => svg.append(svgEl("circle", { cx: X(r.m), cy: Y(r.v), r: 3.5, class: "pt" })));
-  box.append(svg);
-  $("#chartNote").textContent = `진한 띠는 또래 100명 중 가운데 70명(15~85번째), 연한 띠는 94명(3~97번째)이 있는 범위예요. 가운데 선이 평균이에요.${recs.length ? "" : " 기록을 넣으면 영웅이 점이 찍혀요."}`;
+  return out;
+}
+function onFamilyCare(x) { care = readCare(x); pruneCare(); if (location.hash === "#grow") renderGrow(); }
+let pruned = false;
+function pruneCare() {
+  if (pruned || !fam) return; pruned = true;
+  const old = dayKey(new Date(Date.now() - 120 * 864e5));
+  const upd = {}; for (const d of Object.keys(care)) if (d < old) upd["care." + d] = firebase.firestore.FieldValue.delete();
+  if (Object.keys(upd).length) fam.update(upd).catch(() => {});
+}
+async function careSave(day, id, e) {
+  (care[day] ||= {})[id] = e; renderGrow();
+  try { if (fam) await fam.update({ [`care.${day}.${id}`]: e }); else lsSet("yw.care", JSON.stringify(care)); }
+  catch { showBanner("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+}
+async function careDelete(day, id) {
+  if (care[day]) delete care[day][id]; renderGrow();
+  try { if (fam) await fam.update({ [`care.${day}.${id}`]: firebase.firestore.FieldValue.delete() }); else lsSet("yw.care", JSON.stringify(care)); } catch {}
+}
+// Typical ranges by age in days (AAP, CDC, AASM).
+function careNorms(d) {
+  d = Math.max(0, d);
+  return {
+    feed: d < 30 ? [8, "하루 8~12번 (2~3시간마다)"] : d < 180 ? [0, "보통 3~4시간마다"] : [0, "하루 5~6번쯤 (이유식 포함)"],
+    ml: d < 3 ? "분유는 한 번에 30~60ml" : d < 30 ? "분유는 한 번에 30~60ml, 한 달쯤엔 90~120ml" : d < 150 ? "분유는 한 번에 90~120ml 이상" : "분유는 한 번에 180~240ml (6개월쯤, 하루 4~5번)",
+    pee: d < 5 ? [2, "하루 2~3번 이상"] : [5, "하루 5~6번 이상"],
+    poop: d >= 4 && d < 42 ? [4, "하루 4번 이상 (생후 4일부터)"] : [0, d < 4 ? "처음 며칠은 검은 태변이 나와요" : "아기마다 차이가 커요"],
+    sleep: d < 120 ? "하루 16~18시간 (CDC)" : d < 365 ? "하루 12~16시간, 낮잠 포함 (AASM)" : "하루 11~14시간, 낮잠 포함 (AASM)",
+  };
+}
+function careForm(k) {
+  const f = $("#careForm"); careOpen = k;
+  document.querySelectorAll(".qadd button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.k === k)));
+  if (!k) { f.hidden = true; f.replaceChildren(); return; }
+  const isToday = careDay.getTime() === today0().getTime(), now = isToday ? hm(new Date()) : "12:00";
+  const tIn = el("input", { type: "time", id: "cfT", value: now, required: true });
+  const kids = [];
+  if (k === "feed") {
+    const amt = el("input", { type: "number", id: "cfA", min: "0", max: k === "feed" && feedType === "breast" ? "180" : "400", step: feedType === "breast" ? "1" : "5", inputmode: "numeric", placeholder: feedType === "breast" ? "15" : "80" });
+    kids.push(el("div", { class: "seg", role: "group", "aria-label": "수유 종류" }, Object.entries(FEED_T).map(([id, nm]) =>
+      el("button", { type: "button", "aria-pressed": String(feedType === id), text: nm, onclick: () => { feedType = id; careForm("feed"); } }))),
+      el("label", {}, feedType === "breast" ? "몇 분 먹었나요" : "몇 ml 먹었나요", amt), el("label", {}, "시간", tIn));
+  } else if (k === "sleep") {
+    const st = el("input", { type: "time", id: "cfS", value: isToday ? hm(new Date(Date.now() - 36e5)) : "13:00", required: true });
+    tIn.value = isToday ? now : "14:00";
+    kids.push(el("label", {}, "잠든 시간", st), el("label", {}, "깬 시간", tIn));
+  } else kids.push(el("label", { style: "grid-column: 1 / -1" }, "시간", tIn));
+  kids.push(el("button", { class: "btn", type: "submit", text: `${CARE_K[k]} 기록하기` }));
+  f.replaceChildren(...kids); f.hidden = false;
+  f.onsubmit = e => {
+    e.preventDefault();
+    const t = $("#cfT").value; if (!/^\d{2}:\d{2}$/.test(t)) return;
+    const entry = { k, t, ft: "", ml: 0, min: 0 };
+    if (k === "feed") { const a = Math.max(0, +$("#cfA").value || 0); entry.ft = feedType; if (feedType === "breast") entry.min = a; else entry.ml = a; }
+    if (k === "sleep") {
+      const s0 = $("#cfS").value; if (!/^\d{2}:\d{2}$/.test(s0)) return;
+      const toM = x => +x.slice(0, 2) * 60 + +x.slice(3); let dur = toM(t) - toM(s0); if (dur <= 0) dur += 1440;
+      entry.t = s0; entry.min = dur;
+    }
+    careSave(dayKey(careDay), "e" + Date.now().toString(36), entry); careForm(null);
+  };
+  (k === "feed" ? $("#cfA") : tIn).focus?.();
+}
+function renderCare(ageDays, born) {
+  if (!careDay) careDay = today0();
+  const isToday = careDay.getTime() === today0().getTime();
+  $("#dayLabel").textContent = `${careDay.getMonth() + 1}월 ${careDay.getDate()}일${isToday ? " (오늘)" : ""}`;
+  $("#dayNext").disabled = isToday;
+  const list = Object.entries(care[dayKey(careDay)] || {}).map(([id, e]) => ({ id, ...e })).sort((a, b) => b.t.localeCompare(a.t));
+  const dAge = Math.round((careDay - birth()) / 864e5), N = careNorms(dAge);
+  const feeds = list.filter(e => e.k === "feed"), ml = feeds.reduce((s, e) => s + e.ml, 0);
+  const cnt = k => list.filter(e => e.k === k).length, sleepMin = list.filter(e => e.k === "sleep").reduce((s, e) => s + e.min, 0);
+  let last = "";
+  if (isToday && feeds.length) { const [h, m] = feeds[0].t.split(":").map(Number); const ago = Math.round((Date.now() - new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate(), h, m)) / 6e4);
+    if (ago >= 0) last = ` · 마지막 ${ago >= 60 ? `${Math.floor(ago / 60)}시간 ` : ""}${ago % 60}분 전`; }
+  const low = ([min], v) => !isToday && list.length && min && v < min;   // only judge finished days
+  const card = (k, v, sub, norm, warn) => el("div", { class: "metric" }, el("span", { class: "k", text: CARE_K[k] }), el("span", { class: "v", text: v }),
+    sub ? el("span", { class: "n", text: sub }) : null, el("span", { class: "n" + (warn ? " warn" : ""), text: (warn ? "보통보다 적어요 · " : "보통 ") + norm }));
+  $("#careSum").replaceChildren(
+    card("feed", `${feeds.length}번`, (ml ? `총 ${ml}ml` : "") + last || null, N.feed[1], low(N.feed, feeds.length)),
+    card("pee", `${cnt("pee")}번`, null, N.pee[1], low(N.pee, cnt("pee"))),
+    card("poop", `${cnt("poop")}번`, null, N.poop[1], low(N.poop, cnt("poop"))),
+    card("sleep", sleepMin ? `${Math.floor(sleepMin / 60)}시간 ${sleepMin % 60}분` : "0시간", null, N.sleep));
+  const desc = e => e.k === "feed" ? `${FEED_T[e.ft] || "수유"}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}`
+    : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60) ? Math.floor(e.min / 60) + "시간 " : ""}${e.min % 60}분` : CARE_K[e.k];
+  const icon = { feed: "🍼", pee: "💧", poop: "💩", sleep: "😴" };
+  $("#careList").replaceChildren(...list.map(e => el("div", { class: "rec" },
+    el("span", { class: "d", text: e.t }), el("span", { text: `${icon[e.k]} ${desc(e)}` }),
+    el("button", { type: "button", "aria-label": `${e.t} ${CARE_K[e.k]} 기록 지우기`, text: "지우기", onclick: () => careDelete(dayKey(careDay), e.id) }))));
+  $("#careNote").textContent = !list.length ? (born ? "위 버튼을 누르면 바로 기록돼요. 엄마 아빠 휴대폰에 같이 보여요." : "태어나면 위 버튼으로 수유, 기저귀, 잠을 기록해 보세요. 엄마 아빠 휴대폰에 같이 보여요.")
+    : `${N.ml}. 소변이 계속 적거나 잘 안 먹으면 소아과에 물어보세요.`;
 }
 
-async function renderGrow() {
-  await loadWho();
-  const t0 = new Date(), dd = Math.round((birth() - new Date(t0.getFullYear(), t0.getMonth(), t0.getDate())) / 864e5);
-  const nowM = -dd / 30.4375, born = dd <= 0;
-  $("#growTitle").textContent = born ? `영웅이 생후 ${1 - dd}일` : "영웅이 발달";
-  $("#growSub").textContent = born ? `${Math.floor(nowM)}개월 ${Math.floor((nowM % 1) * 30.4375)}일` : `태어나기 ${dd}일 전`;
-  // sex
-  const sexBox = $("#sexPick");
-  sexBox.replaceChildren(...[["m", "남아"], ["f", "여아"]].map(([v, n]) => el("button", { type: "button", "aria-pressed": String(growth.sex === v), text: n,
-    onclick: () => { growth.sex = v; saveGrowth(); renderGrow(); } })));
-  const sex = growth.sex || "m";
-  // latest metrics
-  const recs = Object.entries(growth.records).map(([id, r]) => ({ id, ...r })).sort((a, b) => b.d.localeCompare(a.d));
-  const mbox = $("#metrics"); mbox.replaceChildren();
-  for (const [metric, M] of Object.entries(METRICS)) {
-    const r = recs.find(x => x[M.key] > 0);
-    let p = "";
-    if (r && growth.sex) { const am = monthsAt(r.d); if (am >= 0) p = pctText(phi(zOf(r[M.key], lmsAt(metric, sex, am)))); }
-    mbox.append(el("div", { class: "metric" }, el("span", { class: "k", text: M.name }),
-      el("span", { class: "v", text: r ? `${r[M.key].toFixed(M.dp)}${M.unit}` : "–" }),
-      el("span", { class: "p", text: r ? (growth.sex ? p : "성별을 고르면 비교돼요") : "기록 없음" })));
-  }
-  $("#mtabs").replaceChildren(...Object.entries(METRICS).map(([k, M]) => el("button", { type: "button", role: "tab", "aria-selected": String(chartMetric === k), text: M.name,
-    onclick: () => { chartMetric = k; renderGrow(); } })));
-  drawChart(chartMetric, sex, born ? nowM : 0);
-  if (!$("#recDate").value) $("#recDate").value = ymd(new Date());
-  $("#recs").replaceChildren(...recs.slice(0, 20).map(r => el("div", { class: "rec" },
-    el("span", { class: "d", text: r.d.slice(2).replace(/-/g, ".") }),
-    el("span", { text: [r.w ? `${r.w}kg` : "", r.l ? `${r.l}cm` : "", r.h ? `머리 ${r.h}cm` : ""].filter(Boolean).join(" · ") }),
-    el("button", { type: "button", "aria-label": "기록 지우기", text: "지우기", onclick: () => { delete growth.records[r.id]; saveGrowth(); renderGrow(); } }))));
+function renderGrow() {
+  if (location.hash !== "#grow") return;
+  const t = today0(), ageDays = Math.round((t - birth()) / 864e5), born = ageDays >= 0, nowM = ageDays / 30.4375;
+  $("#growSub").textContent = born ? `생후 ${ageDays + 1}일 · ${Math.floor(nowM)}개월` : `태어나기 ${-ageDays}일 전`;
+  $("#growTitle").textContent = born ? `영웅이 생후 ${ageDays + 1}일` : "영웅이 기록";
+  renderCare(ageDays, born);
   // milestones
   const cur = bandFor(born ? nowM : 0);
   if (!msBand) msBand = cur.id;
@@ -1746,33 +1856,28 @@ async function renderGrow() {
       const cb = el("input", { type: "checkbox", id: "ms-" + id, checked: on, disabled: !born });
       cb.addEventListener("change", () => { if (cb.checked) growth.done[id] = ymd(new Date()); else delete growth.done[id]; saveGrowth(); renderGrow(); });
       return el("label", { class: "check" + (on ? " done" : ""), for: "ms-" + id }, cb, el("span", { text: txt + (on ? ` (${growth.done[id].slice(5).replace("-", "/")})` : "") })); }))));
-  // period info
-  const pm = born ? nowM : 0, info = $("#periodInfo"); info.replaceChildren();
-  const med = k => { const l = lmsAt(k, sex, Math.max(0, pm)); return l ? l[1] : 0; }, rng = k => { const l = lmsAt(k, sex, Math.max(0, pm)); return l ? [xOf(-1.881, l), xOf(1.881, l)] : [0, 0]; };
-  if (WHO) {
-    const [wl, wh] = rng("weight"), [ll, lh] = rng("length"), [hl, hh] = rng("head");
-    info.append(el("p", { text: `${born ? `생후 ${Math.floor(pm)}개월쯤` : "갓 태어났을 때"} ${growth.sex ? (sex === "f" ? "여자아이" : "남자아이") : "아기"}의 평균(WHO 기준)이에요. 성별을 안 고르면 남아 기준으로 보여요.` }),
-      el("ul", {},
-        el("li", { text: `몸무게: 평균 ${med("weight").toFixed(1)}kg (또래 대부분 ${wl.toFixed(1)}~${wh.toFixed(1)}kg)` }),
-        el("li", { text: `키: 평균 ${med("length").toFixed(1)}cm (또래 대부분 ${ll.toFixed(1)}~${lh.toFixed(1)}cm)` }),
-        el("li", { text: `머리둘레: 평균 ${med("head").toFixed(1)}cm (또래 대부분 ${hl.toFixed(1)}~${hh.toFixed(1)}cm)` })));
-  }
-  const next = CHECKUPS.find(c => pm <= c[1]);
+  // this period
+  const N = careNorms(ageDays), info = $("#periodInfo"); info.replaceChildren();
+  info.append(el("p", { text: born ? (nowM < 1 ? `생후 ${ageDays + 1}일쯤 아기는 보통 이래요.` : `생후 ${Math.floor(nowM)}개월쯤 아기는 보통 이래요.`) : "갓 태어난 아기는 보통 이래요." }),
+    el("ul", {},
+      el("li", { text: `수유: ${N.feed[1]}. ${N.ml}. 모유는 아기가 원할 때마다 먹여요.` }),
+      el("li", { text: `소변: ${N.pee[1]}` }),
+      el("li", { text: `대변: ${N.poop[1]}` }),
+      el("li", { text: `잠: ${N.sleep}` })));
+  const pm = born ? nowM : 0, next = CHECKUPS.find(c => pm <= c[1]);
   if (next) info.append(el("p", { text: pm >= next[0] && born ? `지금 받을 때예요: ${next[2]}. 무료예요.` : `다음 검진: ${next[2]}. 무료로 받을 수 있어요.` }));
-  // sources
-  const srcKeys = ["who", "kdca", band.src === "aap1" ? "aap1" : "cdc", "nhis"];
+  const srcKeys = ["aapFeed", "cdcFormula", ageDays < 120 ? "cdcSleep" : "aasm", band.src === "aap1" ? "aap1" : "cdc", "nhis"];
   $("#growSrcs").replaceChildren(...srcKeys.map(k => { const [n, u] = GROW_SRCS[k]; return el("li", {}, el("a", { href: u, target: "_blank", rel: "noopener noreferrer", text: n })); }));
 }
 
 function setupGrow() {
-  $("#recForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const d = $("#recDate").value, w = parseFloat($("#recW").value) || 0, l = parseFloat($("#recL").value) || 0, h = parseFloat($("#recH").value) || 0;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || !(w || l || h)) { showBanner("날짜와 몸무게·키·머리둘레 중 하나 이상을 넣어 주세요."); return; }
-    growth.records["r" + Date.now().toString(36)] = { d, w: Math.round(w * 100) / 100, l: Math.round(l * 10) / 10, h: Math.round(h * 10) / 10 };
-    $("#recW").value = $("#recL").value = $("#recH").value = "";
-    $("#addRec").open = false; showBanner(""); saveGrowth(); renderGrow();
-  });
+  document.querySelectorAll(".qadd button").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.k;
+    if ((k === "pee" || k === "poop") && careDay?.getTime() === today0().getTime()) { careForm(null); careSave(dayKey(careDay), "e" + Date.now().toString(36), { k, t: hm(new Date()), ft: "", ml: 0, min: 0 }); return; }
+    careForm(careOpen === k ? null : k);
+  }));
+  $("#dayPrev").addEventListener("click", () => { careDay = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1); careForm(null); renderGrow(); });
+  $("#dayNext").addEventListener("click", () => { if (careDay < today0()) careDay = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() + 1); careForm(null); renderGrow(); });
 }
 
 // ---------- Share target (Android share sheet → 영웅이노트) ----------
@@ -1812,7 +1917,7 @@ async function maybeHandleShare() {
 async function boot() {
   setupAsk();
   setupGrow();
-  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); } catch {}
+  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); } catch {}
   setBirth(lsGet("yw.birth"));
   showView();
   window.addEventListener("hashchange", () => { showView(); window.scrollTo(0, 0); });
