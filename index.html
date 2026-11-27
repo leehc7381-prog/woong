@@ -84,9 +84,19 @@ img { max-width: 100%; }
 .all-btn { width: 100%; }
 .all-h { display: flex; align-items: center; gap: 8px; }
 .all-h h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.2rem; margin: 0; }
-.tcard { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 12px; align-items: center; text-align: left; border: 0; width: 100%; background: var(--surface); border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: var(--shadow); }
+.tcard { display: block; text-align: left; border: 0; width: 100%; background: none; padding: 10px 14px; border-top: 1px solid var(--line); }
+.tcard:first-of-type { border-top: 0; }
+.group { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; border-left: 4px solid var(--cc, var(--accent)); }
+.group-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px 4px; }
+.group-h h3 { margin: 0; font-size: .9rem; color: var(--cc, var(--accent)); }
+.group-h small { color: var(--muted); font-size: .75rem; }
+.groups { display: grid; gap: 10px; }
+.cat.fav-t { --cc: var(--yolk); }
+.cat .ic { font-size: 1rem; line-height: 1; }
 .tcard .th { width: 60px; height: 60px; border-radius: 10px; }
 .tcard .bd { display: grid; gap: 2px; min-width: 0; }
+.tcard .mt .sub { color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+.tcard .mt .star { color: var(--yolk); }
 .tcard .mt { display: flex; gap: 6px; align-items: center; font-size: .72rem; color: var(--muted); min-width: 0; white-space: nowrap; overflow: hidden; }
 .tcard .mt .cl { color: var(--cc); font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
 .tcard h3 { margin: 0; font-size: .95rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -204,7 +214,7 @@ button { cursor: pointer; }
 .badge { font-size: .7rem; padding: 1px 7px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
 .badge.ex { background: var(--yolk-soft); border-color: transparent; color: var(--ink); }
 .badge.when { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
-.badge.auto { background: #E2E9FA; border-color: transparent; color: var(--ink); }
+.badge.auto { background: color-mix(in srgb, var(--c-docs) 18%, var(--surface)); border-color: transparent; color: var(--ink); }
 .srcs { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 .srcs a { color: var(--accent); word-break: break-all; }
 .srcs small { color: var(--muted); }
@@ -321,18 +331,16 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
   </section>
 
   <div id="homeView" class="view">
-    <section class="sec" id="favSec" hidden>
-      <div class="sec-h"><h2>★ 즐겨찾기</h2><small id="favCount"></small></div>
-      <div class="favs" id="favs"></div>
-    </section>
-
+    <section class="cats" id="cats" aria-label="카테고리"></section>
     <section class="sec">
-      <div class="sec-h"><h2 id="stageTitle">지금 영웅이에게 필요한 꿀팁</h2><small id="stageSub"></small></div>
+      <div class="sec-h"><h2 id="listTitle">지금 영웅이에게 필요한 꿀팁</h2><small id="listSub"></small></div>
       <div class="stages" id="stages" role="tablist" aria-label="성장 단계"></div>
-      <div class="list" id="stageList"></div>
+      <div class="subs" id="subs" hidden></div>
+      <div class="search"><input id="q" type="search" placeholder="저장한 꿀팁 검색 (예: 출생신고, 트림)" aria-label="저장한 꿀팁 검색"></div>
+      <div class="groups" id="list">
+        <div class="empty"><b>꿀팁을 불러오는 중이에요</b><span>잠시만 기다려 주세요.</span></div>
+      </div>
     </section>
-
-    <button class="btn ghost all-btn" id="allBtn">모든 꿀팁 보기</button>
   </div>
 
   <div id="growView" class="view" hidden>
@@ -375,23 +383,6 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
     </section>
   </div>
 
-  <div id="allView" class="view" hidden>
-    <div class="all-h"><button class="toggle" id="backBtn">← 홈으로</button><h2>모든 꿀팁</h2></div>
-    <div class="search">
-      <input id="q" type="search" placeholder="꿀팁 검색 (예: 출생신고, 트림, 목욕)" aria-label="꿀팁 검색">
-    </div>
-    <section class="sec">
-      <div class="sec-h"><h2>카테고리</h2><button class="toggle" id="showAll">전체 보기</button></div>
-      <div class="cats" id="cats"></div>
-      <div class="subs" id="subs" hidden></div>
-    </section>
-    <section class="sec">
-      <div class="sec-h"><h2 id="listTitle">모든 꿀팁</h2><small id="listCount"></small></div>
-      <div class="list" id="list">
-        <div class="empty"><b>꿀팁을 불러오는 중이에요</b><span>잠시만 기다려 주세요.</span></div>
-      </div>
-    </section>
-  </div>
 </div>
 
 <button class="btn fab" id="addBtn">+ 영상·직접 넣기</button>
@@ -407,16 +398,26 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
 
 // ---------- Categories ----------
 const BASE_CATS = [
-  { id: "docs",   name: "서류정리",   c: "--c-docs",   subs: ["출생신고", "각종 지원금", "대여사업", "보험·통장", "기타 서류"] },
-  { id: "feed",   name: "먹이기",     c: "--c-feed",   subs: ["모유수유", "분유", "젖병·트림", "이유식", "수유용품"] },
-  { id: "sleep",  name: "재우기",     c: "--c-sleep",  subs: ["안전한 수면환경", "수면습관", "낮잠", "밤중수유"] },
-  { id: "bath",   name: "씻기기·위생", c: "--c-bath",   subs: ["목욕", "배꼽관리", "기저귀", "손톱·피부"] },
-  { id: "clean",  name: "청소하기",   c: "--c-clean",  subs: ["젖병 소독", "아기 빨래", "집안 청소", "정리·수납"] },
-  { id: "play",   name: "놀아주기",   c: "--c-play",   subs: ["발달놀이", "터미타임", "장난감·책", "외출"] },
-  { id: "health", name: "건강·병원",  c: "--c-health", subs: ["예방접종", "영유아검진", "아플 때", "응급상황"] },
-  { id: "gear",   name: "준비물",     c: "--c-gear",   subs: ["출산가방", "필수템", "카시트·유모차", "중고·나눔"] },
-  { id: "mom",    name: "엄마·아빠",  c: "--c-mom",    subs: ["산후조리", "몸 회복", "마음 건강", "육아휴직"] },
+  { id: "docs",   name: "서류·지원금",  c: "--c-docs",   subs: ["출생신고", "지원금·바우처", "대여·나눔", "보험·통장"] },
+  { id: "gear",   name: "육아용품", c: "--c-gear",   subs: ["출산가방", "필수템", "카시트·유모차", "수유·목욕용품"] },
+  { id: "feed",   name: "먹이기",      c: "--c-feed",   subs: ["모유수유", "분유·젖병", "트림·게워냄", "이유식"] },
+  { id: "sleep",  name: "재우기",      c: "--c-sleep",  subs: ["안전한 잠자리", "수면습관", "낮잠", "밤중 깸"] },
+  { id: "bath",   name: "씻기·위생",    c: "--c-bath",   subs: ["목욕", "기저귀", "배꼽·피부·손톱", "소독·빨래·청소"] },
+  { id: "health", name: "건강·안전",    c: "--c-health", subs: ["예방접종", "영유아검진", "아플 때", "응급·안전사고"] },
+  { id: "play",   name: "놀이·발달",    c: "--c-play",   subs: ["발달놀이", "터미타임", "장난감·책", "외출"] },
+  { id: "mom",    name: "엄마·아빠",    c: "--c-mom",    subs: ["산후조리", "몸·마음 회복", "육아휴직·제도", "부부 육아"] },
 ];
+// Older category / subcategory names, mapped onto the set above.
+const OLD_CAT = { clean: "bath" };
+const OLD_SUB = { "각종 지원금": "지원금·바우처", "대여사업": "대여·나눔", "기타 서류": "출생신고", "분유": "분유·젖병", "젖병·트림": "트림·게워냄", "수유용품": "분유·젖병",
+  "안전한 수면환경": "안전한 잠자리", "밤중수유": "밤중 깸", "배꼽관리": "배꼽·피부·손톱", "손톱·피부": "배꼽·피부·손톱", "젖병 소독": "소독·빨래·청소",
+  "아기 빨래": "소독·빨래·청소", "집안 청소": "소독·빨래·청소", "정리·수납": "소독·빨래·청소", "응급상황": "응급·안전사고", "몸 회복": "몸·마음 회복",
+  "마음 건강": "몸·마음 회복", "카시트": "카시트·유모차", "육아휴직": "육아휴직·제도", "중고·나눔": "대여·나눔" };
+const CAT_WORDS = [["mom", /휴직|출산휴가|산후|엄마|아빠|부부|산모|회복|우울|가족|형제|첫째|조부모/], ["health", /접종|병원|열|아플|아픈|검진|응급|안전|약|질병|감기/],
+  ["feed", /수유|분유|이유식|먹|젖병|트림/], ["sleep", /잠|수면|재우/], ["bath", /목욕|기저귀|위생|소독|빨래|청소|피부|배꼽|손톱|발진/],
+  ["play", /놀이|발달|장난감|책|외출|여행|이동|교육/], ["docs", /서류|신고|지원|바우처|수당|보험|통장|대여|혜택|제도|정부|신청/],
+  ["gear", /준비물|용품|가방|카시트|유모차|쇼핑|구매|필수템/]];
+function guessCat(text) { for (const [id, re] of CAT_WORDS) if (re.test(text || "")) return id; return ""; }
 const PALETTE = ["--c-docs", "--c-feed", "--c-sleep", "--c-bath", "--c-clean", "--c-play", "--c-health", "--c-gear", "--c-mom"];
 let CATS = [], catById = {}, catByName = {};
 function rebuildCats(custom) {
@@ -522,109 +523,103 @@ function stagesOf(t) {
 }
 
 // ---------- Rendering ----------
-function filtered() {
-  const q = query.trim().toLowerCase();
-  return tips.filter(t => {
-    if (selCat && t.category !== selCat) return false;
-    if (selSub && t.subcategory !== selSub) return false;
-    if (!q) return true;
-    const hay = [t.title, t.summary, t.subcategory, (catById[t.category] || {}).name, ...(t.points || []), ...(t.tags || [])].join(" ").toLowerCase();
-    return hay.includes(q);
-  }).sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0));
-}
-
-function thumbEl(t) {
-  const th = validThumb(t.thumb);
-  if (th) return el("img", { class: "th", src: th, alt: "", loading: "lazy" });
-  const c = catById[t.category];
-  return el("div", { class: "th ph", "aria-hidden": "true", text: (c?.name || "꿀")[0] });
-}
-
-function tipCard(t) {
+function tipCard(t, showCat) {
   const c = catById[t.category];
   const cl = t.checklist || [], done = cl.filter(x => x.done).length;
   return el("button", { class: "tcard", style: `--cc: ${catColor(t.category)}`, onclick: () => openDetail(t.id) },
-    thumbEl(t),
     el("div", { class: "bd" },
       el("div", { class: "mt" },
-        el("span", { class: "cl", text: `${c?.name || "기타"} · ${t.subcategory || "기타"}` }),
         t.starred ? el("span", { class: "star", text: "★" }) : null,
+        showCat ? el("span", { class: "cl", text: c?.name || "기타" }) : null,
+        el("span", { class: "sub", text: t.subcategory || "기타" }),
         t.example ? el("span", { class: "badge ex", text: "예시" }) : null,
         t.auto ? el("span", { class: "badge auto", text: "자동" }) : null,
-        (t.sources || []).length ? el("span", { class: "badge asked", text: `출처 ${(t.sources || []).length}` }) : null,
+        t.unverified ? el("span", { class: "badge", text: "출처 확인 필요" }) : (t.sources || []).length ? el("span", { class: "badge asked", text: `출처 ${(t.sources || []).length}` }) : null,
         cl.length ? el("span", { class: "prog", text: `${done}/${cl.length}` }) : null),
       el("h3", { text: t.title || "제목 없음" }),
       t.summary ? el("p", { text: t.summary }) : (t.when ? el("p", { text: t.when }) : null)));
 }
 
+const sortTips = list => list.sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0));
+
 function renderCats() {
   const box = $("#cats"); box.replaceChildren();
-  for (const c of CATS) {
-    const n = tips.filter(t => t.category === c.id).length;
-    box.append(el("button", {
-      class: "cat", "aria-pressed": String(selCat === c.id), style: `--cc: var(${c.c})`, title: c.name,
-      onclick: () => { selCat = selCat === c.id ? null : c.id; selSub = null; render(); }
-    }, el("span", { class: "nm" }, el("span", { class: "dot" }), el("span", { class: "tx", text: c.name })), el("span", { class: "ct", text: `${n}개` })));
-  }
+  const tile = (id, name, n, cls, style, icon) => el("button", {
+    class: "cat" + (cls ? " " + cls : ""), "aria-pressed": String(selCat === id), style, title: name,
+    onclick: () => { selCat = selCat === id ? null : id; selSub = null; render(); }
+  }, el("span", { class: "nm" }, icon ? el("span", { class: "ic", text: icon }) : el("span", { class: "dot" }), el("span", { class: "tx", text: name })), el("span", { class: "ct", text: `${n}개` }));
+  box.append(tile("fav", "즐겨찾기", tips.filter(t => t.starred).length, "fav-t", "", "★"));
+  for (const c of CATS) box.append(tile(c.id, c.name, tips.filter(t => t.category === c.id).length, "", `--cc: var(${c.c})`));
   const subs = $("#subs"); subs.replaceChildren();
-  if (selCat) {
+  if (selCat && selCat !== "fav") {
     for (const s of subsOf(selCat)) {
       const n = tips.filter(t => t.category === selCat && t.subcategory === s).length;
-      subs.append(el("button", { class: "chip", "aria-pressed": String(selSub === s), onclick: () => { selSub = selSub === s ? null : s; render(); } }, `${s} ${n}`));
+      if (n) subs.append(el("button", { class: "chip", "aria-pressed": String(selSub === s), onclick: () => { selSub = selSub === s ? null : s; render(); } }, `${s} ${n}`));
     }
   }
-  subs.hidden = !selCat;
-  $("#showAll").hidden = !selCat && !query;
+  subs.hidden = !subs.children.length;
 }
 
 function emptyBox(title, text) {
   return el("div", { class: "empty" }, el("b", { text: title }), el("span", { text }));
 }
 
-function renderList() {
-  const box = $("#list"); box.replaceChildren();
-  const c = selCat && catById[selCat];
-  $("#listTitle").textContent = c ? (selSub ? `${c.name} · ${selSub}` : c.name) : (query ? "검색 결과" : "모든 꿀팁");
-  if (!loaded) { box.append(emptyBox("꿀팁을 불러오는 중이에요", "잠시만 기다려 주세요.")); $("#listCount").textContent = ""; return; }
-  const items = filtered();
-  $("#listCount").textContent = `${items.length}개`;
-  if (!items.length) { box.append(emptyBox(tips.length ? "여기엔 아직 꿀팁이 없어요" : "첫 꿀팁을 물어보세요", "맨 위에 궁금한 걸 적으면 제미나이가 찾아서 정리해 줘요.")); return; }
-  items.forEach(t => box.append(tipCard(t)));
+function groupBox(title, color, items, showCat) {
+  return el("section", { class: "group", style: `--cc: ${color}` },
+    el("div", { class: "group-h" }, el("h3", { text: title }), el("small", { text: `${items.length}개` })),
+    items.map(t => tipCard(t, showCat)));
 }
 
-function renderHome() {
-  // Favorites
-  const favs = tips.filter(t => t.starred).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  $("#favSec").hidden = !favs.length;
-  $("#favCount").textContent = favs.length ? `${favs.length}개` : "";
-  $("#favs").replaceChildren(...favs.map(t => el("button", { class: "fav", style: `--cc: ${catColor(t.category)}`, onclick: () => openDetail(t.id) },
-    thumbEl(t), el("span", { class: "tt", text: t.title }))));
-  // Stage tabs
+// Home: category tiles (with favorites) on top, then tips grouped by category for the chosen life stage.
+function renderList() {
   const cur = currentStage(); if (!selStage) selStage = cur;
-  $("#stages").replaceChildren(...STAGES.map(x => el("button", { class: "stage", role: "tab", "aria-selected": String(selStage === x.id),
-    onclick: () => { selStage = x.id; renderHome(); } }, x.name, x.id === cur ? el("span", { class: "now", text: "지금" }) : null)));
+  const q = query.trim().toLowerCase(), fav = selCat === "fav", c = !fav && selCat && catById[selCat];
+  const useStage = !q && !fav && selStage !== "all";
+  $("#stages").hidden = !!q || fav;
+  $("#stages").replaceChildren(...[...STAGES, { id: "all", name: "전체 시기" }].map(x => el("button", { class: "stage", role: "tab", "aria-selected": String(selStage === x.id),
+    onclick: () => { selStage = x.id; renderList(); } }, x.name, x.id === cur ? el("span", { class: "now", text: "지금" }) : null)));
   const st = STAGES.find(x => x.id === selStage);
   const t0 = new Date(), dd = Math.round((birth() - new Date(t0.getFullYear(), t0.getMonth(), t0.getDate())) / 864e5);
-  $("#stageTitle").textContent = selStage === cur ? "지금 영웅이에게 필요한 꿀팁" : `${st.name} 꿀팁 미리보기`;
-  $("#stageSub").textContent = selStage === cur ? (cur === "prenatal" ? `출산까지 ${Math.max(0, dd)}일` : `생후 ${1 - dd}일`) : "";
-  const box = $("#stageList"); box.replaceChildren();
-  if (!loaded) { box.append(emptyBox("꿀팁을 불러오는 중이에요", "잠시만 기다려 주세요.")); return; }
-  const items = tips.filter(t => stagesOf(t).includes(selStage))
-    .sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0));
-  if (!items.length) box.append(emptyBox(`${st.name}에 맞는 꿀팁이 아직 없어요`, `위에 "${st.name} 아기 꿀팁 알려줘"처럼 물어보면 채워져요.`));
-  items.forEach(t => box.append(tipCard(t)));
-  $("#allBtn").textContent = `모든 꿀팁 보기 · ${tips.length}개`;
+  $("#listTitle").textContent = q ? "검색 결과" : fav ? "★ 즐겨찾기" : c ? (selSub ? `${c.name} · ${selSub}` : c.name)
+    : selStage === cur ? "지금 영웅이에게 필요한 꿀팁" : selStage === "all" ? "모든 꿀팁" : `${st.name} 꿀팁 미리보기`;
+  const box = $("#list"); box.replaceChildren();
+  if (!loaded) { $("#listSub").textContent = ""; box.append(emptyBox("꿀팁을 불러오는 중이에요", "잠시만 기다려 주세요.")); return; }
+  const items = sortTips(tips.filter(t => {
+    if (fav && !t.starred) return false;
+    if (c && t.category !== c.id) return false;
+    if (c && selSub && t.subcategory !== selSub) return false;
+    if (useStage && !stagesOf(t).includes(selStage)) return false;
+    if (!q) return true;
+    return [t.title, t.summary, t.subcategory, (catById[t.category] || {}).name, ...(t.points || []), ...(t.tags || [])].join(" ").toLowerCase().includes(q);
+  }));
+  $("#listSub").textContent = !q && !fav && !c && selStage === cur ? (cur === "prenatal" ? `출산까지 ${Math.max(0, dd)}일` : `생후 ${1 - dd}일`) : `${items.length}개`;
+  if (!items.length) {
+    box.append(q ? emptyBox("찾는 꿀팁이 없어요", "맨 위 질문칸에 물어보면 제미나이가 찾아서 정리해 줘요.")
+      : fav ? emptyBox("즐겨찾기한 꿀팁이 없어요", "꿀팁을 열고 '☆ 즐겨찾기'를 누르면 여기 모여요.")
+      : useStage ? emptyBox(`${st.name}에 맞는 꿀팁이 아직 없어요`, `'전체 시기'를 누르거나, 위에 "${st.name} 아기 꿀팁 알려줘"처럼 물어보세요.`)
+      : emptyBox("여기엔 아직 꿀팁이 없어요", "맨 위에 궁금한 걸 적으면 제미나이가 찾아서 정리해 줘요."));
+    return;
+  }
+  if (c) {
+    // One category: group by subcategory.
+    const by = new Map(); items.forEach(t => { const k = t.subcategory || "기타"; if (!by.has(k)) by.set(k, []); by.get(k).push(t); });
+    const order = subsOf(c.id); const keys = [...by.keys()].sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
+    keys.forEach(k => box.append(groupBox(k, catColor(c.id), by.get(k))));
+  } else {
+    for (const cc of CATS) { const g = items.filter(t => t.category === cc.id); if (g.length) box.append(groupBox(cc.name, `var(${cc.c})`, g)); }
+    const rest = items.filter(t => !catById[t.category]); if (rest.length) box.append(groupBox("기타", "var(--muted)", rest));
+  }
 }
 
 function showView() {
-  const h = location.hash, all = h === "#all", grow = h === "#grow";
-  $("#homeView").hidden = all || grow; $("#allView").hidden = !all; $("#growView").hidden = !grow;
+  const grow = location.hash === "#grow";
+  $("#homeView").hidden = grow; $("#growView").hidden = !grow;
   $("#askSec").hidden = grow;
   $("#tabTips").toggleAttribute("aria-current", !grow); if (!grow) $("#tabTips").setAttribute("aria-current", "page");
   $("#tabGrow").toggleAttribute("aria-current", grow); if (grow) { $("#tabGrow").setAttribute("aria-current", "page"); renderGrow(); }
   $("#addBtn").hidden = grow;
 }
-function render() { renderHome(); renderCats(); renderList(); if (location.hash === "#grow") renderGrow(); }
+function render() { renderCats(); renderList(); if (location.hash === "#grow") renderGrow(); }
 
 // ---------- Sheet ----------
 function openSheet(title, body) {
@@ -768,9 +763,8 @@ function buildPrompt(url, text, media) {
 - 자료에 있는 내용만 정리해. 없는 사실을 지어내지 마. 자료가 짧으면 짧게 정리해.
 - 자료에 의학적으로 위험하거나 공식 권고와 다른 내용이 있으면 cautions에 부드럽게 적어 줘.
 - 금액·기한·자격처럼 바뀔 수 있는 정보는 cautions에 "신청 전 정부24·복지로에서 최신 기준 확인" 같은 안내를 넣어.
-- 아래 카테고리 중 잘 맞는 큰 카테고리가 있으면 그걸 골라 category에 id를 넣어.
-- 억지로 끼워 맞춰야 할 만큼 맞는 큰 카테고리가 없으면 category를 "new"로 하고, newCategory에 새 큰 카테고리 이름을 만들어 (2~6자, 기존 이름들과 비슷한 말투, 예: "이동·외출", "형제·가족").
-- subcategory는 고른 카테고리의 목록에서 고르고, 맞는 게 없으면 새 세부 카테고리 이름(2~8자)을 만들어. 새 큰 카테고리면 세부 카테고리도 새로 만들어.
+- 아래 카테고리 중 가장 잘 맞는 하나를 골라 category에 id를 넣어. 새 큰 카테고리는 만들지 마.
+- subcategory는 고른 카테고리의 목록에서 고르고, 맞는 게 없으면 새 세부 카테고리 이름(2~8자)을 만들어.
 - 쉬운 말, 짧은 문장, 존댓말이 아닌 "~하기", "~해요" 같은 부드러운 말투.
 
 카테고리:
@@ -779,8 +773,7 @@ ${catText}
 JSON 하나만 출력해. 다른 글은 쓰지 마. 형식:
 {
   "title": "한눈에 알아볼 제목 (25자 이내)",
-  "category": "카테고리 id 또는 new",
-  "newCategory": "category가 new일 때만 새 큰 카테고리 이름, 아니면 빈 문자열",
+  "category": "카테고리 id",
   "subcategory": "세부 카테고리 (기존 것 또는 새로 만든 것)",
   "summary": "핵심 한두 문장 요약",
   "points": ["핵심 포인트", "..."],
@@ -801,12 +794,26 @@ ${text || "(글 없음. 첨부한 이미지만 보고 정리해 줘.)"}
 """`;
 }
 
+const QUOTA_HELP = "새 API 키를 만들어도 같은 구글 프로젝트 안이면 한도를 같이 써서 늘지 않아요. 한도를 늘리려면 Google AI Studio의 API 키 화면에서 그 프로젝트에 결제(Billing)를 연결해야 해요. 결제를 연결하면 쓴 만큼 요금이 나와요.";
+function errText(e, fallback) {
+  if (e?.code === "quota_day") return `오늘 쓸 수 있는 제미나이 무료 횟수를 다 썼어요. ${resetText()}에 다시 채워져요.`;
+  if (e?.code === "quota_zero") return "지금 키의 무료 등급에서는 이 기능을 쓸 수 없다고 해요. 구글 검색으로 찾기는 무료 등급에서 막혀 있을 수 있어요.";
+  return ERR[e?.code] || fallback;
+}
+function errBox(e, fallback) {
+  const quota = /^quota_/.test(e?.code || "");
+  return el("div", { class: "status err" },
+    el("div", { text: errText(e, fallback) }),
+    quota ? el("p", { class: "note", style: "margin:6px 0 0" }, QUOTA_HELP + " ", el("a", { href: "https://aistudio.google.com/apikey", target: "_blank", rel: "noopener noreferrer", text: "AI Studio 열기" })) : null,
+    e?.message ? el("details", { style: "margin-top:6px;font-size:.75rem" }, el("summary", { text: "구글이 보낸 원래 메시지" }), el("div", { text: String(e.message).slice(0, 400) })) : null);
+}
+
 function setStatus(msg, err) { const s = $("#aiStatus"); if (!s) return; s.hidden = !msg; s.textContent = msg || ""; s.classList.toggle("err", !!err); }
 
 const ERR = {
   no_key: "제미나이 API 키가 없어요. 설정에서 키를 넣어 주세요.",
   bad_key: "API 키가 맞지 않아요. 설정에서 키를 다시 확인해 주세요.",
-  rate_limited: "제미나이 무료 사용량을 잠깐 넘었어요. 1분쯤 뒤에 다시 눌러 주세요.",
+  rate_limited: "1분 동안 쓸 수 있는 횟수를 넘었어요. 1분쯤 뒤에 다시 눌러 주세요.",
   upload: "영상을 제미나이에 올리지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.",
   processing: "제미나이가 영상을 읽는 데 너무 오래 걸려요. 조금 짧은 영상으로 다시 시도해 주세요.",
   blocked: "제미나이가 이 자료는 정리할 수 없다고 했어요. 캡션이나 캡처로 다시 시도해 주세요.",
@@ -831,11 +838,10 @@ async function runAI() {
     if (images.length) media += `첨부한 이미지 ${images.length}장은 부모가 직접 올린 캡처(카드뉴스, 게시글 화면 등)야. 글자를 읽어서 정리해.\n`;
     const r = await gemini(buildPrompt(url, text, media), { video: videoFile, youtube: yt, images: images.map(i => i.file), onStage: m => setStatus(m) });
     if (!r || typeof r !== "object") throw { code: "bad_json" };
-    let cat = catById[r.category] ? r.category : (catByName[r.category]?.id || null), newCat = "";
+    const rc = OLD_CAT[r.category] || r.category;
+    let cat = catById[rc] ? rc : (catByName[rc]?.id || null), newCat = "";
     if (!cat) {
-      newCat = str(r.newCategory, 20) || (r.category !== "new" ? str(r.category, 20) : "");
-      if (catByName[newCat]) { cat = catByName[newCat].id; newCat = ""; }
-      else if (!newCat) cat = "gear";
+      cat = guessCat([r.category, r.subcategory, r.title].join(" ")) || "gear";
     }
     const sub = str(r.subcategory, 30) || (cat ? subsOf(cat)[0] : "") || "기타";
     const spoken = str(r.spoken, 3000);
@@ -848,8 +854,8 @@ async function runAI() {
     });
   } catch (e) {
     btn.disabled = false; btn.textContent = "AI로 정리하기";
-    const msg = ERR[e?.code] || ("정리하다가 문제가 생겼어요." + (e?.message ? ` (${String(e.message).slice(0, 160)})` : "") + " 다시 눌러 보거나 직접 정리하기를 써 주세요.");
-    setStatus(msg, true);
+    const msg = errText(e, "정리하다가 문제가 생겼어요." + (e?.message ? ` (${String(e.message).slice(0, 160)})` : "") + " 다시 눌러 보거나 직접 정리하기를 써 주세요.");
+    setStatus(/^quota_/.test(e?.code || "") ? `${msg} ${QUOTA_HELP}` : msg, true);
   }
 }
 
@@ -974,7 +980,6 @@ function openDetail(id) {
       el("div", { class: "meta" }, el("span", { class: "cl" }, el("span", { class: "dot" }), `${c.name} · ${t.subcategory || "기타"}`),
         t.when ? el("span", { class: "badge when", text: t.when }) : null, t.example ? el("span", { class: "badge ex", text: "예시" }) : null,
         t.auto ? el("span", { class: "badge auto", text: "자동 수집" }) : null)),
-    validThumb(t.thumb) ? el("img", { class: "detail-thumb", src: t.thumb, alt: "" }) : null,
     el("h3", { text: t.title }),
     t.summary ? el("div", { class: "summary", text: t.summary }) : null,
     list("핵심 포인트", t.points),
@@ -996,11 +1001,6 @@ function openDetail(id) {
     el("div", { class: "actions" },
       el("button", { class: "btn ghost", text: t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기", onclick: async e => {
         try { await ref.update({ starred: !t.starred }); t.starred = !t.starred; e.target.textContent = t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기"; } catch {} } }),
-      !validThumb(t.thumb) ? el("button", { class: "btn ghost", text: "그림 만들기", onclick: async e => {
-        e.target.disabled = true; e.target.textContent = "그리는 중…";
-        try { const img = await makeTipImage(t, true); if (!img) throw 0; await ref.update({ thumb: img }); e.target.textContent = "그림을 넣었어요"; }
-        catch (err) { e.target.disabled = false; e.target.textContent = err?.code === "img_unavailable" ? "이 키로는 그림을 만들 수 없어요" : "다시 그리기"; }
-      } }) : null,
       el("button", { class: "btn danger", text: "지우기", onclick: () => { confirmBox.hidden = false; } })),
     confirmBox);
   openSheet("꿀팁", body);
@@ -1008,8 +1008,7 @@ function openDetail(id) {
 
 // ---------- Wiring ----------
 $("#addBtn").addEventListener("click", openAdd);
-$("#q").addEventListener("input", e => { query = e.target.value; renderList(); $("#showAll").hidden = !selCat && !query; });
-$("#showAll").addEventListener("click", () => { selCat = null; selSub = null; query = ""; $("#q").value = ""; render(); });
+$("#q").addEventListener("input", e => { query = e.target.value; renderList(); });
 
 function showBanner(msg) { const b = $("#banner"); b.textContent = msg; b.hidden = !msg; }
 
@@ -1073,23 +1072,69 @@ async function gfetch(path, opts = {}) {
   try { r = await fetch(path.startsWith("http") ? path : GBASE + path, { ...opts, headers: { "x-goog-api-key": getKey(), ...(opts.headers || {}) } }); }
   catch { throw { code: navigator.onLine === false ? "offline" : "upload" }; }
   if (!r.ok) {
-    let m = ""; try { m = (await r.json()).error?.message || ""; } catch {}
-    if (r.status === 429) throw { code: "rate_limited", message: m };
+    let m = "", det = []; try { const er = (await r.json()).error || {}; m = er.message || ""; det = er.details || []; } catch {}
+    const ids = det.flatMap(d => (d.violations || []).map(v => `${v.quotaId || ""} ${v.quotaMetric || ""}`)).join(" ");
+    if (r.status === 429 || /free.?tier|FREE_TIER/i.test(m) && r.status === 403) {
+      // limit 0 = this model or feature has no free allowance; PerDay = today's allowance is used up; else per-minute.
+      const code = /limit:\s*0\b/.test(m) || r.status === 403 ? "quota_zero" : /PerDay|per day|daily/i.test(`${m} ${ids}`) ? "quota_day" : "rate_limited";
+      throw { code, message: m };
+    }
     if (r.status === 400 && /api key/i.test(m) || r.status === 401 || r.status === 403) throw { code: "bad_key", message: m };
     throw { code: "api", message: m || `HTTP ${r.status}` };
   }
   return r;
 }
 
-// Pick the newest "flash" model the key can use (fast, cheap, understands video and audio).
-async function pickModel(force) {
-  const saved = lsGet(LS.model); if (saved && !force) return saved;
+// Text models to try, best first. Each Gemini model has its own free allowance, so when one is used up we move to the next.
+let modelList = null;
+async function listModels() {
+  if (modelList) return modelList;
   const j = await (await gfetch("/v1beta/models?pageSize=200")).json();
-  const ok = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent")).map(m => m.name.replace(/^models\//, ""));
-  const ver = n => { const m = n.match(/^gemini-(\d+(?:\.\d+)?)-flash$/); return m ? parseFloat(m[1]) : -1; };
-  const best = ok.filter(n => ver(n) > 0).sort((a, b) => ver(b) - ver(a))[0]
-    || ok.find(n => /^gemini-flash-latest$/.test(n)) || ok.find(n => /flash/.test(n) && !/lite|image|tts|live|audio/.test(n)) || "gemini-2.5-flash";
-  lsSet(LS.model, best); return best;
+  modelList = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent")).map(m => m.name.replace(/^models\//, ""));
+  return modelList;
+}
+function modelChain(ok) {
+  const ver = re => n => { const m = n.match(re); return m ? parseFloat(m[1]) : -1; };
+  const vf = ver(/^gemini-(\d+(?:\.\d+)?)-flash$/), vl = ver(/^gemini-(\d+(?:\.\d+)?)-flash-lite$/);
+  const flash = ok.filter(n => vf(n) > 0).sort((a, b) => vf(b) - vf(a)), lite = ok.filter(n => vl(n) > 0).sort((a, b) => vl(b) - vl(a));
+  const extra = ["gemini-flash-latest", "gemini-flash-lite-latest"].filter(n => ok.includes(n));
+  const out = [...flash.slice(0, 3), ...lite.slice(0, 2), ...extra];
+  return out.length ? out : ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+}
+// Free daily allowances reset at midnight Pacific time.
+const ptDate = (d = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(d);
+function resetText() {
+  const now = new Date(), d0 = ptDate(now); let t = now;
+  for (let i = 0; i < 120 && ptDate(t) === d0; i++) t = new Date(t.getTime() + 15 * 60000);
+  t.setMinutes(0, 0, 0);
+  const day = t.toDateString() === now.toDateString() ? "오늘" : "내일", h = t.getHours();
+  return `${day} ${h < 12 ? "오전" : "오후"} ${h % 12 || 12}시`;
+}
+function usedUp() { try { const o = JSON.parse(lsGet("yw.usedUp") || "{}"); const d = ptDate(); return Object.fromEntries(Object.entries(o).filter(([, v]) => v === d)); } catch { return {}; } }
+function markUsedUp(m) { const o = usedUp(); o[m] = ptDate(); lsSet("yw.usedUp", JSON.stringify(o)); }
+
+// Call generateContent, falling back through the model chain when a model's free allowance is gone.
+async function generate(body, onTry) {
+  const skip = usedUp();
+  let chain = modelChain(await listModels());
+  const saved = lsGet(LS.model); if (chain.includes(saved)) chain = [saved, ...chain.filter(n => n !== saved)];
+  const key = m => m + (body.tools ? "+search" : "");
+  const open = chain.filter(n => !skip[key(n)]);
+  if (!open.length) throw { code: "quota_day" };
+  let worst = null;
+  const rank = { rate_limited: 1, quota_day: 2, quota_zero: 3 };
+  for (const m of open) {
+    try {
+      onTry?.(m);
+      const j = await (await gfetch(`/v1beta/models/${m}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })).json();
+      lsSet(LS.model, m); return j;
+    } catch (e) {
+      if (!rank[e?.code] && !(e?.code === "api" && /not found|not supported|unavailable|is not available/i.test(e.message || ""))) throw e;
+      if (e.code === "quota_day" || e.code === "quota_zero") markUsedUp(key(m));
+      if (!worst || (rank[e.code] || 0) < (rank[worst.code] || 9)) worst = e;   // report the most hopeful reason
+    }
+  }
+  throw worst || { code: "quota_day" };
 }
 
 const b64 = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = () => rej(fr.error); fr.readAsDataURL(blob); });
@@ -1118,7 +1163,6 @@ async function uploadVideo(file, onStage) {
 }
 
 async function gemini(prompt, { video, youtube, images = [], onStage } = {}) {
-  const model = await pickModel();
   const parts = [];
   let uploaded = null;
   try {
@@ -1130,8 +1174,7 @@ async function gemini(prompt, { video, youtube, images = [], onStage } = {}) {
     for (const im of images) parts.push({ inline_data: { mime_type: im.type || "image/jpeg", data: await b64(im) } });
     parts.push({ text: prompt });
     onStage?.(video || youtube ? "제미나이가 영상을 보고 듣는 중이에요. 보통 10~40초 걸려요." : "제미나이가 읽고 분류하는 중이에요.");
-    const j = await (await gfetch(`/v1beta/models/${model}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: { responseMimeType: "application/json", temperature: 0.3 } }) })).json();
+    const j = await generate({ contents: [{ role: "user", parts }], generationConfig: { responseMimeType: "application/json", temperature: 0.3 } });
     const cand = j.candidates?.[0];
     if (!cand || j.promptFeedback?.blockReason || cand.finishReason === "SAFETY") throw { code: "blocked" };
     const txt = (cand.content?.parts || []).map(p => p.text || "").join("").trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
@@ -1175,10 +1218,10 @@ function openSettings() {
         try {
           if (fam && shareChk.checked) { await fam.set({ geminiKey: k }, { merge: true }); familyKey = k; lsSet(LS.key, ""); }
           else { lsSet(LS.key, k); if (fam) { await fam.set({ geminiKey: "" }, { merge: true }); familyKey = ""; } }
-          lsSet(LS.model, "");
+          lsSet(LS.model, ""); lsSet("yw.usedUp", ""); modelList = null;
           if (!k) { setStatus("키를 지웠어요."); return; }
           setStatus("키를 확인하는 중이에요…");
-          const m = await pickModel(true); setStatus(`연결됐어요. ${m} 모델로 분석해요.`); showBanner("");
+          const m = modelChain(await listModels())[0]; setStatus(`연결됐어요. ${m} 모델부터 쓰고, 무료 횟수가 끝나면 다른 모델로 넘어가요.`); showBanner("");
         } catch (err) { setStatus(ERR[err?.code] || "확인하지 못했어요. 키를 다시 확인해 주세요.", true); }
         finally { e.target.disabled = false; }
       } })),
@@ -1202,20 +1245,6 @@ function openSettings() {
           try { if (fam) await fam.set({ birthDate: v }, { merge: true }); else lsSet("yw.birth", v); } catch {}
           setBirth(v); selStage = null; renderDday(); render(); setStatus("생일을 저장했어요.");
         } }))),
-    el("div", { class: "blk" },
-      el("h4", { text: "꿀팁 그림" }),
-      el("p", { class: "note", text: "그림이 없는 꿀팁에 제미나이로 그림을 그려 넣어요. 키 종류에 따라 그림 기능을 못 쓸 수도 있어요. 그땐 카테고리 그림이 대신 보여요." }),
-      el("button", { class: "btn ghost", text: `그림 없는 꿀팁 ${tips.filter(t => !validThumb(t.thumb)).length}개에 그림 넣기`, onclick: async e => {
-        if (!getKey()) { setStatus(ERR.no_key, true); return; }
-        e.target.disabled = true; lsSet("yw.noImg", "");
-        const todo = tips.filter(t => !validThumb(t.thumb)); let n = 0;
-        for (const t of todo) {
-          setStatus(`그림 그리는 중… ${n + 1}/${todo.length}`);
-          try { const img = await makeTipImage(t, true); if (img) { await tipsCol.doc(t.id).update({ thumb: img }); n++; } }
-          catch (err) { setStatus(err?.code === "img_unavailable" ? "이 키로는 그림을 만들 수 없어요. 카테고리 그림으로 보여 드릴게요." : "그림을 그리다 멈췄어요. 잠시 뒤 다시 눌러 주세요.", true); e.target.disabled = false; return; }
-        }
-        setStatus(`그림 ${n}개를 넣었어요.`); e.target.disabled = false;
-      } })),
     el("div", { class: "blk" },
       el("h4", { text: "백업" }),
       el("p", { class: "note", text: "꿀팁 전체를 파일로 저장하거나 불러올 수 있어요." }),
@@ -1306,7 +1335,7 @@ function attach(seedIfEmpty) {
       const x = d.data() || {};
       return { id: d.id, custom: true, name: str(x.name, 20) || "새 카테고리", subs: arr(x.subs), c: PALETTE.includes(x.color) ? x.color : PALETTE[0] };
     }).filter(c => !BASE_CATS.some(b => b.id === c.id)));
-    render();
+    applyVisible(); render();
   }, () => {}));
   let first = true;
   unsubs.push(tipsCol.orderBy("createdAt", "desc").onSnapshot(snap => {
@@ -1321,7 +1350,29 @@ function attach(seedIfEmpty) {
 }
 
 // ---------- Auto-collected tips (tips-feed.json, curated by Claude with sources) ----------
-function applyVisible() { tips = allTips.filter(t => !t.hidden && !(autoOff && t.auto)); }
+function normTip(t) {
+  let cat = OLD_CAT[t.category] || t.category;
+  if (!BASE_CATS.some(b => b.id === cat)) {
+    const custom = catById[cat];
+    const g = guessCat([custom?.name, t.subcategory, t.title].join(" "));
+    if (g) cat = g;
+  }
+  const sub = OLD_SUB[t.subcategory] || t.subcategory || "기타";
+  return cat === t.category && sub === t.subcategory ? t : { ...t, category: cat, subcategory: sub, _moved: true };
+}
+function applyVisible() { tips = allTips.filter(t => !t.hidden && !(autoOff && t.auto)).map(normTip); migrateCats(); }
+// Save the tidied categories back once, and drop custom categories that were folded into the main ones.
+let migrating = false;
+async function migrateCats() {
+  if (migrating || !tipsCol) return;
+  const moved = tips.filter(t => t._moved); const folded = CATS.filter(c => c.custom && guessCat(c.name));
+  if (!moved.length && !folded.length) return;
+  migrating = true;
+  try {
+    for (const t of moved) await tipsCol.doc(t.id).update({ category: t.category, subcategory: t.subcategory });
+    for (const c of folded) if (!allTips.some(t => t.category === c.id && !moved.some(m => m.id === t.id))) await catsCol.doc(c.id).delete();
+  } catch {} finally { migrating = false; }
+}
 let feedBusy = false;
 async function syncFeed() {
   if (autoOff || feedBusy || !tipsCol) return;
@@ -1336,7 +1387,7 @@ async function syncFeed() {
       const id = "auto-" + f.id, cur = known[id], rev = Number(f.rev) || 1;
       if (cur && (cur.hidden || (Number(cur.rev) || 0) >= rev)) continue;
       const srcs = (Array.isArray(f.sources) ? f.sources : []).map(x => ({ name: str(x?.name, 60), url: safeUrl(x?.url) || "", date: str(x?.date, 20) })).filter(x => x.name).slice(0, 5);
-      const cat = catById[f.category] ? f.category : "docs";
+      const cat = BASE_CATS.some(b => b.id === (OLD_CAT[f.category] || f.category)) ? (OLD_CAT[f.category] || f.category) : (guessCat(f.title) || "docs");
       const doneOf = Object.fromEntries((cur?.checklist || []).map(c => [c.text, !!c.done]));
       const data = {
         title: str(f.title, 80), summary: str(f.summary, 600), when: str(f.when, 40),
@@ -1384,7 +1435,7 @@ const ASK_SUGGEST = ["출생신고하는 법", "출산 지원금 총정리", "�
 const TRUSTED = "정부24(gov.kr), 복지로(bokjiro.go.kr), 아이사랑(childcare.go.kr), 보건복지부(mohw.go.kr), 질병관리청(kdca.go.kr), 예방접종도우미(nip.kdca.go.kr), 국민건강보험(nhis.or.kr), 고용노동부(moel.go.kr), 대한소아청소년과학회(pediatrics.or.kr), 서울아산·서울대·삼성서울병원 등 대학병원, 세계보건기구(who.int), 미국소아과학회(healthychildren.org), 미국 CDC(cdc.gov)";
 let askBusy = false;
 
-function askPrompt(q) {
+function askPrompt(q, noSearch) {
   const catText = CATS.map(c => `- ${c.id} (${c.name}): ${subsOf(c.id).join(", ") || "(없음)"}`).join("\n");
   const have = tips.slice(0, 150).map(t => `- [${t.category}] ${t.title}`).join("\n") || "(없음)";
   const today = new Date().toISOString().slice(0, 10);
@@ -1392,11 +1443,11 @@ function askPrompt(q) {
 부모의 요청: """${q}"""
 
 할 일:
-1. 구글 검색으로 요청에 맞는 최신 정보를 찾아. 반드시 검색 결과에 근거해서만 써. 모르는 건 지어내지 마.
+${noSearch ? "1. 지금은 구글 검색을 쓸 수 없어. 네가 확실히 아는 일반적인 내용만 쓰고, 금액·기한·자격처럼 바뀌는 숫자는 쓰지 마. sources는 빈 배열로 둬." : "1. 구글 검색으로 요청에 맞는 최신 정보를 찾아. 반드시 검색 결과에 근거해서만 써. 모르는 건 지어내지 마."}
 2. 출처는 믿을 수 있는 곳을 우선해: ${TRUSTED}. 개인 블로그·커뮤니티·쇼핑몰은 공식 자료가 전혀 없을 때만 쓰고, 그때는 cautions에 "개인 경험담 기반"이라고 적어.
 3. 내용을 부모가 바로 따라 할 수 있는 꿀팁 1~5개로 나눠. 꿀팁 하나는 한 가지 주제만 다뤄.
 4. 이미 저장된 꿀팁과 같은 내용이면 만들지 마.
-5. 각 꿀팁을 아래 카테고리 중 맞는 곳에 넣어. 맞는 큰 카테고리가 없으면 category를 "new"로 하고 newCategory에 새 이름(2~6자)을 지어. 세부 카테고리(subcategory)도 맞는 게 없으면 새로 지어(2~8자).
+5. 각 꿀팁을 아래 카테고리 중 가장 잘 맞는 하나에 넣어. 새 큰 카테고리는 만들지 마. 세부 카테고리(subcategory)는 목록에 맞는 게 없으면 새로 지어(2~8자).
 6. 금액·기한·자격처럼 바뀌는 정보는 기준 연도를 적고 cautions에 "신청 전 공식 사이트에서 최신 기준 확인"을 넣어. 의학 정보는 "아기 상태가 걱정되면 소아과 상담"을 넣어.
 7. 말투는 쉽고 짧게, "~해요"체.
 8. 육아와 관계없는 요청이면 tips를 빈 배열로 하고 reply에 이유를 적어.
@@ -1411,7 +1462,7 @@ ${have}
 {
   "reply": "무엇을 찾아서 어떻게 정리했는지 부모에게 2~4문장으로 알려 주는 말",
   "tips": [{
-    "title": "25자 이내 제목", "category": "카테고리 id 또는 new", "newCategory": "", "subcategory": "",
+    "title": "25자 이내 제목", "category": "카테고리 id", "subcategory": "",
     "summary": "핵심 한두 문장", "points": ["핵심 포인트"], "steps": ["순서가 있으면 단계"], "cautions": ["주의할 점"],
     "when": "언제 필요한 정보인지 (예: 출생 후 1개월 이내)", "checklist": ["부모가 할 일"], "tags": ["검색 키워드"],
     "stages": ["이 꿀팁이 필요한 아기 시기. prenatal(출산 전), newborn(0~1개월), m1_3, m3_6, m6_12, y1(돌 이후) 중 해당하는 것 모두"],
@@ -1429,10 +1480,8 @@ function parseLooseJson(txt) {
   throw { code: "bad_json" };
 }
 
-async function askGemini(q) {
-  const model = await pickModel();
-  const j = await (await gfetch(`/v1beta/models/${model}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: askPrompt(q) }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.2 } }) })).json();
+async function askGemini(q, noSearch) {
+  const j = await generate({ contents: [{ role: "user", parts: [{ text: askPrompt(q, noSearch) }] }], ...(noSearch ? {} : { tools: [{ google_search: {} }] }), generationConfig: { temperature: 0.2 } });
   const cand = j.candidates?.[0];
   if (!cand || j.promptFeedback?.blockReason || cand.finishReason === "SAFETY") throw { code: "blocked" };
   const txt = (cand.content?.parts || []).map(p => p.text || "").join("");
@@ -1461,7 +1510,7 @@ function renderAskWorking(q) {
     el("div", { class: "working" }, el("span", { class: "spin" }), el("span", { text: "제미나이가 구글에서 찾아보고 정리하는 중이에요. 보통 20~60초 걸려요." })));
 }
 
-async function runAsk(q) {
+async function runAsk(q, noSearch) {
   q = str(q, 500);
   if (!q || askBusy) return;
   if (!getKey()) { showBanner("오른쪽 위 '설정'에서 제미나이 API 키를 먼저 넣어 주세요."); openSettings(); return; }
@@ -1469,22 +1518,15 @@ async function runAsk(q) {
   askBusy = true; $("#askBtn").disabled = true; $("#askBtn").textContent = "찾는 중…";
   renderAskWorking(q);
   try {
-    const r = await askGemini(q);
+    const r = await askGemini(q, noSearch);
     const added = [], newCats = [], made = {};
     const now = Date.now(), today = new Date().toISOString().slice(0, 10);
+    if (noSearch) r.tips.forEach(t => { t.sources = []; t.cautions = ["구글 검색 없이 제미나이가 알고 있는 내용으로 정리했어요. 공식 사이트에서 한 번 더 확인해 주세요.", ...arr(t.cautions)]; });
     for (let i = 0; i < r.tips.length; i++) {
       const t = r.tips[i];
-      let cat = catById[t.category] ? t.category : (catByName[t.category]?.id || null);
-      if (!cat) {
-        const nm = str(t.newCategory, 20) || (t.category !== "new" ? str(t.category, 20) : "");
-        if (catByName[nm]) cat = catByName[nm].id;
-        else if (made[nm]) cat = made[nm];
-        else if (nm) {
-          cat = "c-" + (now + i).toString(36);
-          await catsCol.doc(cat).set({ name: nm, subs: [str(t.subcategory, 30) || "기타"], color: PALETTE[(CATS.length + newCats.length) % PALETTE.length], createdAt: now + i });
-          made[nm] = cat; newCats.push({ id: cat, name: nm });
-        } else cat = "gear";
-      }
+      const tc = OLD_CAT[t.category] || t.category;
+      let cat = BASE_CATS.some(b => b.id === tc) ? tc : (catByName[tc]?.id || null);
+      if (!cat) cat = guessCat([t.category, t.subcategory, t.title].join(" ")) || "gear";
       const id = `ask-${now.toString(36)}-${i}`;
       const data = {
         title: str(t.title, 80) || "새 꿀팁", category: cat, subcategory: str(t.subcategory, 30) || (subsOf(cat)[0] || "기타"),
@@ -1492,22 +1534,22 @@ async function runAsk(q) {
         when: str(t.when, 40), tags: arr(t.tags).slice(0, 8), checklist: arr(t.checklist).slice(0, 15).map(text => ({ text, done: false })),
         stages: arr(t.stages).filter(x => STAGE_IDS.includes(x)),
         sources: t.sources, url: t.sources[0]?.url || "", source: t.sources[0]?.name || "제미나이 검색",
-        origin: "ask", question: q, checkedAt: today, ai: true, starred: false, original: "", createdAt: now - i,
+        origin: "ask", question: q, checkedAt: today, ...(noSearch ? { unverified: true } : {}), ai: true, starred: false, original: "", createdAt: now - i,
       };
       await tipsCol.doc(id).set(data);
       added.push({ id, ...data });
     }
-    renderAskResult(q, r, added, newCats);
-    paintTips(added);
+    renderAskResult(q, r, added, newCats, noSearch);
     $("#askIn").value = "";
   } catch (e) {
     const out = $("#askOut"); out.hidden = false;
-    out.replaceChildren(el("div", { class: "q", text: `"${q}"` }),
-      el("div", { class: "status err", text: (ERR[e?.code] || "찾다가 문제가 생겼어요.") + (e?.message && !ERR[e?.code] ? ` (${String(e.message).slice(0, 160)})` : "") + " 다시 눌러 주세요." }));
+    out.replaceChildren(...[el("div", { class: "q", text: `"${q}"` }),
+      errBox(e, "찾다가 문제가 생겼어요. 잠시 뒤 다시 눌러 주세요."),
+      e?.code === "quota_zero" && !noSearch ? el("button", { class: "btn ghost", type: "button", text: "검색 없이 제미나이가 아는 것으로 정리하기", onclick: () => runAsk(q, true) }) : null].filter(Boolean));
   } finally { askBusy = false; $("#askBtn").disabled = false; $("#askBtn").textContent = "찾기"; }
 }
 
-function renderAskResult(q, r, added, newCats) {
+function renderAskResult(q, r, added, newCats, noSearch) {
   const out = $("#askOut"); out.hidden = false;
   const undo = el("button", { class: "toggle", style: "justify-self:start", text: "방금 추가한 것 되돌리기", onclick: async () => {
     undo.disabled = true;
@@ -1523,7 +1565,7 @@ function renderAskResult(q, r, added, newCats) {
       added.map(a => { const c = catById[a.category]; return el("button", { style: `--cc: ${catColor(a.category)}`, onclick: () => openDetail(a.id) },
         el("span", { class: "cl", text: `${c?.name || "기타"} · ${a.subcategory}` }), el("span", { class: "tt", text: a.title })); })) : null,
     newCats.length ? el("div", { class: "newcat", text: `새 카테고리를 만들었어요: ${newCats.map(c => c.name).join(", ")}` }) : null,
-    added.length ? el("p", { class: "note", text: "꿀팁을 누르면 출처 링크까지 볼 수 있어요." }) : null,
+    added.length ? el("p", { class: "note", text: noSearch ? "구글 검색 없이 정리해서 출처가 없어요. 중요한 내용은 공식 사이트에서 한 번 더 확인해 주세요." : "꿀팁을 누르면 출처 링크까지 볼 수 있어요." }) : null,
     added.length ? undo : null].filter(Boolean));
 }
 
@@ -1532,59 +1574,6 @@ function setupAsk() {
   ASK_SUGGEST.forEach(t => chips.append(el("button", { type: "button", text: t, onclick: () => { $("#askIn").value = t; $("#askIn").focus(); } })));
   $("#askForm").addEventListener("submit", e => { e.preventDefault(); runAsk($("#askIn").value); });
   $("#askIn").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); runAsk($("#askIn").value); } });
-}
-
-// ---------- Tip pictures (Gemini image model; falls back to category tiles) ----------
-async function pickImageModel() {
-  const saved = lsGet("yw.imgModel"); if (saved) return saved;
-  const j = await (await gfetch("/v1beta/models?pageSize=200")).json();
-  const ok = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent")).map(m => m.name.replace(/^models\//, ""))
-    .filter(n => /image/.test(n) && /gemini/.test(n));
-  const best = ok.find(n => /flash.*image$/.test(n)) || ok.find(n => /flash.*image/.test(n)) || ok[0] || "";
-  if (best) lsSet("yw.imgModel", best);
-  return best;
-}
-function shrinkImage(src, size = 320) {
-  return new Promise((res, rej) => {
-    const im = new Image();
-    im.onload = () => {
-      const c = document.createElement("canvas"); c.width = c.height = size;
-      const s = Math.max(size / im.width, size / im.height), w = im.width * s, h = im.height * s;
-      c.getContext("2d").drawImage(im, (size - w) / 2, (size - h) / 2, w, h);
-      res(c.toDataURL("image/jpeg", .72));
-    };
-    im.onerror = rej; im.src = src;
-  });
-}
-async function makeTipImage(t, manual) {
-  const off = +lsGet("yw.noImg") || 0;
-  if (!manual && Date.now() - off < 864e5) return null;
-  const m = await pickImageModel();
-  if (!m) { lsSet("yw.noImg", String(Date.now())); throw { code: "img_unavailable" }; }
-  const prompt = `A soft, warm flat illustration for a parenting tips app card. Subject: ${t.title}. ${t.summary || ""}
-Style: gentle pastel colors, simple rounded shapes, cozy and calm, plain light background, square composition. Absolutely no text, letters, numbers, logos or watermarks.`;
-  try {
-    const j = await (await gfetch(`/v1beta/models/${m}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["IMAGE"] } }) })).json();
-    const part = (j.candidates?.[0]?.content?.parts || []).find(p => p.inlineData || p.inline_data);
-    const d = part?.inlineData || part?.inline_data;
-    if (!d?.data) return null;
-    return await shrinkImage(`data:${d.mimeType || d.mime_type || "image/png"};base64,${d.data}`);
-  } catch (e) {
-    if (e?.code === "rate_limited" || /quota|billing|free tier|not available|permission/i.test(e?.message || "")) { lsSet("yw.noImg", String(Date.now())); throw { code: "img_unavailable" }; }
-    throw e;
-  }
-}
-let painting = false;
-async function paintTips(list) {
-  if (painting) return; painting = true;
-  try {
-    for (const t of list) {
-      if (validThumb(t.thumb)) continue;
-      try { const img = await makeTipImage(t); if (!img) continue; await tipsCol.doc(t.id).update({ thumb: img }); }
-      catch (e) { if (e?.code === "img_unavailable") break; }
-    }
-  } finally { painting = false; }
 }
 
 // ---------- Development tab ----------
@@ -1827,8 +1816,7 @@ async function boot() {
   setBirth(lsGet("yw.birth"));
   showView();
   window.addEventListener("hashchange", () => { showView(); window.scrollTo(0, 0); });
-  $("#allBtn").addEventListener("click", () => { location.hash = "all"; });
-  $("#backBtn").addEventListener("click", () => { location.hash = ""; showView(); window.scrollTo(0, 0); });
+  if (location.hash === "#all") history.replaceState(null, "", location.pathname + location.search);
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
   renderDday(); render();
   $("#setBtn").addEventListener("click", openSettings);
