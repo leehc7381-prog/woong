@@ -64,30 +64,62 @@ body { margin: 0; }
 [hidden] { display: none !important; }
 img { max-width: 100%; }
 .gear { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 12px; font-size: .85rem; }
-.top-right { display: flex; gap: 8px; align-items: center; }
+.top-right { display: flex; gap: 6px; align-items: center; flex: none; }
+.top { flex-wrap: nowrap !important; }
+.logo { font-family: var(--f-display); font-weight: 400; font-size: 1.3rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.icon-btn { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--surface); border-radius: 50%; color: var(--muted); padding: 0; }
+.view { display: grid; gap: 16px; }
+.sec { display: grid; gap: 8px; }
+.sec-h h2 { font-size: 1.05rem !important; }
+.favs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.favs::-webkit-scrollbar { display: none; }
+.fav { flex: none; width: 116px; display: grid; gap: 6px; text-align: left; border: 0; background: var(--surface); border-radius: 14px; padding: 6px; box-shadow: var(--shadow); }
+.fav .tt { font-size: .8rem; font-weight: 500; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 0 2px 2px; }
+.fav .th { width: 100%; aspect-ratio: 1; border-radius: 10px; }
+.stages { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.stages::-webkit-scrollbar { display: none; }
+.stage { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px; font-size: .8rem; display: inline-flex; gap: 5px; align-items: center; }
+.stage[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.stage .now { font-size: .65rem; background: var(--yolk); color: #1D2925; border-radius: 6px; padding: 0 5px; font-weight: 700; }
+.all-btn { width: 100%; }
+.all-h { display: flex; align-items: center; gap: 8px; }
+.all-h h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.2rem; margin: 0; }
+.tcard { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 12px; align-items: center; text-align: left; border: 0; width: 100%; background: var(--surface); border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: var(--shadow); }
+.tcard .th { width: 60px; height: 60px; border-radius: 10px; }
+.tcard .bd { display: grid; gap: 2px; min-width: 0; }
+.tcard .mt { display: flex; gap: 6px; align-items: center; font-size: .72rem; color: var(--muted); min-width: 0; white-space: nowrap; overflow: hidden; }
+.tcard .mt .cl { color: var(--cc); font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+.tcard h3 { margin: 0; font-size: .95rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tcard p { margin: 0; color: var(--muted); font-size: .8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+img.th { object-fit: cover; display: block; background: var(--surface-2); }
+.th.ph { display: grid; place-items: center; background: color-mix(in srgb, var(--cc, var(--accent)) 16%, var(--surface)); color: var(--cc, var(--accent)); font-family: var(--f-display); font-size: 1.5rem; }
+.fav .th.ph { font-size: 2rem; }
+.more-stage { justify-self: start; }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
 button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.wrap { max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 120px; display: grid; gap: 20px; }
+.wrap { max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 12px 96px; display: grid; gap: 14px; }
 
 /* Header */
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .brand { display: grid; gap: 2px; }
 .brand h1 { font-family: var(--f-display); font-size: 1.75rem; line-height: 1.2; margin: 0; font-weight: 400; letter-spacing: -.01em; }
 .brand p { margin: 0; color: var(--muted); font-size: .85rem; }
-.dday { display: grid; justify-items: end; gap: 0; background: var(--yolk-soft); border-radius: 14px; padding: 8px 14px; }
-.dday b { font-family: var(--f-display); font-size: 1.5rem; font-weight: 400; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.dday span { font-size: .75rem; color: var(--muted); }
+.dday { display: flex; align-items: baseline; gap: 6px; background: var(--yolk-soft); border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
+.dday b { font-family: var(--f-display); font-size: 1.05rem; font-weight: 400; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.dday span { font-size: .72rem; color: var(--muted); }
 
 /* Search */
 .search { display: flex; gap: 8px; }
 .search input { flex: 1; min-width: 0; padding: 11px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 
 /* Category rail */
-.cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
-.cat { display: grid; gap: 2px; text-align: left; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); position: relative; }
-.cat .nm { font-weight: 700; font-size: .9rem; display: flex; align-items: center; gap: 6px; }
+.cats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 560px) { .cats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cat { display: grid; align-content: center; gap: 2px; height: 58px; text-align: left; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); position: relative; min-width: 0; }
+.cat .nm { font-weight: 700; font-size: .85rem; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.cat .nm .tx { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cat .ct { font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .cat[aria-pressed="true"] { border-color: var(--cc, var(--accent)); box-shadow: inset 0 0 0 1px var(--cc, var(--accent)); background: var(--surface-2); }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cc, var(--accent)); flex: none; }
@@ -102,14 +134,14 @@ button { cursor: pointer; }
 .toggle { border: 0; background: none; color: var(--accent); font-size: .85rem; padding: 4px; }
 
 /* Tip cards */
-.list { display: grid; gap: 10px; }
+.list { display: grid; gap: 8px; }
 .card { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 14px 16px; display: grid; gap: 6px; text-align: left; border: 0; width: 100%; }
 .card .meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: .75rem; color: var(--muted); }
 .card .meta .cl { color: var(--cc); font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
 .card { grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: 12px; }
 .card-main { display: grid; gap: 6px; min-width: 0; }
 .card-thumb { width: 56px; height: 80px; object-fit: cover; border-radius: 10px; background: var(--surface-2); }
-.detail-thumb { width: 96px; height: 136px; object-fit: cover; border-radius: 12px; }
+.detail-thumb { width: 100%; max-width: 300px; aspect-ratio: 1; object-fit: cover; border-radius: 16px; justify-self: center; background: var(--surface-2); }
 .drop { display: grid; gap: 8px; }
 .drop-btn { display: grid; gap: 4px; text-align: left; padding: 18px 18px; border-radius: 16px; border: 1.5px dashed var(--accent); background: var(--accent-soft); color: var(--ink); }
 .drop-btn b { font-size: 1.05rem; color: var(--accent); }
@@ -133,12 +165,15 @@ button { cursor: pointer; }
 .srcs small { color: var(--muted); }
 .prog { font-variant-numeric: tabular-nums; }
 .ask { display: grid; gap: 12px; }
-.ask-form { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); padding: 14px 16px; display: grid; gap: 10px; border: 1.5px solid var(--accent-soft); }
+.ask-form { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 8px; display: grid; gap: 6px; border: 1.5px solid var(--accent-soft); }
+.ask-row { display: flex; gap: 8px; align-items: flex-end; }
+.ask-row .btn { padding: 10px 16px; }
 .ask-label { font-family: var(--f-display); font-size: 1.2rem; }
-.ask-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface-2); resize: vertical; min-height: 64px; }
+.ask-form textarea { flex: 1; min-width: 0; border: 0; border-radius: 10px; padding: 10px; background: var(--surface-2); resize: none; min-height: 42px; max-height: 140px; field-sizing: content; }
 .ask-foot { display: flex; gap: 10px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
-.ask-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1 1 200px; min-width: 0; }
-.ask-chips button { border: 1px dashed var(--line); background: none; border-radius: 999px; padding: 3px 10px; font-size: .78rem; color: var(--muted); }
+.ask-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 0 2px 2px; }
+.ask-chips::-webkit-scrollbar { display: none; }
+.ask-chips button { flex: none; border: 1px dashed var(--line); background: none; border-radius: 999px; padding: 2px 10px; font-size: .76rem; color: var(--muted); }
 .ask-out { background: var(--surface); border-radius: 18px; padding: 14px 16px; display: grid; gap: 12px; border-left: 4px solid var(--accent); }
 .ask-out .q { font-size: .8rem; color: var(--muted); }
 .ask-out .reply { white-space: pre-line; }
@@ -160,7 +195,7 @@ button { cursor: pointer; }
 .btn:disabled { opacity: .5; cursor: default; }
 .btn.ghost { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); }
 .btn.danger { background: transparent; color: var(--danger); border: 1px solid var(--line); }
-.fab { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 20; border-radius: 999px; padding: 14px 26px; font-size: 1rem; box-shadow: 0 8px 24px rgba(35,115,95,.35); }
+.fab { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 20; border-radius: 999px; padding: 11px 18px; font-size: .9rem; box-shadow: 0 8px 24px rgba(35,115,95,.35); }
 
 /* Sheet */
 .scrim { position: fixed; inset: 0; background: rgba(10,20,17,.45); z-index: 30; }
@@ -215,46 +250,58 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
 
 <div class="wrap">
   <header class="top">
-    <div class="brand">
-      <h1>영웅이 육아노트</h1>
-      <p>궁금한 육아 꿀팁, 물어보면 찾아서 정리해 줘요</p>
-    </div>
+    <h1 class="logo">영웅이 육아노트</h1>
     <div class="top-right">
-      <div class="dday" id="dday"><b>D-?</b><span>12월 15일 예정</span></div>
-      <button class="gear" id="setBtn" aria-label="설정">설정</button>
+      <div class="dday" id="dday"><b>D-?</b></div>
+      <button class="icon-btn" id="setBtn" aria-label="설정" title="설정"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.3a.5.5 0 0 0-.6-.2l-2.4 1a7.3 7.3 0 0 0-1.7-1L14.5 2.7a.5.5 0 0 0-.5-.4h-3.8a.5.5 0 0 0-.5.4l-.4 2.6a7.3 7.3 0 0 0-1.7 1l-2.4-1a.5.5 0 0 0-.6.2L2.7 8.8a.5.5 0 0 0 .1.6l2 1.6a7.6 7.6 0 0 0 0 2l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.3a.5.5 0 0 0 .6.2l2.4-1a7.3 7.3 0 0 0 1.7 1l.4 2.6a.5.5 0 0 0 .5.4h3.8a.5.5 0 0 0 .5-.4l.4-2.6a7.3 7.3 0 0 0 1.7-1l2.4 1a.5.5 0 0 0 .6-.2l1.9-3.3a.5.5 0 0 0-.1-.6zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg></button>
     </div>
   </header>
 
   <div class="banner" id="banner" hidden></div>
 
-  <section class="ask" aria-labelledby="askLabel">
+  <section class="ask" aria-label="꿀팁 물어보기">
     <form id="askForm" class="ask-form">
-      <label for="askIn" id="askLabel" class="ask-label">무엇이 궁금해요?</label>
-      <textarea id="askIn" rows="2" placeholder="예: 신생아 목욕 꿀팁 알려줘 / 출산하고 받을 수 있는 지원금 정리해 줘"></textarea>
-      <div class="ask-foot">
-        <div class="ask-chips" id="askChips"></div>
-        <button class="btn" id="askBtn" type="submit">찾아서 정리하기</button>
+      <div class="ask-row">
+        <textarea id="askIn" rows="1" aria-label="무엇이 궁금해요?" placeholder="무엇이 궁금해요? 예: 신생아 목욕 방법"></textarea>
+        <button class="btn" id="askBtn" type="submit">찾기</button>
       </div>
+      <div class="ask-chips" id="askChips"></div>
     </form>
     <div class="ask-out" id="askOut" hidden></div>
   </section>
 
-  <div class="search">
-    <input id="q" type="search" placeholder="꿀팁 검색 (예: 출생신고, 트림, 목욕)" aria-label="꿀팁 검색">
+  <div id="homeView" class="view">
+    <section class="sec" id="favSec" hidden>
+      <div class="sec-h"><h2>★ 즐겨찾기</h2><small id="favCount"></small></div>
+      <div class="favs" id="favs"></div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-h"><h2 id="stageTitle">지금 영웅이에게 필요한 꿀팁</h2><small id="stageSub"></small></div>
+      <div class="stages" id="stages" role="tablist" aria-label="성장 단계"></div>
+      <div class="list" id="stageList"></div>
+    </section>
+
+    <button class="btn ghost all-btn" id="allBtn">모든 꿀팁 보기</button>
   </div>
 
-  <section style="display:grid;gap:10px">
-    <div class="sec-h"><h2>카테고리</h2><button class="toggle" id="showAll">전체 보기</button></div>
-    <div class="cats" id="cats"></div>
-    <div class="subs" id="subs" hidden></div>
-  </section>
-
-  <section style="display:grid;gap:10px">
-    <div class="sec-h"><h2 id="listTitle">모든 꿀팁</h2><small id="listCount"></small></div>
-    <div class="list" id="list">
-      <div class="empty"><b>꿀팁을 불러오는 중이에요</b><span>잠시만 기다려 주세요.</span></div>
+  <div id="allView" class="view" hidden>
+    <div class="all-h"><button class="toggle" id="backBtn">← 홈으로</button><h2>모든 꿀팁</h2></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="꿀팁 검색 (예: 출생신고, 트림, 목욕)" aria-label="꿀팁 검색">
     </div>
-  </section>
+    <section class="sec">
+      <div class="sec-h"><h2>카테고리</h2><button class="toggle" id="showAll">전체 보기</button></div>
+      <div class="cats" id="cats"></div>
+      <div class="subs" id="subs" hidden></div>
+    </section>
+    <section class="sec">
+      <div class="sec-h"><h2 id="listTitle">모든 꿀팁</h2><small id="listCount"></small></div>
+      <div class="list" id="list">
+        <div class="empty"><b>꿀팁을 불러오는 중이에요</b><span>잠시만 기다려 주세요.</span></div>
+      </div>
+    </section>
+  </div>
 </div>
 
 <button class="btn fab" id="addBtn">+ 영상·직접 넣기</button>
@@ -337,16 +384,51 @@ function sourceOf(u) {
 }
 function catColor(id) { return `var(${(catById[id] || CATS[0]).c})`; }
 function validThumb(v) { return typeof v === "string" && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(v) ? v : null; }
+function ymd(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+function setBirth(v) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); birthDate = m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
 function fmtDate(ts) { const d = new Date(ts || 0); return `${d.getMonth() + 1}.${d.getDate()}`; }
 
 // ---------- D-day ----------
 function renderDday() {
   const t = new Date(); const today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
-  const diff = Math.round((DUE - today) / 86400000);
+  const diff = Math.round((birth() - today) / 86400000);
   const box = $("#dday"); box.replaceChildren();
-  if (diff > 0) box.append(el("b", { text: `D-${diff}` }), el("span", { text: "영웅이 12월 15일 예정" }));
-  else if (diff === 0) box.append(el("b", { text: "D-DAY" }), el("span", { text: "영웅아 반가워!" }));
-  else box.append(el("b", { text: `${-diff + 1}일째` }), el("span", { text: "영웅이가 태어난 지" }));
+  if (diff > 0) box.append(el("b", { text: `D-${diff}` }));
+  else if (diff === 0) box.append(el("b", { text: "D-DAY" }));
+  else box.append(el("span", { text: "영웅이" }), el("b", { text: `${-diff + 1}일` }));
+}
+
+// ---------- Life stages ----------
+const STAGES = [
+  { id: "prenatal", name: "출산 전", min: -99, max: 0 },
+  { id: "newborn", name: "0~1개월", min: 0, max: 1 },
+  { id: "m1_3", name: "1~3개월", min: 1, max: 3 },
+  { id: "m3_6", name: "3~6개월", min: 3, max: 6 },
+  { id: "m6_12", name: "6~12개월", min: 6, max: 12 },
+  { id: "y1", name: "돌 이후", min: 12, max: 999 },
+];
+const STAGE_IDS = STAGES.map(x => x.id);
+const CAT_STAGES = { docs: ["prenatal", "newborn"], gear: ["prenatal"], mom: ["prenatal", "newborn"], feed: ["newborn", "m1_3"], sleep: ["newborn", "m1_3"],
+  bath: ["newborn", "m1_3"], clean: ["prenatal", "newborn"], play: ["m1_3", "m3_6"], health: ["newborn", "m1_3"] };
+let birthDate = null;   // actual birthday when set, else the due date
+let selStage = null;
+function birth() { return birthDate || DUE; }
+function babyMonths() { const t = new Date(); return (new Date(t.getFullYear(), t.getMonth(), t.getDate()) - birth()) / (30.44 * 86400000); }
+function currentStage() { const m = babyMonths(); return (STAGES.find(x => m >= x.min && m < x.max) || STAGES[0]).id; }
+function stagesOf(t) {
+  const given = Array.isArray(t.stages) ? t.stages.filter(x => STAGE_IDS.includes(x)) : [];
+  if (given.length) return given;
+  const tx = [t.when, t.title, t.subcategory, ...(t.tags || [])].join(" ");
+  const out = new Set();
+  if (/출산\s*전|임신|출산\s*준비|출산가방|예정일|산전|태교/.test(tx)) out.add("prenatal");
+  if (/신생아|출생\s*후|출생신고|배꼽|첫\s*(주|달|목욕)|조리원|생후\s*\d+\s*일/.test(tx)) out.add("newborn");
+  const mark = (a, b) => STAGES.forEach(x => { if (x.min < b && x.max > a && x.id !== "prenatal") out.add(x.id); });
+  for (const m of tx.matchAll(/(\d+)\s*[~\-–]\s*(\d+)\s*개월/g)) mark(+m[1], +m[2] + 0.01);
+  for (const m of tx.matchAll(/(\d+)\s*개월/g)) { const n = +m[1]; if (/이내/.test(tx) && n <= 2) mark(0, n); else mark(n, n + 0.01); }
+  if (/100일/.test(tx)) out.add("m1_3"); if (/이유식/.test(tx)) out.add("m3_6"), out.add("m6_12");
+  if (/돌\s*(이후|잔치|부터)|(\d)\s*세|어린이집|걸음마/.test(tx)) out.add("y1");
+  if (!out.size) (CAT_STAGES[t.category] || ["newborn"]).forEach(x => out.add(x));
+  return [...out];
 }
 
 // ---------- Rendering ----------
@@ -361,14 +443,38 @@ function filtered() {
   }).sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0));
 }
 
+function thumbEl(t) {
+  const th = validThumb(t.thumb);
+  if (th) return el("img", { class: "th", src: th, alt: "", loading: "lazy" });
+  const c = catById[t.category];
+  return el("div", { class: "th ph", "aria-hidden": "true", text: (c?.name || "꿀")[0] });
+}
+
+function tipCard(t) {
+  const c = catById[t.category];
+  const cl = t.checklist || [], done = cl.filter(x => x.done).length;
+  return el("button", { class: "tcard", style: `--cc: ${catColor(t.category)}`, onclick: () => openDetail(t.id) },
+    thumbEl(t),
+    el("div", { class: "bd" },
+      el("div", { class: "mt" },
+        el("span", { class: "cl", text: `${c?.name || "기타"} · ${t.subcategory || "기타"}` }),
+        t.starred ? el("span", { class: "star", text: "★" }) : null,
+        t.example ? el("span", { class: "badge ex", text: "예시" }) : null,
+        t.auto ? el("span", { class: "badge auto", text: "자동" }) : null,
+        (t.sources || []).length ? el("span", { class: "badge asked", text: `출처 ${(t.sources || []).length}` }) : null,
+        cl.length ? el("span", { class: "prog", text: `${done}/${cl.length}` }) : null),
+      el("h3", { text: t.title || "제목 없음" }),
+      t.summary ? el("p", { text: t.summary }) : (t.when ? el("p", { text: t.when }) : null)));
+}
+
 function renderCats() {
   const box = $("#cats"); box.replaceChildren();
   for (const c of CATS) {
     const n = tips.filter(t => t.category === c.id).length;
     box.append(el("button", {
-      class: "cat", "aria-pressed": String(selCat === c.id), style: `--cc: var(${c.c})`,
+      class: "cat", "aria-pressed": String(selCat === c.id), style: `--cc: var(${c.c})`, title: c.name,
       onclick: () => { selCat = selCat === c.id ? null : c.id; selSub = null; render(); }
-    }, el("span", { class: "nm" }, el("span", { class: "dot" }), c.name), el("span", { class: "ct", text: `${n}개` })));
+    }, el("span", { class: "nm" }, el("span", { class: "dot" }), el("span", { class: "tx", text: c.name })), el("span", { class: "ct", text: `${n}개` })));
   }
   const subs = $("#subs"); subs.replaceChildren();
   if (selCat) {
@@ -381,41 +487,50 @@ function renderCats() {
   $("#showAll").hidden = !selCat && !query;
 }
 
+function emptyBox(title, text) {
+  return el("div", { class: "empty" }, el("b", { text: title }), el("span", { text }));
+}
+
 function renderList() {
   const box = $("#list"); box.replaceChildren();
   const c = selCat && catById[selCat];
   $("#listTitle").textContent = c ? (selSub ? `${c.name} · ${selSub}` : c.name) : (query ? "검색 결과" : "모든 꿀팁");
-  if (!loaded) { box.append(el("div", { class: "empty" }, el("b", { text: "꿀팁을 불러오는 중이에요" }), el("span", { text: "잠시만 기다려 주세요." }))); $("#listCount").textContent = ""; return; }
+  if (!loaded) { box.append(emptyBox("꿀팁을 불러오는 중이에요", "잠시만 기다려 주세요.")); $("#listCount").textContent = ""; return; }
   const items = filtered();
   $("#listCount").textContent = `${items.length}개`;
-  if (!items.length) {
-    box.append(el("div", { class: "empty" },
-      el("b", { text: tips.length ? "여기엔 아직 꿀팁이 없어요" : "첫 꿀팁을 넣어 보세요" }),
-      el("span", { text: "유튜브·인스타 링크와 내용을 붙여넣으면 AI가 알아서 분류하고 요약해 줘요." }),
-      el("button", { class: "btn", onclick: openAdd, text: "+ 꿀팁 넣기" })));
-    return;
-  }
-  for (const t of items) {
-    const cl = t.checklist || []; const done = cl.filter(x => x.done).length;
-    const th = validThumb(t.thumb);
-    box.append(el("button", { class: "card", style: `--cc: ${catColor(t.category)}`, onclick: () => openDetail(t.id) },
-      el("div", { class: "card-main" },
-      el("div", { class: "meta" },
-        el("span", { class: "cl" }, el("span", { class: "dot" }), `${(catById[t.category] || {}).name || "기타"} · ${t.subcategory || "기타"}`),
-        t.when ? el("span", { class: "badge when", text: t.when }) : null,
-        t.example ? el("span", { class: "badge ex", text: "예시" }) : null,
-        t.auto ? el("span", { class: "badge auto", text: "자동 수집" }) : null,
-        t.origin === "ask" ? el("span", { class: "badge asked", text: `출처 ${(t.sources || []).length}` }) : null,
-        t.starred ? el("span", { class: "star", "aria-label": "즐겨찾기", text: "★" }) : null),
-      el("h3", { text: t.title || "제목 없음" }),
-      t.summary ? el("p", { text: t.summary }) : null,
-      el("div", { class: "meta" },
-        el("span", { text: t.source || sourceOf(t.url) }), el("span", { text: "·" }), el("span", { text: fmtDate(t.createdAt) }),
-        cl.length ? el("span", { class: "prog", text: `· 체크 ${done}/${cl.length}` }) : null)),
-      th ? el("img", { class: "card-thumb", src: th, alt: "" }) : null));
-  }
+  if (!items.length) { box.append(emptyBox(tips.length ? "여기엔 아직 꿀팁이 없어요" : "첫 꿀팁을 물어보세요", "맨 위에 궁금한 걸 적으면 제미나이가 찾아서 정리해 줘요.")); return; }
+  items.forEach(t => box.append(tipCard(t)));
 }
-function render() { renderCats(); renderList(); }
+
+function renderHome() {
+  // Favorites
+  const favs = tips.filter(t => t.starred).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  $("#favSec").hidden = !favs.length;
+  $("#favCount").textContent = favs.length ? `${favs.length}개` : "";
+  $("#favs").replaceChildren(...favs.map(t => el("button", { class: "fav", style: `--cc: ${catColor(t.category)}`, onclick: () => openDetail(t.id) },
+    thumbEl(t), el("span", { class: "tt", text: t.title }))));
+  // Stage tabs
+  const cur = currentStage(); if (!selStage) selStage = cur;
+  $("#stages").replaceChildren(...STAGES.map(x => el("button", { class: "stage", role: "tab", "aria-selected": String(selStage === x.id),
+    onclick: () => { selStage = x.id; renderHome(); } }, x.name, x.id === cur ? el("span", { class: "now", text: "지금" }) : null)));
+  const st = STAGES.find(x => x.id === selStage);
+  const t0 = new Date(), dd = Math.round((birth() - new Date(t0.getFullYear(), t0.getMonth(), t0.getDate())) / 864e5);
+  $("#stageTitle").textContent = selStage === cur ? "지금 영웅이에게 필요한 꿀팁" : `${st.name} 꿀팁 미리보기`;
+  $("#stageSub").textContent = selStage === cur ? (cur === "prenatal" ? `출산까지 ${Math.max(0, dd)}일` : `생후 ${1 - dd}일`) : "";
+  const box = $("#stageList"); box.replaceChildren();
+  if (!loaded) { box.append(emptyBox("꿀팁을 불러오는 중이에요", "잠시만 기다려 주세요.")); return; }
+  const items = tips.filter(t => stagesOf(t).includes(selStage))
+    .sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0));
+  if (!items.length) box.append(emptyBox(`${st.name}에 맞는 꿀팁이 아직 없어요`, `위에 "${st.name} 아기 꿀팁 알려줘"처럼 물어보면 채워져요.`));
+  items.forEach(t => box.append(tipCard(t)));
+  $("#allBtn").textContent = `모든 꿀팁 보기 · ${tips.length}개`;
+}
+
+function showView() {
+  const all = location.hash === "#all";
+  $("#homeView").hidden = all; $("#allView").hidden = !all;
+}
+function render() { renderHome(); renderCats(); renderList(); }
 
 // ---------- Sheet ----------
 function openSheet(title, body) {
@@ -580,6 +695,7 @@ JSON 하나만 출력해. 다른 글은 쓰지 마. 형식:
   "when": "언제 쓰는 팁인지 짧게 (예: 출산 전, 출생 후 1개월 이내, 생후 0~3개월, 매일). 모르면 빈 문자열",
   "checklist": ["부모가 실제로 해야 할 일을 체크리스트로, 없으면 빈 배열"],
   "tags": ["검색용 짧은 키워드 3~6개"],
+  "stages": ["필요한 아기 시기: prenatal, newborn, m1_3, m3_6, m6_12, y1 중 해당하는 것 모두"],
   "spoken": "영상이 있으면 영상 속 말과 화면 자막의 핵심을 한국어로 받아 적은 메모 (10줄 이내), 영상이 없으면 빈 문자열"
 }
 
@@ -764,7 +880,7 @@ function openDetail(id) {
       el("div", { class: "meta" }, el("span", { class: "cl" }, el("span", { class: "dot" }), `${c.name} · ${t.subcategory || "기타"}`),
         t.when ? el("span", { class: "badge when", text: t.when }) : null, t.example ? el("span", { class: "badge ex", text: "예시" }) : null,
         t.auto ? el("span", { class: "badge auto", text: "자동 수집" }) : null)),
-    validThumb(t.thumb) ? el("img", { class: "detail-thumb", src: t.thumb, alt: "릴스 장면" }) : null,
+    validThumb(t.thumb) ? el("img", { class: "detail-thumb", src: t.thumb, alt: "" }) : null,
     el("h3", { text: t.title }),
     t.summary ? el("div", { class: "summary", text: t.summary }) : null,
     list("핵심 포인트", t.points),
@@ -786,6 +902,11 @@ function openDetail(id) {
     el("div", { class: "actions" },
       el("button", { class: "btn ghost", text: t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기", onclick: async e => {
         try { await ref.update({ starred: !t.starred }); t.starred = !t.starred; e.target.textContent = t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기"; } catch {} } }),
+      !validThumb(t.thumb) ? el("button", { class: "btn ghost", text: "그림 만들기", onclick: async e => {
+        e.target.disabled = true; e.target.textContent = "그리는 중…";
+        try { const img = await makeTipImage(t, true); if (!img) throw 0; await ref.update({ thumb: img }); e.target.textContent = "그림을 넣었어요"; }
+        catch (err) { e.target.disabled = false; e.target.textContent = err?.code === "img_unavailable" ? "이 키로는 그림을 만들 수 없어요" : "다시 그리기"; }
+      } }) : null,
       el("button", { class: "btn danger", text: "지우기", onclick: () => { confirmBox.hidden = false; } })),
     confirmBox);
   openSheet("꿀팁", body);
@@ -978,6 +1099,30 @@ function openSettings() {
         } }),
         el("span", { text: "자동 수집 꿀팁 받기 (끄면 목록에서 숨겨요)" }))),
     el("div", { class: "blk" },
+      el("h4", { text: "영웅이 생일" }),
+      el("p", { class: "note", text: "태어나면 실제 생일로 바꿔 주세요. 메인 화면의 '지금 필요한 꿀팁'이 생일에 맞춰져요." }),
+      el("div", { class: "row" },
+        el("input", { id: "bdayIn", type: "date", value: ymd(birth()), "aria-label": "영웅이 생일" }),
+        el("button", { class: "btn ghost", text: "저장", onclick: async () => {
+          const v = $("#bdayIn").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return;
+          try { if (fam) await fam.set({ birthDate: v }, { merge: true }); else lsSet("yw.birth", v); } catch {}
+          setBirth(v); selStage = null; renderDday(); render(); setStatus("생일을 저장했어요.");
+        } }))),
+    el("div", { class: "blk" },
+      el("h4", { text: "꿀팁 그림" }),
+      el("p", { class: "note", text: "그림이 없는 꿀팁에 제미나이로 그림을 그려 넣어요. 키 종류에 따라 그림 기능을 못 쓸 수도 있어요. 그땐 카테고리 그림이 대신 보여요." }),
+      el("button", { class: "btn ghost", text: `그림 없는 꿀팁 ${tips.filter(t => !validThumb(t.thumb)).length}개에 그림 넣기`, onclick: async e => {
+        if (!getKey()) { setStatus(ERR.no_key, true); return; }
+        e.target.disabled = true; lsSet("yw.noImg", "");
+        const todo = tips.filter(t => !validThumb(t.thumb)); let n = 0;
+        for (const t of todo) {
+          setStatus(`그림 그리는 중… ${n + 1}/${todo.length}`);
+          try { const img = await makeTipImage(t, true); if (img) { await tipsCol.doc(t.id).update({ thumb: img }); n++; } }
+          catch (err) { setStatus(err?.code === "img_unavailable" ? "이 키로는 그림을 만들 수 없어요. 카테고리 그림으로 보여 드릴게요." : "그림을 그리다 멈췄어요. 잠시 뒤 다시 눌러 주세요.", true); e.target.disabled = false; return; }
+        }
+        setStatus(`그림 ${n}개를 넣었어요.`); e.target.disabled = false;
+      } })),
+    el("div", { class: "blk" },
       el("h4", { text: "백업" }),
       el("p", { class: "note", text: "꿀팁 전체를 파일로 저장하거나 불러올 수 있어요." }),
       el("div", { class: "actions" },
@@ -1131,6 +1276,7 @@ function startFamily(code, isNew) {
   setTimeout(maybeHandleShare, 600);
   unsubs.push(fam.onSnapshot(s => {
     familyKey = str(s.data()?.geminiKey, 200);
+    const bd = str(s.data()?.birthDate, 10); if (bd && bd !== (birthDate && ymd(birthDate))) { setBirth(bd); selStage = null; renderDday(); render(); }
     const off = s.data()?.autoFeed === false;
     if (off !== autoOff) { autoOff = off; applyVisible(); render(); if (!off) syncFeed(); }
     showBanner(getKey() ? "" : "오른쪽 위 '설정'에서 제미나이 API 키를 넣어 주세요. 한 분만 넣으면 같이 써요.");
@@ -1172,6 +1318,7 @@ ${have}
     "title": "25자 이내 제목", "category": "카테고리 id 또는 new", "newCategory": "", "subcategory": "",
     "summary": "핵심 한두 문장", "points": ["핵심 포인트"], "steps": ["순서가 있으면 단계"], "cautions": ["주의할 점"],
     "when": "언제 필요한 정보인지 (예: 출생 후 1개월 이내)", "checklist": ["부모가 할 일"], "tags": ["검색 키워드"],
+    "stages": ["이 꿀팁이 필요한 아기 시기. prenatal(출산 전), newborn(0~1개월), m1_3, m3_6, m6_12, y1(돌 이후) 중 해당하는 것 모두"],
     "sources": [{"name": "기관명 · 페이지 제목", "url": "https://..."}]
   }]
 }`;
@@ -1247,6 +1394,7 @@ async function runAsk(q) {
         title: str(t.title, 80) || "새 꿀팁", category: cat, subcategory: str(t.subcategory, 30) || (subsOf(cat)[0] || "기타"),
         summary: str(t.summary, 600), points: arr(t.points).slice(0, 12), steps: arr(t.steps).slice(0, 15), cautions: arr(t.cautions).slice(0, 8),
         when: str(t.when, 40), tags: arr(t.tags).slice(0, 8), checklist: arr(t.checklist).slice(0, 15).map(text => ({ text, done: false })),
+        stages: arr(t.stages).filter(x => STAGE_IDS.includes(x)),
         sources: t.sources, url: t.sources[0]?.url || "", source: t.sources[0]?.name || "제미나이 검색",
         origin: "ask", question: q, checkedAt: today, ai: true, starred: false, original: "", createdAt: now - i,
       };
@@ -1254,12 +1402,13 @@ async function runAsk(q) {
       added.push({ id, ...data });
     }
     renderAskResult(q, r, added, newCats);
+    paintTips(added);
     $("#askIn").value = "";
   } catch (e) {
     const out = $("#askOut"); out.hidden = false;
     out.replaceChildren(el("div", { class: "q", text: `"${q}"` }),
       el("div", { class: "status err", text: (ERR[e?.code] || "찾다가 문제가 생겼어요.") + (e?.message && !ERR[e?.code] ? ` (${String(e.message).slice(0, 160)})` : "") + " 다시 눌러 주세요." }));
-  } finally { askBusy = false; $("#askBtn").disabled = false; $("#askBtn").textContent = "찾아서 정리하기"; }
+  } finally { askBusy = false; $("#askBtn").disabled = false; $("#askBtn").textContent = "찾기"; }
 }
 
 function renderAskResult(q, r, added, newCats) {
@@ -1270,7 +1419,7 @@ function renderAskResult(q, r, added, newCats) {
     for (const c of newCats) { try { await catsCol.doc(c.id).delete(); } catch {} }
     out.replaceChildren(el("div", { class: "q", text: `"${q}"` }), el("div", { text: "추가했던 꿀팁을 모두 지웠어요." }));
   } });
-  out.replaceChildren(
+  out.replaceChildren(...[
     el("div", { class: "q", text: `"${q}"` }),
     el("div", { class: "reply", text: r.reply || (added.length ? "찾은 내용을 정리했어요." : "추가할 만한 새 내용을 찾지 못했어요.") }),
     added.length ? el("div", { class: "added" },
@@ -1279,7 +1428,7 @@ function renderAskResult(q, r, added, newCats) {
         el("span", { class: "cl", text: `${c?.name || "기타"} · ${a.subcategory}` }), el("span", { class: "tt", text: a.title })); })) : null,
     newCats.length ? el("div", { class: "newcat", text: `새 카테고리를 만들었어요: ${newCats.map(c => c.name).join(", ")}` }) : null,
     added.length ? el("p", { class: "note", text: "꿀팁을 누르면 출처 링크까지 볼 수 있어요." }) : null,
-    added.length ? undo : null);
+    added.length ? undo : null].filter(Boolean));
 }
 
 function setupAsk() {
@@ -1287,6 +1436,59 @@ function setupAsk() {
   ASK_SUGGEST.forEach(t => chips.append(el("button", { type: "button", text: t, onclick: () => { $("#askIn").value = t; $("#askIn").focus(); } })));
   $("#askForm").addEventListener("submit", e => { e.preventDefault(); runAsk($("#askIn").value); });
   $("#askIn").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); runAsk($("#askIn").value); } });
+}
+
+// ---------- Tip pictures (Gemini image model; falls back to category tiles) ----------
+async function pickImageModel() {
+  const saved = lsGet("yw.imgModel"); if (saved) return saved;
+  const j = await (await gfetch("/v1beta/models?pageSize=200")).json();
+  const ok = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent")).map(m => m.name.replace(/^models\//, ""))
+    .filter(n => /image/.test(n) && /gemini/.test(n));
+  const best = ok.find(n => /flash.*image$/.test(n)) || ok.find(n => /flash.*image/.test(n)) || ok[0] || "";
+  if (best) lsSet("yw.imgModel", best);
+  return best;
+}
+function shrinkImage(src, size = 320) {
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => {
+      const c = document.createElement("canvas"); c.width = c.height = size;
+      const s = Math.max(size / im.width, size / im.height), w = im.width * s, h = im.height * s;
+      c.getContext("2d").drawImage(im, (size - w) / 2, (size - h) / 2, w, h);
+      res(c.toDataURL("image/jpeg", .72));
+    };
+    im.onerror = rej; im.src = src;
+  });
+}
+async function makeTipImage(t, manual) {
+  const off = +lsGet("yw.noImg") || 0;
+  if (!manual && Date.now() - off < 864e5) return null;
+  const m = await pickImageModel();
+  if (!m) { lsSet("yw.noImg", String(Date.now())); throw { code: "img_unavailable" }; }
+  const prompt = `A soft, warm flat illustration for a parenting tips app card. Subject: ${t.title}. ${t.summary || ""}
+Style: gentle pastel colors, simple rounded shapes, cozy and calm, plain light background, square composition. Absolutely no text, letters, numbers, logos or watermarks.`;
+  try {
+    const j = await (await gfetch(`/v1beta/models/${m}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["IMAGE"] } }) })).json();
+    const part = (j.candidates?.[0]?.content?.parts || []).find(p => p.inlineData || p.inline_data);
+    const d = part?.inlineData || part?.inline_data;
+    if (!d?.data) return null;
+    return await shrinkImage(`data:${d.mimeType || d.mime_type || "image/png"};base64,${d.data}`);
+  } catch (e) {
+    if (e?.code === "rate_limited" || /quota|billing|free tier|not available|permission/i.test(e?.message || "")) { lsSet("yw.noImg", String(Date.now())); throw { code: "img_unavailable" }; }
+    throw e;
+  }
+}
+let painting = false;
+async function paintTips(list) {
+  if (painting) return; painting = true;
+  try {
+    for (const t of list) {
+      if (validThumb(t.thumb)) continue;
+      try { const img = await makeTipImage(t); if (!img) continue; await tipsCol.doc(t.id).update({ thumb: img }); }
+      catch (e) { if (e?.code === "img_unavailable") break; }
+    }
+  } finally { painting = false; }
 }
 
 // ---------- Share target (Android share sheet → 영웅이노트) ----------
@@ -1325,6 +1527,11 @@ async function maybeHandleShare() {
 
 async function boot() {
   setupAsk();
+  setBirth(lsGet("yw.birth"));
+  showView();
+  window.addEventListener("hashchange", () => { showView(); window.scrollTo(0, 0); });
+  $("#allBtn").addEventListener("click", () => { location.hash = "all"; });
+  $("#backBtn").addEventListener("click", () => { location.hash = ""; showView(); window.scrollTo(0, 0); });
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
   renderDday(); render();
   $("#setBtn").addEventListener("click", openSettings);
