@@ -52,8 +52,12 @@
      "date": "2023-06"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn"
+   ]
   },
   {
    "id": "parent-allowance-2026",
@@ -100,8 +104,12 @@
      "date": "2026-11-07"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn"
+   ]
   },
   {
    "id": "first-meeting-voucher-2026",
@@ -142,8 +150,12 @@
      "date": "2026-11 확인"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn"
+   ]
   },
   {
    "id": "child-allowance-2026",
@@ -182,8 +194,11 @@
      "date": "2026-07-09"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn"
+   ]
   },
   {
    "id": "postpartum-helper-voucher",
@@ -227,8 +242,12 @@
      "date": "2026-11 확인"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn"
+   ]
   },
   {
    "id": "low-income-diaper-formula",
@@ -258,8 +277,12 @@
      "date": "2026-11 확인"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3"
+   ]
   },
   {
    "id": "rental-pump-toy-library",
@@ -300,8 +323,13 @@
      "date": "서울시"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn",
+    "m1_3"
+   ]
   },
   {
    "id": "formula-70c",
@@ -344,8 +372,13 @@
      "date": "2024-04"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3",
+    "m3_6"
+   ]
   },
   {
    "id": "vitamin-d-400",
@@ -379,8 +412,14 @@
      "date": "2022-05-24"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3",
+    "m3_6",
+    "m6_12"
+   ]
   },
   {
    "id": "hunger-cues-gas",
@@ -413,8 +452,12 @@
      "date": "확인 2026-11"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3"
+   ]
   },
   {
    "id": "aap-safe-sleep-2026",
@@ -454,8 +497,15 @@
      "date": "2026-09-11"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn",
+    "m1_3",
+    "m3_6",
+    "m6_12"
+   ]
   },
   {
    "id": "purple-crying",
@@ -492,8 +542,12 @@
      "date": "2025"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3"
+   ]
   },
   {
    "id": "cord-care",
@@ -529,8 +583,11 @@
      "date": "확인 2026-11"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn"
+   ]
   },
   {
    "id": "bottle-clean",
@@ -567,8 +624,12 @@
      "date": "확인 2026-11"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3"
+   ]
   },
   {
    "id": "tummy-time",
@@ -599,8 +660,12 @@
      "date": "2026-09-08"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3"
+   ]
   },
   {
    "id": "fever-under-3m",
@@ -639,8 +704,12 @@
      "date": "2026-09-29"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3"
+   ]
   },
   {
    "id": "first-vaccines",
@@ -687,8 +756,12 @@
      "date": "확인 2026-11"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn"
+   ]
   },
   {
    "id": "first-checkup",
@@ -722,8 +795,11 @@
      "date": "2021-04-08"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn"
+   ]
   },
   {
    "id": "rsv-winter-baby",
@@ -764,8 +840,12 @@
      "date": "2025-11-18"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn"
+   ]
   },
   {
    "id": "car-seat-rear",
@@ -805,8 +885,12 @@
      "date": "확인 2026-11"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn"
+   ]
   },
   {
    "id": "paternity-leave-20",
@@ -839,8 +923,12 @@
      "date": "2024-12-24"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn"
+   ]
   },
   {
    "id": "parental-leave-pay",
@@ -876,8 +964,13 @@
      "date": "확인 2026-11"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "prenatal",
+    "newborn",
+    "m1_3"
+   ]
   },
   {
    "id": "postpartum-mood",
@@ -908,8 +1001,13 @@
      "date": "2026-02-20"
     }
    ],
-   "rev": 1,
-   "checkedAt": "2026-11-27"
+   "rev": 2,
+   "checkedAt": "2026-11-27",
+   "stages": [
+    "newborn",
+    "m1_3",
+    "m3_6"
+   ]
   }
  ]
 }
