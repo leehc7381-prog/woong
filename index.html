@@ -118,6 +118,9 @@ button { cursor: pointer; }
 .howto summary { cursor: pointer; font-size: .85rem; color: var(--accent); }
 .howto ol { margin: 6px 0 0; padding-left: 1.2em; font-size: .85rem; color: var(--muted); display: grid; gap: 4px; }
 .hint.err { color: var(--danger); }
+.hint.ok { color: var(--accent); }
+.drop-btn.nudge { animation: nudge .6s ease-in-out 2; }
+@keyframes nudge { 50% { box-shadow: 0 0 0 4px var(--yolk); } }
 .thumbs figcaption { position: absolute; left: 0; right: 0; bottom: 0; font-size: .62rem; text-align: center; background: rgba(0,0,0,.55); color: #fff; font-variant-numeric: tabular-nums; }
 .card h3 { margin: 0; font-size: 1.02rem; line-height: 1.45; text-wrap: balance; }
 .card p { margin: 0; color: var(--muted); font-size: .9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -408,16 +411,16 @@ function openAdd() {
         el("b", { text: "릴스 영상 올리기" }),
         el("span", { text: "저장하거나 화면 녹화한 영상을 고르면 제미나이가 소리와 화면을 같이 보고 정리해요." })),
       el("details", { class: "howto" },
-        el("summary", { text: "릴스 영상은 어떻게 저장해요?" }),
+        el("summary", { text: "릴스 영상은 어떻게 저장해요? (10초면 돼요)" }),
         el("ol", {},
-          el("li", { text: "내가 올린 릴스는 릴스 화면의 ⋯ 메뉴에서 저장할 수 있어요." }),
-          el("li", { text: "다른 사람 릴스는 휴대폰 화면 녹화로 담아요. 아이폰은 제어센터의 화면 기록(마이크 끔이어도 앱 소리는 녹음돼요), 갤럭시는 빠른 설정의 화면 녹화에서 '미디어 소리'를 켜요." }),
-          el("li", { text: "녹화한 영상은 사진 앱에 저장돼요. 여기서 '릴스 영상 올리기'로 고르면 돼요." }))),
+          el("li", { text: "가장 쉬운 방법: 릴스에서 공유(종이비행기) 버튼 → 아래 줄의 '다운로드'를 누르면 영상이 갤러리에 저장돼요." }),
+          el("li", { text: "그다음 여기서 '릴스 영상 올리기'를 누르고 방금 저장된 영상을 고르면 끝이에요." }),
+          el("li", { text: "'다운로드'가 안 보이면 만든 사람이 막아 둔 릴스예요. 그럴 땐 캡션을 복사해 붙여넣거나, 화면 녹화로 담아요." }))),
       vidIn, vidStatus),
     el("div", { class: "field" },
       el("label", { for: "urlIn", text: "릴스 링크" }),
-      el("input", { id: "urlIn", type: "url", inputmode: "url", placeholder: "https://www.instagram.com/reel/..." }),
-      el("p", { class: "hint", text: "공유 → 링크 복사로 넣어 두면 나중에 원본을 다시 볼 수 있어요. 유튜브·블로그 링크도 돼요." })),
+      el("input", { id: "urlIn", type: "url", inputmode: "url", placeholder: "https://www.instagram.com/reel/... 또는 유튜브 링크", oninput: linkHint }),
+      el("p", { class: "hint", id: "urlHint" })),
     el("div", { class: "field" },
       el("label", { for: "txtIn", text: "캡션·메모 (선택)" }),
       el("textarea", { id: "txtIn", placeholder: "릴스 캡션(더 보기)이나 댓글 속 꿀팁, 덧붙이고 싶은 메모를 넣어 주세요." })),
@@ -432,7 +435,7 @@ function openAdd() {
       el("button", { class: "btn ghost", onclick: () => reviewDraft(manualDraft()), text: "직접 정리하기" })),
     el("p", { class: "note", text: "영상은 분석하는 동안만 제미나이에 올라가고, 끝나면 바로 지워요. 이 앱에는 미리보기 한 장만 남아요." }));
   openSheet("꿀팁 넣기", body);
-  addImages([]);
+  addImages([]); linkHint();
 }
 
 function addImages(files) {
@@ -459,6 +462,19 @@ function waitFor(v, ev, ms) {
     v.addEventListener(ev, onOk); v.addEventListener("error", onErr);
   });
 }
+function ytUrl(u) {
+  const m = (u || "").match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+  return m ? `https://www.youtube.com/watch?v=${m[1]}` : null;
+}
+const isInsta = u => /instagram\.com|instagr\.am/i.test(u || "");
+function linkHint() {
+  const u = $("#urlIn")?.value || "", h = $("#urlHint"); if (!h) return;
+  h.classList.remove("ok", "err");
+  if (ytUrl(u)) { h.textContent = "유튜브 링크는 링크만 넣어도 제미나이가 영상을 보고 들어서 정리해요. 공개 영상만 돼요."; h.classList.add("ok"); }
+  else if (isInsta(u) && !videoFile) { h.textContent = "인스타는 링크로 영상을 가져올 수 없게 막혀 있어요. 링크는 원본 보관용이고, 분석하려면 릴스 공유 버튼의 '다운로드'로 저장한 영상을 위에서 올리거나, 캡션을 붙여넣어 주세요."; h.classList.add("err"); }
+  else h.textContent = "공유 → 링크 복사로 넣어 두면 나중에 원본을 다시 볼 수 있어요. 유튜브 링크는 링크만으로도 분석돼요.";
+}
+function nudgeVideo() { const b = $("#vidBtn"); if (!b) return; b.scrollIntoView({ behavior: "smooth", block: "center" }); b.classList.remove("nudge"); void b.offsetWidth; b.classList.add("nudge"); }
 function fmtSec(t) { const s = Math.round(t); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
 
 // One preview frame for the card; the video itself goes to Gemini whole.
@@ -482,7 +498,7 @@ async function addVideo(file) {
   const st = $("#vidStatus");
   const say = (m, err) => { if (!st) return; st.hidden = !m; st.textContent = m || ""; st.classList.toggle("err", !!err); };
   if (file.size > MAX_VIDEO_BYTES) { say(`영상이 너무 커요 (${Math.round(file.size / 1048576)}MB). 1분 안쪽으로 잘라서 올려 주세요.`, true); return; }
-  videoFile = file; videoThumb = ""; videoInfo = null; addImages([]);
+  videoFile = file; videoThumb = ""; videoInfo = null; addImages([]); linkHint();
   say("영상 준비 중이에요…");
   try { const p = await videoPreview(file); videoThumb = p.thumb; videoInfo = { seconds: p.seconds }; } catch {}
   if (videoFile !== file) return;
@@ -552,14 +568,19 @@ const ERR = {
 async function runAI() {
   const url = str($("#urlIn").value, 500), text = str($("#txtIn").value, 20000);
   if (!getKey()) { setStatus(ERR.no_key, true); return; }
-  if (!text && !images.length && !videoFile) { setStatus("릴스 영상이나 캡처를 올리거나, 캡션을 넣어 주세요. 링크만으로는 AI가 영상을 볼 수 없어요.", true); return; }
+  const yt = !videoFile ? ytUrl(url) : null;
+  if (!text && !images.length && !videoFile && !yt) {
+    if (isInsta(url)) { setStatus("인스타 링크만으로는 분석할 수 없어요. 인스타가 다른 앱이 영상을 가져가지 못하게 막아 두었거든요. 릴스 공유 버튼의 '다운로드'로 영상을 저장한 뒤 위의 '릴스 영상 올리기'로 넣어 주세요. 캡션을 복사해 붙여넣어도 돼요.", true); nudgeVideo(); }
+    else setStatus("릴스 영상이나 캡처를 올리거나, 캡션을 넣어 주세요. 유튜브가 아닌 링크만으로는 AI가 영상을 볼 수 없어요.", true);
+    return;
+  }
   const btn = $("#aiBtn"); btn.disabled = true; btn.textContent = "정리하는 중…";
   setStatus(videoFile ? "영상을 올리는 중이에요…" : "제미나이가 읽고 분류하는 중이에요.");
   try {
     let media = "";
-    if (videoFile) media += "첨부한 영상은 부모가 저장한 짧은 육아 영상(인스타 릴스 등)이야. 처음부터 끝까지 소리(말, 설명)와 화면(자막, 큰 글씨, 손동작, 순서)을 모두 보고 들어서 무엇을 어떻게 하는 팁인지 정리해. 배경음악, 인스타 아이디, 좋아요 수 같은 건 무시해.\n";
+    if (videoFile || yt) media += "첨부한 영상은 부모가 저장한 짧은 육아 영상(인스타 릴스 등)이야. 처음부터 끝까지 소리(말, 설명)와 화면(자막, 큰 글씨, 손동작, 순서)을 모두 보고 들어서 무엇을 어떻게 하는 팁인지 정리해. 배경음악, 인스타 아이디, 좋아요 수 같은 건 무시해.\n";
     if (images.length) media += `첨부한 이미지 ${images.length}장은 부모가 직접 올린 캡처(카드뉴스, 게시글 화면 등)야. 글자를 읽어서 정리해.\n`;
-    const r = await gemini(buildPrompt(url, text, media), { video: videoFile, images: images.map(i => i.file), onStage: m => setStatus(m) });
+    const r = await gemini(buildPrompt(url, text, media), { video: videoFile, youtube: yt, images: images.map(i => i.file), onStage: m => setStatus(m) });
     if (!r || typeof r !== "object") throw { code: "bad_json" };
     let cat = catById[r.category] ? r.category : (catByName[r.category]?.id || null), newCat = "";
     if (!cat) {
@@ -834,7 +855,7 @@ async function uploadVideo(file, onStage) {
   return f;
 }
 
-async function gemini(prompt, { video, images = [], onStage } = {}) {
+async function gemini(prompt, { video, youtube, images = [], onStage } = {}) {
   const model = await pickModel();
   const parts = [];
   let uploaded = null;
@@ -843,9 +864,10 @@ async function gemini(prompt, { video, images = [], onStage } = {}) {
       if (video.size <= 15 * 1048576) { onStage?.("영상을 보내는 중이에요…"); parts.push({ inline_data: { mime_type: videoMime(video), data: await b64(video) } }); }
       else { uploaded = await uploadVideo(video, onStage); parts.push({ file_data: { mime_type: uploaded.mimeType, file_uri: uploaded.uri } }); }
     }
+    if (youtube) parts.push({ file_data: { file_uri: youtube } });
     for (const im of images) parts.push({ inline_data: { mime_type: im.type || "image/jpeg", data: await b64(im) } });
     parts.push({ text: prompt });
-    onStage?.(video ? "제미나이가 영상을 보고 듣는 중이에요. 보통 10~40초 걸려요." : "제미나이가 읽고 분류하는 중이에요.");
+    onStage?.(video || youtube ? "제미나이가 영상을 보고 듣는 중이에요. 보통 10~40초 걸려요." : "제미나이가 읽고 분류하는 중이에요.");
     const j = await (await gfetch(`/v1beta/models/${model}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: { responseMimeType: "application/json", temperature: 0.3 } }) })).json();
     const cand = j.candidates?.[0];
