@@ -132,6 +132,25 @@ button { cursor: pointer; }
 .srcs a { color: var(--accent); word-break: break-all; }
 .srcs small { color: var(--muted); }
 .prog { font-variant-numeric: tabular-nums; }
+.ask { display: grid; gap: 12px; }
+.ask-form { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); padding: 14px 16px; display: grid; gap: 10px; border: 1.5px solid var(--accent-soft); }
+.ask-label { font-family: var(--f-display); font-size: 1.2rem; }
+.ask-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface-2); resize: vertical; min-height: 64px; }
+.ask-foot { display: flex; gap: 10px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+.ask-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1 1 200px; min-width: 0; }
+.ask-chips button { border: 1px dashed var(--line); background: none; border-radius: 999px; padding: 3px 10px; font-size: .78rem; color: var(--muted); }
+.ask-out { background: var(--surface); border-radius: 18px; padding: 14px 16px; display: grid; gap: 12px; border-left: 4px solid var(--accent); }
+.ask-out .q { font-size: .8rem; color: var(--muted); }
+.ask-out .reply { white-space: pre-line; }
+.ask-out .added { display: grid; gap: 6px; }
+.ask-out .added button { display: flex; gap: 8px; align-items: center; text-align: left; border: 1px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 9px 12px; }
+.ask-out .added .cl { color: var(--cc); font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.ask-out .added .tt { min-width: 0; font-weight: 500; }
+.ask-out .newcat { font-size: .82rem; background: var(--yolk-soft); border-radius: 10px; padding: 6px 10px; }
+.ask-out .working { display: flex; gap: 10px; align-items: center; color: var(--muted); }
+.spin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--accent-soft); border-top-color: var(--accent); flex: none; }
+@media (prefers-reduced-motion: no-preference) { .spin { animation: spin .9s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } }
+.badge.asked { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
 .star { color: var(--yolk); }
 .empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 16px; padding: 24px 18px; text-align: center; color: var(--muted); display: grid; gap: 8px; justify-items: center; }
 .empty b { color: var(--ink); }
@@ -198,7 +217,7 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
   <header class="top">
     <div class="brand">
       <h1>영웅이 육아노트</h1>
-      <p>본 꿀팁, 잊지 않게 정리해 두는 곳</p>
+      <p>궁금한 육아 꿀팁, 물어보면 찾아서 정리해 줘요</p>
     </div>
     <div class="top-right">
       <div class="dday" id="dday"><b>D-?</b><span>12월 15일 예정</span></div>
@@ -207,6 +226,18 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
   </header>
 
   <div class="banner" id="banner" hidden></div>
+
+  <section class="ask" aria-labelledby="askLabel">
+    <form id="askForm" class="ask-form">
+      <label for="askIn" id="askLabel" class="ask-label">무엇이 궁금해요?</label>
+      <textarea id="askIn" rows="2" placeholder="예: 신생아 목욕 꿀팁 알려줘 / 출산하고 받을 수 있는 지원금 정리해 줘"></textarea>
+      <div class="ask-foot">
+        <div class="ask-chips" id="askChips"></div>
+        <button class="btn" id="askBtn" type="submit">찾아서 정리하기</button>
+      </div>
+    </form>
+    <div class="ask-out" id="askOut" hidden></div>
+  </section>
 
   <div class="search">
     <input id="q" type="search" placeholder="꿀팁 검색 (예: 출생신고, 트림, 목욕)" aria-label="꿀팁 검색">
@@ -226,7 +257,7 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
   </section>
 </div>
 
-<button class="btn fab" id="addBtn">+ 꿀팁 넣기</button>
+<button class="btn fab" id="addBtn">+ 영상·직접 넣기</button>
 
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -374,6 +405,7 @@ function renderList() {
         t.when ? el("span", { class: "badge when", text: t.when }) : null,
         t.example ? el("span", { class: "badge ex", text: "예시" }) : null,
         t.auto ? el("span", { class: "badge auto", text: "자동 수집" }) : null,
+        t.origin === "ask" ? el("span", { class: "badge asked", text: `출처 ${(t.sources || []).length}` }) : null,
         t.starred ? el("span", { class: "star", "aria-label": "즐겨찾기", text: "★" }) : null),
       el("h3", { text: t.title || "제목 없음" }),
       t.summary ? el("p", { text: t.summary }) : null,
@@ -740,12 +772,14 @@ function openDetail(id) {
     (t.checklist || []).length ? el("div", { class: "blk" }, el("h4", { text: "할 일" }), checks) : null,
     list("주의할 점", t.cautions, false, "warn"),
     (t.tags || []).length ? el("div", { class: "tags" }, t.tags.map(s => el("span", { text: "#" + s }))) : null,
-    t.auto && (t.sources || []).length ? el("div", { class: "blk src" }, el("h4", { text: "출처" }),
+    (t.sources || []).length ? el("div", { class: "blk src" }, el("h4", { text: "출처" }),
       el("ul", { class: "srcs" }, t.sources.map(x => el("li", {},
         safeUrl(x.url) ? el("a", { href: safeUrl(x.url), target: "_blank", rel: "noopener noreferrer", text: x.name }) : el("span", { text: x.name }),
         x.date ? el("small", { text: ` · ${x.date}` }) : null))),
-      el("p", { class: "note", text: `${t.checkedAt ? t.checkedAt + "에 " : ""}Claude가 공식 자료를 보고 모았어요. 금액·기한은 바뀔 수 있으니 신청 전 출처에서 한 번 더 확인해 주세요.` })) : null,
-    !t.auto && href ? el("div", { class: "blk src" }, el("h4", { text: "원본" }), el("a", { href, target: "_blank", rel: "noopener noreferrer", text: `${t.source || sourceOf(href)}에서 다시 보기` })) : null,
+      el("p", { class: "note", text: t.auto
+        ? `${t.checkedAt ? t.checkedAt + "에 " : ""}Claude가 공식 자료를 보고 모았어요. 금액·기한은 바뀔 수 있으니 신청 전 출처에서 한 번 더 확인해 주세요.`
+        : `${t.checkedAt ? t.checkedAt + "에 " : ""}제미나이가 구글 검색으로 찾은 출처예요.${t.question ? ` (질문: ${t.question})` : ""} 금액·기한은 바뀔 수 있으니 신청 전 출처에서 한 번 더 확인해 주세요.` })) : null,
+    !t.auto && !(t.sources || []).length && href ? el("div", { class: "blk src" }, el("h4", { text: "원본" }), el("a", { href, target: "_blank", rel: "noopener noreferrer", text: `${t.source || sourceOf(href)}에서 다시 보기` })) : null,
     t.original ? el("details", { class: "orig" }, el("summary", { text: "넣었던 원래 내용 보기" }), el("pre", { text: t.original })) : null,
     el("div", { class: "row" },
       el("div", { class: "field" }, el("label", { for: "dCat", text: "카테고리 옮기기" }), catSel)),
@@ -1103,6 +1137,158 @@ function startFamily(code, isNew) {
   }, () => {}));
 }
 
+// ---------- Ask Gemini (search-grounded tips) ----------
+const ASK_SUGGEST = ["출생신고하는 법", "출산 지원금 총정리", "신생아 목욕 방법", "신생아 수유 간격", "아기 열날 때 대처", "산후조리 꿀팁"];
+const TRUSTED = "정부24(gov.kr), 복지로(bokjiro.go.kr), 아이사랑(childcare.go.kr), 보건복지부(mohw.go.kr), 질병관리청(kdca.go.kr), 예방접종도우미(nip.kdca.go.kr), 국민건강보험(nhis.or.kr), 고용노동부(moel.go.kr), 대한소아청소년과학회(pediatrics.or.kr), 서울아산·서울대·삼성서울병원 등 대학병원, 세계보건기구(who.int), 미국소아과학회(healthychildren.org), 미국 CDC(cdc.gov)";
+let askBusy = false;
+
+function askPrompt(q) {
+  const catText = CATS.map(c => `- ${c.id} (${c.name}): ${subsOf(c.id).join(", ") || "(없음)"}`).join("\n");
+  const have = tips.slice(0, 150).map(t => `- [${t.category}] ${t.title}`).join("\n") || "(없음)";
+  const today = new Date().toISOString().slice(0, 10);
+  return `너는 한국에 사는 초보 부모를 돕는 육아 정보 정리 도우미야. 오늘은 ${today}이고, 아기 영웅이는 2026년 12월 15일 출생 예정이야.
+부모의 요청: """${q}"""
+
+할 일:
+1. 구글 검색으로 요청에 맞는 최신 정보를 찾아. 반드시 검색 결과에 근거해서만 써. 모르는 건 지어내지 마.
+2. 출처는 믿을 수 있는 곳을 우선해: ${TRUSTED}. 개인 블로그·커뮤니티·쇼핑몰은 공식 자료가 전혀 없을 때만 쓰고, 그때는 cautions에 "개인 경험담 기반"이라고 적어.
+3. 내용을 부모가 바로 따라 할 수 있는 꿀팁 1~5개로 나눠. 꿀팁 하나는 한 가지 주제만 다뤄.
+4. 이미 저장된 꿀팁과 같은 내용이면 만들지 마.
+5. 각 꿀팁을 아래 카테고리 중 맞는 곳에 넣어. 맞는 큰 카테고리가 없으면 category를 "new"로 하고 newCategory에 새 이름(2~6자)을 지어. 세부 카테고리(subcategory)도 맞는 게 없으면 새로 지어(2~8자).
+6. 금액·기한·자격처럼 바뀌는 정보는 기준 연도를 적고 cautions에 "신청 전 공식 사이트에서 최신 기준 확인"을 넣어. 의학 정보는 "아기 상태가 걱정되면 소아과 상담"을 넣어.
+7. 말투는 쉽고 짧게, "~해요"체.
+8. 육아와 관계없는 요청이면 tips를 빈 배열로 하고 reply에 이유를 적어.
+
+카테고리:
+${catText}
+
+이미 저장된 꿀팁:
+${have}
+
+마지막에 아래 형식의 JSON 하나만 \`\`\`json 블록으로 출력해. sources의 url은 검색에서 실제로 확인한 페이지 주소를 그대로 적어.
+{
+  "reply": "무엇을 찾아서 어떻게 정리했는지 부모에게 2~4문장으로 알려 주는 말",
+  "tips": [{
+    "title": "25자 이내 제목", "category": "카테고리 id 또는 new", "newCategory": "", "subcategory": "",
+    "summary": "핵심 한두 문장", "points": ["핵심 포인트"], "steps": ["순서가 있으면 단계"], "cautions": ["주의할 점"],
+    "when": "언제 필요한 정보인지 (예: 출생 후 1개월 이내)", "checklist": ["부모가 할 일"], "tags": ["검색 키워드"],
+    "sources": [{"name": "기관명 · 페이지 제목", "url": "https://..."}]
+  }]
+}`;
+}
+
+function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, "").toLowerCase(); } catch { return ""; } }
+function parseLooseJson(txt) {
+  const m = txt.match(/```(?:json)?\s*([\s\S]*?)```/); const body = m ? m[1] : txt;
+  try { return JSON.parse(body); } catch {}
+  const a = body.indexOf("{"), b = body.lastIndexOf("}");
+  if (a >= 0 && b > a) { try { return JSON.parse(body.slice(a, b + 1)); } catch {} }
+  throw { code: "bad_json" };
+}
+
+async function askGemini(q) {
+  const model = await pickModel();
+  const j = await (await gfetch(`/v1beta/models/${model}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: askPrompt(q) }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.2 } }) })).json();
+  const cand = j.candidates?.[0];
+  if (!cand || j.promptFeedback?.blockReason || cand.finishReason === "SAFETY") throw { code: "blocked" };
+  const txt = (cand.content?.parts || []).map(p => p.text || "").join("");
+  const out = parseLooseJson(txt);
+  // What Google Search actually returned for this answer.
+  const chunks = (cand.groundingMetadata?.groundingChunks || []).map(c => c.web).filter(w => w && safeUrl(w.uri));
+  const grounded = new Set(chunks.map(w => (w.title || "").replace(/^www\./, "").toLowerCase()).concat(chunks.map(w => hostOf(w.uri))).filter(Boolean));
+  const isGrounded = h => [...grounded].some(g => h === g || h.endsWith("." + g) || g.endsWith("." + h));
+  const fallback = chunks.slice(0, 3).map(w => ({ name: str(w.title, 60) || "검색 출처", url: w.uri }));
+  const list = Array.isArray(out.tips) ? out.tips : [];
+  return {
+    reply: str(out.reply, 800),
+    searched: chunks.map(w => ({ name: str(w.title, 60), url: w.uri })),
+    tips: list.slice(0, 6).map(t => {
+      let srcs = (Array.isArray(t.sources) ? t.sources : []).map(x => ({ name: str(x?.name, 60), url: safeUrl(x?.url) || "" }))
+        .filter(x => x.url && x.name && (!chunks.length || isGrounded(hostOf(x.url))));
+      if (!srcs.length) srcs = fallback;
+      return { ...t, sources: srcs.slice(0, 5) };
+    }),
+  };
+}
+
+function renderAskWorking(q) {
+  const out = $("#askOut"); out.hidden = false;
+  out.replaceChildren(el("div", { class: "q", text: `"${q}"` }),
+    el("div", { class: "working" }, el("span", { class: "spin" }), el("span", { text: "제미나이가 구글에서 찾아보고 정리하는 중이에요. 보통 20~60초 걸려요." })));
+}
+
+async function runAsk(q) {
+  q = str(q, 500);
+  if (!q || askBusy) return;
+  if (!getKey()) { showBanner("오른쪽 위 '설정'에서 제미나이 API 키를 먼저 넣어 주세요."); openSettings(); return; }
+  if (!tipsCol) return;
+  askBusy = true; $("#askBtn").disabled = true; $("#askBtn").textContent = "찾는 중…";
+  renderAskWorking(q);
+  try {
+    const r = await askGemini(q);
+    const added = [], newCats = [], made = {};
+    const now = Date.now(), today = new Date().toISOString().slice(0, 10);
+    for (let i = 0; i < r.tips.length; i++) {
+      const t = r.tips[i];
+      let cat = catById[t.category] ? t.category : (catByName[t.category]?.id || null);
+      if (!cat) {
+        const nm = str(t.newCategory, 20) || (t.category !== "new" ? str(t.category, 20) : "");
+        if (catByName[nm]) cat = catByName[nm].id;
+        else if (made[nm]) cat = made[nm];
+        else if (nm) {
+          cat = "c-" + (now + i).toString(36);
+          await catsCol.doc(cat).set({ name: nm, subs: [str(t.subcategory, 30) || "기타"], color: PALETTE[(CATS.length + newCats.length) % PALETTE.length], createdAt: now + i });
+          made[nm] = cat; newCats.push({ id: cat, name: nm });
+        } else cat = "gear";
+      }
+      const id = `ask-${now.toString(36)}-${i}`;
+      const data = {
+        title: str(t.title, 80) || "새 꿀팁", category: cat, subcategory: str(t.subcategory, 30) || (subsOf(cat)[0] || "기타"),
+        summary: str(t.summary, 600), points: arr(t.points).slice(0, 12), steps: arr(t.steps).slice(0, 15), cautions: arr(t.cautions).slice(0, 8),
+        when: str(t.when, 40), tags: arr(t.tags).slice(0, 8), checklist: arr(t.checklist).slice(0, 15).map(text => ({ text, done: false })),
+        sources: t.sources, url: t.sources[0]?.url || "", source: t.sources[0]?.name || "제미나이 검색",
+        origin: "ask", question: q, checkedAt: today, ai: true, starred: false, original: "", createdAt: now - i,
+      };
+      await tipsCol.doc(id).set(data);
+      added.push({ id, ...data });
+    }
+    renderAskResult(q, r, added, newCats);
+    $("#askIn").value = "";
+  } catch (e) {
+    const out = $("#askOut"); out.hidden = false;
+    out.replaceChildren(el("div", { class: "q", text: `"${q}"` }),
+      el("div", { class: "status err", text: (ERR[e?.code] || "찾다가 문제가 생겼어요.") + (e?.message && !ERR[e?.code] ? ` (${String(e.message).slice(0, 160)})` : "") + " 다시 눌러 주세요." }));
+  } finally { askBusy = false; $("#askBtn").disabled = false; $("#askBtn").textContent = "찾아서 정리하기"; }
+}
+
+function renderAskResult(q, r, added, newCats) {
+  const out = $("#askOut"); out.hidden = false;
+  const undo = el("button", { class: "toggle", style: "justify-self:start", text: "방금 추가한 것 되돌리기", onclick: async () => {
+    undo.disabled = true;
+    for (const a of added) { try { await tipsCol.doc(a.id).delete(); } catch {} }
+    for (const c of newCats) { try { await catsCol.doc(c.id).delete(); } catch {} }
+    out.replaceChildren(el("div", { class: "q", text: `"${q}"` }), el("div", { text: "추가했던 꿀팁을 모두 지웠어요." }));
+  } });
+  out.replaceChildren(
+    el("div", { class: "q", text: `"${q}"` }),
+    el("div", { class: "reply", text: r.reply || (added.length ? "찾은 내용을 정리했어요." : "추가할 만한 새 내용을 찾지 못했어요.") }),
+    added.length ? el("div", { class: "added" },
+      el("h4", { class: "blk", style: "margin:0;font-size:.78rem;color:var(--muted)", text: `추가한 꿀팁 ${added.length}개` }),
+      added.map(a => { const c = catById[a.category]; return el("button", { style: `--cc: ${catColor(a.category)}`, onclick: () => openDetail(a.id) },
+        el("span", { class: "cl", text: `${c?.name || "기타"} · ${a.subcategory}` }), el("span", { class: "tt", text: a.title })); })) : null,
+    newCats.length ? el("div", { class: "newcat", text: `새 카테고리를 만들었어요: ${newCats.map(c => c.name).join(", ")}` }) : null,
+    added.length ? el("p", { class: "note", text: "꿀팁을 누르면 출처 링크까지 볼 수 있어요." }) : null,
+    added.length ? undo : null);
+}
+
+function setupAsk() {
+  const chips = $("#askChips");
+  ASK_SUGGEST.forEach(t => chips.append(el("button", { type: "button", text: t, onclick: () => { $("#askIn").value = t; $("#askIn").focus(); } })));
+  $("#askForm").addEventListener("submit", e => { e.preventDefault(); runAsk($("#askIn").value); });
+  $("#askIn").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); runAsk($("#askIn").value); } });
+}
+
 // ---------- Share target (Android share sheet → 영웅이노트) ----------
 let shareHandled = false;
 async function maybeHandleShare() {
@@ -1138,6 +1324,7 @@ async function maybeHandleShare() {
 }
 
 async function boot() {
+  setupAsk();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
   renderDday(); render();
   $("#setBtn").addEventListener("click", openSettings);
