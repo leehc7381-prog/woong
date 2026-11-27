@@ -1250,6 +1250,7 @@ async function syncFeed() {
         checklist: arr(f.checklist).map(text => ({ text, done: !!doneOf[text] })),
         sources: srcs, url: srcs[0]?.url || "", source: srcs[0]?.name || "자동 수집",
         checkedAt: str(f.checkedAt || feed.updatedAt, 20), rev, auto: true, ai: false, original: "",
+        stages: arr(f.stages).filter(x => STAGE_IDS.includes(x)),
       };
       if (cur) await tipsCol.doc(id).update(data);   // keep the family's star and category
       else await tipsCol.doc(id).set({ ...data, category: cat, subcategory: str(f.subcategory, 30) || "기타", starred: false,
