@@ -139,6 +139,13 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .cc { display: block; font-size: .7rem; line-height: 1.35; padding: 1px 3px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-align: center; font-weight: 600;
   background: color-mix(in srgb, var(--cc) 17%, transparent); color: var(--ink); }
 .cc.vdone { text-decoration: line-through; opacity: .55; }
+.cc.span { border-radius: 0; margin: 0 -1px; text-align: left; padding-left: 4px; }
+.cc.span.s { border-radius: 4px 0 0 4px; margin-left: 0; }
+.cc.span.e { border-radius: 0 4px 4px 0; margin-right: 0; }
+.cc.span.s.e { border-radius: 4px; }
+.recform .oneday { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: .86rem; }
+.recform .oneday input { width: 18px; height: 18px; padding: 0; accent-color: var(--accent); }
+.recform .lock { opacity: .45; }
 .cc.more { background: none; color: var(--muted); font-weight: 400; }
 .cc.sh, .shpill { font-weight: 800; }
 .cc.sh.work, .shpill.work { --cc: var(--accent); color: var(--accent); }
@@ -2119,7 +2126,7 @@ const parseYmd = v => { const [y, m, d] = v.split("-").map(Number); return new D
 function readEvents(x) {
   const out = {};
   for (const [id, e] of Object.entries(x && typeof x === "object" ? x : {}))
-    if (e && ymdOk(e.d) && str(e.title, 60)) out[id] = { d: e.d, t: /^\d{2}:\d{2}$/.test(e.t || "") ? e.t : "", title: str(e.title, 60), who: WHO_EV[e.who] ? e.who : "all" };
+    if (e && ymdOk(e.d) && str(e.title, 60)) { out[id] = { d: e.d, t: /^\d{2}:\d{2}$/.test(e.t || "") ? e.t : "", title: str(e.title, 60), who: WHO_EV[e.who] ? e.who : "all" }; if (ymdOk(e.d2) && e.d2 > e.d) out[id].d2 = e.d2; }
   return out;
 }
 function readVax(x) { const o = {}; for (const [k, v] of Object.entries(x && typeof x === "object" ? x : {})) if (typeof v === "string") o[k] = v.slice(0, 10); return o; }
@@ -2201,7 +2208,12 @@ function allEvents() {
     ...CHECK_EV.map(([id, m, d, title, note]) => ({ id, d: ymd(babyDate(m, d)), t: "", title: "🩺 " + title, who: "baby", note: note + " · 무료" + est, vax: true, done: vaxDone[id] })),
   ];
 }
-const evsOn = (list, ds) => list.filter(e => e.d === ds).sort((a, b) => (a.t || "99").localeCompare(b.t || "99"));
+// Multi-day events have d2 (last day). They go first, oldest start first, so the bars line up day to day.
+const evEnd = e => e.d2 || e.d;
+const evOverlaps = (e, a, b) => e.d <= b && evEnd(e) >= a;
+const md = ds => { const d = parseYmd(ds); return `${d.getMonth() + 1}/${d.getDate()}`; };
+const evRange = e => e.d2 ? `${md(e.d)}~${md(e.d2)}` : md(e.d);
+const evsOn = (list, ds) => list.filter(e => evOverlaps(e, ds, ds)).sort((a, b) => (+!a.d2 - +!b.d2) || (a.d2 && b.d2 ? a.d.localeCompare(b.d) || String(a.id).localeCompare(String(b.id)) : 0) || (a.t || "99").localeCompare(b.t || "99"));
 const DOW = ["일", "월", "화", "수", "목", "금", "토"];
 const fmtDay = d => `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`;
 
@@ -2214,15 +2226,26 @@ function evForm(ds, show) {
   drawSeg();
   f.replaceChildren(
     el("label", { style: "grid-column: 1 / -1" }, "무슨 일정", el("input", { id: "evTitle", required: true, maxlength: "60", placeholder: "예: 산부인과 정기검진" })),
-    el("label", {}, "날짜", el("input", { type: "date", id: "evDate", value: ds, required: true })),
-    el("label", {}, "시간 (선택)", el("input", { type: "time", id: "evTime" })),
+    el("label", {}, "시작일", el("input", { type: "date", id: "evDate", value: ds, required: true })),
+    el("label", { id: "evEndL", class: "lock" }, "마감일", el("input", { type: "date", id: "evEnd", value: ds, disabled: true })),
+    el("label", { class: "oneday" }, el("input", { type: "checkbox", id: "evOne", checked: true }), "하루 일정 (시작일만)"),
+    el("label", { style: "grid-column: 1 / -1" }, "시간 (선택)", el("input", { type: "time", id: "evTime" })),
     seg, el("button", { class: "btn", type: "submit", text: "일정 저장" }));
   f.hidden = false;
+  const start = $("#evDate"), end = $("#evEnd"), one = $("#evOne");
+  const addDay = (v, n) => { const x = parseYmd(v); x.setDate(x.getDate() + n); return ymd(x); };
+  const sync = () => {
+    end.disabled = one.checked; $("#evEndL").classList.toggle("lock", one.checked); end.min = start.value;
+    if (one.checked) end.value = start.value; else if (!ymdOk(end.value) || end.value <= start.value) end.value = ymdOk(start.value) ? addDay(start.value, 1) : "";
+  };
+  one.addEventListener("change", () => { sync(); if (!one.checked) end.focus(); });
+  start.addEventListener("change", sync);
+  end.addEventListener("change", () => { if (ymdOk(end.value) && end.value <= start.value) { one.checked = true; sync(); } });
   f.onsubmit = e => {
     e.preventDefault();
-    const title = str($("#evTitle").value, 60), d = $("#evDate").value;
+    const title = str($("#evTitle").value, 60), d = start.value, d2 = !one.checked && ymdOk(end.value) && end.value > d ? end.value : "";
     if (!title || !ymdOk(d)) return;
-    evSave("e" + Date.now().toString(36), { d, t: $("#evTime").value || "", title, who });
+    evSave("e" + Date.now().toString(36), { d, ...(d2 ? { d2 } : {}), t: $("#evTime").value || "", title, who });
     calSel = d; evForm(null, false);
   };
   $("#evTitle").focus();
@@ -2245,7 +2268,8 @@ function renderCal() {
         "aria-label": `${fmtDay(d)}${sh ? ` 아빠 ${sh.l}` : ""} 일정 ${es.length}개`, onclick: () => { calSel = ds; shiftPickOpen = false; evForm(null, false); renderCal(); } },
         el("span", { class: "dn" + (d.getDay() === 0 ? " sun" : d.getDay() === 6 ? " sat" : ""), text: String(d.getDate()) }),
         sh ? el("span", { class: `cc sh ${sh.work ? "work" : "rest"}${sh.chg ? " chg" : ""}`, text: sh.l }) : null,
-        ...es.slice(0, es.length > max ? max - 1 : max).map(e => el("span", { class: "cc" + (e.vax && e.done ? " vdone" : ""), style: `--cc: var(${WHO_EV[e.who][1]})`, text: e.title.replace(/^(💉|🩺) /, "") })),
+        ...es.slice(0, es.length > max ? max - 1 : max).map(e => el("span", { class: "cc" + (e.vax && e.done ? " vdone" : "") + (e.d2 ? " span" + (ds === e.d ? " s" : "") + (ds === e.d2 ? " e" : "") : ""), style: `--cc: var(${WHO_EV[e.who][1]})`,
+          text: !e.d2 || ds === e.d || d.getDay() === 0 || d.getDate() === 1 ? e.title.replace(/^(💉|🩺) /, "") : "\u00a0" })),
         es.length > max ? el("span", { class: "cc more", text: `+${es.length - max + 1}` }) : null));
     }
     grid.replaceChildren(el("div", { class: "cal-h" }, DOW.map(x => el("span", { text: x }))), el("div", { class: "cal-m" }, cells));
@@ -2258,7 +2282,7 @@ function renderCal() {
       rows.push(el("button", { type: "button", "aria-pressed": String(ds === calSel), onclick: () => { calSel = ds; shiftPickOpen = false; evForm(null, false); renderCal(); } },
         el("span", { class: "dl" + (ds === todayS ? " today" : ""), text: `${d.getMonth() + 1}/${d.getDate()} ${DOW[d.getDay()]}` }),
         el("span", { class: "it" }, sh ? el("span", {}, el("span", { class: `shpill ${sh.work ? "work" : "rest"}`, style: "font-size:.72rem;padding:0 8px", text: "아빠 " + sh.l })) : null,
-          ...(es.length ? es.map(e => el("span", { style: `--cc: var(${WHO_EV[e.who][1]})` }, el("i"), `${e.t ? e.t + " " : ""}${e.title}`)) : sh ? [] : [el("span", { style: "color:var(--muted)", text: "–" })]))));
+          ...(es.length ? es.map(e => el("span", { style: `--cc: var(${WHO_EV[e.who][1]})` }, el("i"), `${e.t && ds === e.d ? e.t + " " : ""}${e.title}${e.d2 ? ` (${evRange(e)})` : ""}`)) : sh ? [] : [el("span", { style: "color:var(--muted)", text: "–" })]))));
     }
     grid.replaceChildren(el("div", { class: "cal-w" }, rows));
   }
@@ -2276,8 +2300,8 @@ function renderCal() {
         fm.onsubmit = e => { e.preventDefault(); const v = str($("#shOwn").value, 8); if (v) { shiftPickOpen = false; shiftSet(calSel, v); } }; return fm; })()) : ""] : []));
   $("#calDayTitle").textContent = fmtDay(sd) + (calSel === todayS ? " · 오늘" : "");
   $("#calDay").replaceChildren(...(es.length ? es.map(e => el("div", { class: "ev" + (e.vax && e.done ? " vdone" : ""), style: `--cc: var(${WHO_EV[e.who][1]})` },
-    el("span", { class: "tm", text: e.t || "하루" }),
-    el("span", {}, el("span", { class: "ti" }, el("i"), e.title), el("small", { text: e.vax ? (e.done ? `${e.done} 완료 · ` : "") + e.note : WHO_EV[e.who][0] })),
+    el("span", { class: "tm", text: e.d2 ? (calSel === e.d && e.t ? e.t : "종일") : e.t || "하루" }),
+    el("span", {}, el("span", { class: "ti" }, el("i"), e.title), el("small", { text: e.vax ? (e.done ? `${e.done} 완료 · ` : "") + e.note : WHO_EV[e.who][0] + (e.d2 ? ` · ${evRange(e)} (${Math.round((parseYmd(e.d2) - parseYmd(e.d)) / 864e5) + 1}일)` : "") })),
     e.vax ? el("button", { type: "button", text: e.done ? "완료 취소" : "완료", disabled: !e.done && e.d > todayS, title: !e.done && e.d > todayS ? "그날이 되면 체크할 수 있어요" : null, onclick: () => vaxToggle(e.id) })
       : el("button", { type: "button", "aria-label": `${e.title} 지우기`, text: "지우기", onclick: () => evDelete(e.id) }))) : [el("p", { class: "note", text: "일정이 없어요." })]));
 }
@@ -2319,13 +2343,13 @@ function renderToday() {
   let ago = "";
   const lf = lastFeedAt();
   if (lf) { const mins = Math.round((Date.now() - lf) / 6e4); ago = `마지막 수유 ${mins >= 60 ? Math.floor(mins / 60) + "시간 " : ""}${mins % 60}분 전`; }
-  const up = allEvents().filter(e => e.d >= ymd(t0) && !(e.vax && e.done)).sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99"))).slice(0, 3);
+  const up = allEvents().filter(e => evEnd(e) >= ymd(t0) && !(e.vax && e.done)).sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99"))).slice(0, 3);
   box.replaceChildren(
     el("a", { class: "tcell", href: "#grow" }, el("span", { class: "k", text: "오늘 기록" }),
       el("span", { class: "v" }, el("div", { text: `수유 ${c.feeds}번${c.ml ? ` · ${c.ml}ml` : ""}` }), el("div", { text: `소변 ${c.pee} · 대변 ${c.poop}` }), el("div", { text: ago || (c.any ? "" : "아직 기록이 없어요") }))),
     el("a", { class: "tcell", href: "#cal" }, el("span", { class: "k", text: "다가오는 일정" }),
       el("span", { class: "v" }, ...(() => { const a = shiftOn(ymd(t0)), b = shiftOn(ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + 1))); return a ? [el("div", {}, "아빠 ", el("b", { class: a.work ? "shw" : "shr", text: a.l }), " · 내일 ", el("b", { class: b.work ? "shw" : "shr", text: b.l }))] : []; })(),
-        ...(up.length ? up.map(e => { const d = parseYmd(e.d); return el("div", { text: `${d.getMonth() + 1}/${d.getDate()} ${e.title.replace(/^\S+ /, e.vax ? "" : "$&")}` }); }) : [el("div", { text: "일정이 없어요" })]))));
+        ...(up.length ? up.map(e => { return el("div", { text: `${evRange(e)} ${e.title.replace(/^\S+ /, e.vax ? "" : "$&")}` }); }) : [el("div", { text: "일정이 없어요" })]))));
 }
 
 let botLog = [], botBusy = false;
@@ -2348,7 +2372,7 @@ function parseClock(s) {
   if (h > 23 || mi > 59) return null;
   return { t: `${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`, raw: m[0] };
 }
-function listEventsText(list) { return list.length ? list.map(e => { const d = parseYmd(e.d); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]}) ${e.t ? e.t + " " : ""}${e.title}${e.vax ? (e.done ? " ✓" : "") : ` · ${WHO_EV[e.who][0]}`}`; }).join("\n") : "일정이 없어요."; }
+function listEventsText(list) { return list.length ? list.map(e => { const d = parseYmd(e.d); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})${e.d2 ? `~${md(e.d2)}(${DOW[parseYmd(e.d2).getDay()]})` : ""} ${e.t ? e.t + " " : ""}${e.title}${e.vax ? (e.done ? " ✓" : "") : ` · ${WHO_EV[e.who][0]}`}`; }).join("\n") : "일정이 없어요."; }
 // Dates in a message: 오늘/내일/모레, "12월 5일", "12/5", "5일", "5일~7일", "5일, 6일". [] when none.
 function parseDays(s) {
   const t0 = today0(), Y = t0.getFullYear(), out = [];
@@ -2405,12 +2429,12 @@ function localCommand(s) {
   }
   if ((m = s.match(/(\d{1,2})\s*월\s*(일정|스케줄|계획|예약)/)) && !/추가|넣어|잡아|등록/.test(s)) {
     const mon = +m[1], y = now.getFullYear() + (mon < now.getMonth() + 1 - 2 ? 1 : 0), pre = `${y}-${String(mon).padStart(2, "0")}`;
-    return { reply: `${mon}월 일정이에요.\n` + listEventsText(all.filter(e => e.d.startsWith(pre))) };
+    return { reply: `${mon}월 일정이에요.\n` + listEventsText(all.filter(e => e.d.slice(0, 7) <= pre && evEnd(e).slice(0, 7) >= pre)) };
   }
   if ((m = s.match(/(오늘|내일|이번\s*주|다음\s*주)\s*(일정|스케줄|뭐)/)) && !/추가|넣어|잡아|등록/.test(s)) {
     const t0 = today0(), add = n => ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + n)), w = m[1].replace(/\s/g, "");
     const [a, b] = w === "오늘" ? [add(0), add(0)] : w === "내일" ? [add(1), add(1)] : w === "이번주" ? [add(-t0.getDay()), add(6 - t0.getDay())] : [add(7 - t0.getDay()), add(13 - t0.getDay())];
-    return { reply: `${m[1]} 일정이에요.\n` + listEventsText(all.filter(e => e.d >= a && e.d <= b)) };
+    return { reply: `${m[1]} 일정이에요.\n` + listEventsText(all.filter(e => evOverlaps(e, a, b))) };
   }
   if (/(예방\s*)?접종|검진/.test(s) && /언제|다음|남은|일정|알려/.test(s) && !/추가|넣어|등록/.test(s)) {
     return { reply: "다가오는 접종·검진이에요.\n" + listEventsText(all.filter(e => e.vax && !e.done && e.d >= ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30))).slice(0, 5)) };
@@ -2438,8 +2462,8 @@ function localCommand(s) {
 }
 function botPrompt(text) {
   const now = new Date(), t0 = today0();
-  const evs = allEvents().filter(e => e.d >= ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 14))).sort((a, b) => (a.d + (a.t || "")).localeCompare(b.d + (b.t || ""))).slice(0, 80)
-    .map(e => `${e.d} ${e.t || "--:--"} ${e.title}${e.vax ? (e.done ? " (완료)" : "") : ` [${WHO_EV[e.who][0]}]`}`).join("\n") || "(없음)";
+  const evs = allEvents().filter(e => evEnd(e) >= ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 14))).sort((a, b) => (a.d + (a.t || "")).localeCompare(b.d + (b.t || ""))).slice(0, 80)
+    .map(e => `${e.d}${e.d2 ? "~" + e.d2 : ""} ${e.t || "--:--"} ${e.title}${e.vax ? (e.done ? " (완료)" : "") : ` [${WHO_EV[e.who][0]}]`}`).join("\n") || "(없음)";
   const days = [0, 1, 2].map(n => { const d = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - n), c = careSummary(d);
     return `${ymd(d)}: 수유 ${c.feeds}번${c.ml ? `(총 ${c.ml}ml)` : ""}, 소변 ${c.pee}, 대변 ${c.poop}, 잠 ${Math.round(c.sleep / 6) / 10}시간${c.last ? `, 마지막 수유 ${c.last}` : ""}`; }).join("\n");
   const prev = botLog.slice(-6).map(m => `${m.r === "u" ? "부모" : "비서"}: ${m.x}`).join("\n");
@@ -2449,7 +2473,7 @@ function botPrompt(text) {
 앱에서 할 수 있는 일은 actions로 돌려줘:
 - 기록: {"type":"care","k":"feed|pee|poop|sleep","ft":"formula|pumped|breast","ml":숫자,"min":숫자,"date":"YYYY-MM-DD","t":"HH:MM"}
   수유량은 ml, 직접 수유는 min(분). 잠은 t=잠든 시각, min=잔 시간(분). 시간 말이 없으면 지금 시각.
-- 일정 추가: {"type":"event","date":"YYYY-MM-DD","t":"HH:MM 또는 빈 문자열","title":"짧은 제목","who":"mom|dad|baby|all"}
+- 일정 추가: {"type":"event","date":"YYYY-MM-DD","date2":"여러 날이면 마지막 날 YYYY-MM-DD, 하루면 빈 문자열","t":"HH:MM 또는 빈 문자열","title":"짧은 제목","who":"mom|dad|baby|all"}
 - 아빠 교대근무 바꾸기: {"type":"shift","date":"YYYY-MM-DD","label":"주간|야간|비번|휴무|연차|초)주간|초)야간|지정근무|병가|휴가 등 8자 이내, 원래 순서로 되돌리면 빈 문자열"}
 - 기록이나 일정을 묻는 말이면 actions 없이 아래 자료만 보고 답해. 자료에 없으면 없다고 해.
 - 육아 정보 질문이면 1~3문장으로 짧게 답하고, 자세한 건 꿀팁 탭에서 물어보라고 해. 걱정되는 증상이면 소아과나 119를 먼저 말해.
@@ -2479,8 +2503,9 @@ function execActions(acts) {
       const sh = shiftOn(date); done.push(`${fmtDay(parseYmd(date))} 아빠 ${sh.l}${sh.chg ? "" : " (원래 순서)"}`);
     } else if (a?.type === "event" && ymdOk(a.date) && str(a.title, 60)) {
       const id = "e" + Date.now().toString(36) + done.length, e = { d: a.date, t: /^\d{2}:\d{2}$/.test(a.t || "") ? a.t : "", title: str(a.title, 60), who: WHO_EV[a.who] ? a.who : "all" };
+      if (ymdOk(a.date2) && a.date2 > a.date && a.date2 <= ymd(new Date(parseYmd(a.date).getTime() + 90 * 864e5))) e.d2 = a.date2;
       evSave(id, e); undos.push(() => evDelete(id));
-      const dd = parseYmd(e.d); done.push(`${fmtDay(dd)} ${e.t} ${e.title} 일정 추가 (${WHO_EV[e.who][0]})`.replace(/  +/g, " "));
+      const dd = parseYmd(e.d); done.push(`${fmtDay(dd)}${e.d2 ? ` ~ ${fmtDay(parseYmd(e.d2))}` : ""} ${e.t} ${e.title} 일정 추가 (${WHO_EV[e.who][0]})`.replace(/  +/g, " "));
     }
   }
   return { done, undo: undos.length ? () => undos.forEach(f => f()) : null };
