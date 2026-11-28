@@ -105,8 +105,50 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .th.ph { display: grid; place-items: center; background: color-mix(in srgb, var(--cc, var(--accent)) 16%, var(--surface)); color: var(--cc, var(--accent)); font-family: var(--f-display); font-size: 1.5rem; }
 .fav .th.ph { font-size: 2rem; }
 .more-stage { justify-self: start; }
-.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 3px; }
+.tabs { display: grid; grid-template-columns: 44px 1fr 1fr 1fr; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 3px; }
 .tab { text-align: center; padding: 7px 0; border-radius: 9px; color: var(--muted); text-decoration: none; font-weight: 700; font-size: .9rem; }
+.home-tab { display: grid; place-items: center; padding: 6px 0; }
+.today { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tcell { display: grid; gap: 4px; align-content: start; text-align: left; border: 0; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: 10px 12px; color: var(--ink); text-decoration: none; min-width: 0; }
+.tcell .k { font-size: .72rem; color: var(--muted); font-weight: 700; }
+.tcell .v { font-size: .86rem; line-height: 1.45; }
+.tcell .v div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bot .bmsgs { display: grid; gap: 8px; max-height: 52vh; overflow-y: auto; }
+.bot .qm, .bot .am { font-size: .9rem; border-radius: 14px; padding: 8px 12px; white-space: pre-wrap; line-height: 1.5; max-width: 88%; }
+.bot .qm { justify-self: end; background: var(--accent-soft); border-radius: 14px 14px 4px 14px; }
+.bot .am { justify-self: start; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; display: grid; gap: 6px; }
+.bot .done { font-size: .78rem; color: var(--accent); font-weight: 700; }
+.bot .am .toggle { justify-self: start; }
+.bot form textarea { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: var(--surface-2); resize: none; min-height: 42px; max-height: 140px; field-sizing: content; font: inherit; color: var(--ink); }
+.seg.mini { grid-column: auto; width: 96px; }
+.seg.mini button { padding: 4px 0; }
+.btn.sm { padding: 5px 12px; font-size: .82rem; }
+.cal-h, .cal-m { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.cal-h span { text-align: center; font-size: .7rem; color: var(--muted); padding: 2px 0; }
+.cal-h span:first-child, .cal-m .dn.sun { color: var(--danger); }
+.cal-m button { min-height: 50px; border: 0; background: none; border-radius: 10px; padding: 4px 2px; display: grid; align-content: start; justify-items: center; gap: 3px; color: var(--ink); }
+.cal-m button.out { opacity: .35; }
+.cal-m button.today .dn { background: var(--yolk); color: #1D2925; }
+.cal-m button[aria-pressed="true"] { background: var(--accent-soft); }
+.cal-m .dn { font-size: .8rem; font-variant-numeric: tabular-nums; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; }
+.cal-m .dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; max-width: 100%; }
+.cal-m .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--cc); }
+.cal-w { display: grid; gap: 4px; }
+.cal-w button { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px; text-align: left; border: 0; border-top: 1px solid var(--line); background: none; padding: 8px 2px; color: var(--ink); align-items: start; }
+.cal-w button[aria-pressed="true"] { background: var(--accent-soft); border-radius: 10px; }
+.cal-w .dl { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cal-w .dl.today { color: var(--accent); font-weight: 700; }
+.cal-w .it { display: grid; gap: 2px; font-size: .84rem; min-width: 0; }
+.cal-w .it span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-w .it i, .ev i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); margin-right: 5px; vertical-align: 1px; }
+.legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: .72rem; color: var(--muted); }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); margin-right: 4px; }
+.evs { display: grid; gap: 4px; }
+.ev { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 2px; border-top: 1px solid var(--line); font-size: .88rem; }
+.ev .tm { color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.ev small { display: block; color: var(--muted); font-size: .74rem; }
+.ev.vdone .ti { text-decoration: line-through; color: var(--muted); }
+.ev button { border: 0; background: none; color: var(--muted); font-size: .8rem; }
 .tab[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 .grow-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .grow-h h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; margin: 0; }
@@ -336,11 +378,43 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
   <div class="banner" id="banner" hidden></div>
 
   <nav class="tabs" aria-label="화면">
-    <a href="#" class="tab" id="tabTips">꿀팁</a>
-    <a href="#grow" class="tab" id="tabGrow">기록·발달</a>
+    <a href="#" class="tab home-tab" id="tabHome" aria-label="홈" title="홈"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 3.2 2.8 11a1 1 0 0 0 1.3 1.5l.9-.8V20a1 1 0 0 0 1 1h4.5v-5.5h3V21H18a1 1 0 0 0 1-1v-8.3l.9.8a1 1 0 0 0 1.3-1.5L12 3.2z"/></svg></a>
+    <a href="#grow" class="tab" id="tabGrow">발달</a>
+    <a href="#cal" class="tab" id="tabCal">캘린더</a>
+    <a href="#tips" class="tab" id="tabTips">꿀팁</a>
   </nav>
 
-  <section class="ask" id="askSec" aria-label="꿀팁 물어보기">
+  <div id="homeView" class="view">
+    <section class="today" id="today" aria-label="오늘"></section>
+    <section class="gcard bot" aria-label="영웅이 비서">
+      <div class="gcard-h"><h3>무엇을 도와드릴까요?</h3><button type="button" class="toggle" id="botClear">대화 지우기</button></div>
+      <div class="bmsgs" id="botMsgs" aria-live="polite"></div>
+      <div class="ask-chips" id="botChips"></div>
+      <form id="botForm" class="ask-row">
+        <textarea id="botIn" rows="1" aria-label="비서에게 말하기" placeholder="예: 분유 80ml 기록해"></textarea>
+        <button class="btn" id="botBtn" type="submit">보내기</button>
+      </form>
+    </section>
+  </div>
+
+  <div id="calView" class="view" hidden>
+    <section class="gcard">
+      <div class="gcard-h">
+        <div class="daynav"><button type="button" id="calPrev" aria-label="이전">‹</button><b id="calLabel"></b><button type="button" id="calNext" aria-label="다음">›</button></div>
+        <div class="seg mini" role="group" aria-label="보기"><button type="button" data-m="week">주</button><button type="button" data-m="month">월</button></div>
+      </div>
+      <div id="calGrid"></div>
+      <div class="legend" id="calLegend"></div>
+    </section>
+    <section class="gcard">
+      <div class="gcard-h"><h3 id="calDayTitle"></h3><button type="button" class="btn ghost sm" id="calAddBtn">+ 일정</button></div>
+      <form id="evForm" class="recform" hidden></form>
+      <div class="evs" id="calDay"></div>
+    </section>
+    <p class="note">예방접종·영유아검진은 영웅이 생일(없으면 예정일) 기준으로 자동으로 넣었어요. 정확한 날짜는 소아과와 <a href="https://nip.kdca.go.kr" target="_blank" rel="noopener noreferrer">예방접종도우미</a>에서 확인해 주세요.</p>
+  </div>
+
+  <section class="ask" id="askSec" aria-label="꿀팁 물어보기" hidden>
     <form id="askForm" class="ask-form">
       <div class="ask-row">
         <textarea id="askIn" rows="1" aria-label="무엇이 궁금해요?" placeholder="무엇이 궁금해요? 예: 신생아 목욕 방법"></textarea>
@@ -351,7 +425,7 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
     <div class="ask-out" id="askOut" hidden></div>
   </section>
 
-  <div id="homeView" class="view">
+  <div id="tipsView" class="view" hidden>
     <section class="cats" id="cats" aria-label="카테고리"></section>
     <section class="sec">
       <div class="sec-h"><h2 id="listTitle">지금 영웅이에게 필요한 꿀팁</h2><small id="listSub"></small></div>
@@ -402,7 +476,7 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
 
 </div>
 
-<button class="btn fab" id="addBtn">+ 영상·직접 넣기</button>
+<button class="btn fab" id="addBtn" hidden>+ 영상·직접 넣기</button>
 
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -633,15 +707,15 @@ function renderList() {
   }
 }
 
+function curView() { const h = location.hash; return h === "#grow" ? "grow" : h === "#cal" ? "cal" : h === "#tips" || h === "#all" ? "tips" : "home"; }
 function showView() {
-  const grow = location.hash === "#grow";
-  $("#homeView").hidden = grow; $("#growView").hidden = !grow;
-  $("#askSec").hidden = grow;
-  $("#tabTips").toggleAttribute("aria-current", !grow); if (!grow) $("#tabTips").setAttribute("aria-current", "page");
-  $("#tabGrow").toggleAttribute("aria-current", grow); if (grow) { $("#tabGrow").setAttribute("aria-current", "page"); renderGrow(); }
-  $("#addBtn").hidden = grow;
+  const v = curView();
+  for (const [id, k] of [["#homeView", "home"], ["#growView", "grow"], ["#calView", "cal"], ["#tipsView", "tips"]]) $(id).hidden = v !== k;
+  $("#askSec").hidden = v !== "tips"; $("#addBtn").hidden = v !== "tips";
+  for (const [id, k] of [["#tabHome", "home"], ["#tabGrow", "grow"], ["#tabCal", "cal"], ["#tabTips", "tips"]]) { const t = $(id); if (v === k) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current"); }
+  if (v === "grow") renderGrow(); if (v === "cal") renderCal(); if (v === "home") renderToday();
 }
-function render() { renderCats(); renderList(); if (location.hash === "#grow") renderGrow(); }
+function render() { renderCats(); renderList(); const v = curView(); if (v === "grow") renderGrow(); if (v === "home") renderToday(); }
 
 // ---------- Sheet ----------
 function openSheet(title, body) {
@@ -1540,7 +1614,7 @@ function startFamily(code, isNew) {
   setTimeout(maybeHandleShare, 600);
   unsubs.push(fam.onSnapshot(s => {
     familyKey = str(s.data()?.geminiKey, 200);
-    onFamilyGrowth(s.data()?.growth); onFamilyCare(s.data()?.care);
+    onFamilyGrowth(s.data()?.growth); onFamilyCare(s.data()?.care); onFamilyEvents(s.data()?.events, s.data()?.vax);
     const bd = str(s.data()?.birthDate, 10); if (bd && bd !== (birthDate && ymd(birthDate))) { setBirth(bd); selStage = null; renderDday(); render(); }
     const off = s.data()?.autoFeed === false;
     if (off !== autoOff) { autoOff = off; applyVisible(); render(); if (!off) syncFeed(); }
@@ -1806,7 +1880,7 @@ function readCare(x) {
   }
   return out;
 }
-function onFamilyCare(x) { care = readCare(x); pruneCare(); if (location.hash === "#grow") renderGrow(); }
+function onFamilyCare(x) { care = readCare(x); pruneCare(); if (location.hash === "#grow") renderGrow(); renderToday(); }
 let pruned = false;
 function pruneCare() {
   if (pruned || !fam) return; pruned = true;
@@ -1815,12 +1889,12 @@ function pruneCare() {
   if (Object.keys(upd).length) fam.update(upd).catch(() => {});
 }
 async function careSave(day, id, e) {
-  (care[day] ||= {})[id] = e; renderGrow();
+  (care[day] ||= {})[id] = e; renderGrow(); renderToday();
   try { if (fam) await fam.update({ [`care.${day}.${id}`]: e }); else lsSet("yw.care", JSON.stringify(care)); }
   catch { showBanner("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
 }
 async function careDelete(day, id) {
-  if (care[day]) delete care[day][id]; renderGrow();
+  if (care[day]) delete care[day][id]; renderGrow(); renderToday();
   try { if (fam) await fam.update({ [`care.${day}.${id}`]: firebase.firestore.FieldValue.delete() }); else lsSet("yw.care", JSON.stringify(care)); } catch {}
 }
 // Typical ranges by age in days (AAP, CDC, AASM).
@@ -1943,6 +2017,277 @@ function setupGrow() {
   $("#dayNext").addEventListener("click", () => { if (careDay < today0()) careDay = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() + 1); careForm(null); renderGrow(); });
 }
 
+// ---------- Calendar (family doc: events.<id>, vax.<group>) ----------
+const WHO_EV = { all: ["같이", "--accent"], mom: ["엄마", "--c-mom"], dad: ["아빠", "--c-docs"], baby: ["영웅이", "--c-feed"] };
+// Korean national schedule (질병관리청 표준예방접종일정), grouped by visit. [id, months, days, title, note]
+const VAX = [
+  ["v0", 0, 0, "B형간염 1차", "출생 직후(24시간 이내)"],
+  ["v0b", 0, 7, "BCG(결핵)", "생후 4주 이내"],
+  ["v1", 1, 0, "B형간염 2차", "생후 1개월"],
+  ["v2", 2, 0, "DTaP·폴리오·Hib·폐렴구균·로타바이러스 1차", "생후 2개월"],
+  ["v4", 4, 0, "DTaP·폴리오·Hib·폐렴구균·로타바이러스 2차", "생후 4개월"],
+  ["v6", 6, 0, "DTaP·Hib·폐렴구균·B형간염 3차, 폴리오 3차", "생후 6개월 (폴리오 3차는 6~18개월, 로타텍이면 로타 3차도)"],
+  ["v6f", 6, 7, "인플루엔자 (첫해 2회)", "생후 6개월부터 매년, 첫해는 4주 간격 2회"],
+  ["v12", 12, 0, "MMR·수두·Hib 4차·폐렴구균 4차", "생후 12~15개월"],
+  ["v12b", 12, 14, "A형간염 1차·일본뇌염 1차", "생후 12~23개월"],
+  ["v15", 15, 0, "DTaP 4차", "생후 15~18개월"],
+];
+const CHECK_EV = [["c1", 0, 14, "1차 영유아검진", "생후 14~35일"], ["c2", 4, 0, "2차 영유아검진", "생후 4~6개월"], ["c3", 9, 0, "3차 영유아검진", "생후 9~12개월"], ["c4", 18, 0, "4차 영유아검진", "생후 18~24개월"]];
+let events = {}, vaxDone = {}, calMode = "month", calCursor = null, calSel = null;
+const ymdOk = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "");
+const parseYmd = v => { const [y, m, d] = v.split("-").map(Number); return new Date(y, m - 1, d); };
+function readEvents(x) {
+  const out = {};
+  for (const [id, e] of Object.entries(x && typeof x === "object" ? x : {}))
+    if (e && ymdOk(e.d) && str(e.title, 60)) out[id] = { d: e.d, t: /^\d{2}:\d{2}$/.test(e.t || "") ? e.t : "", title: str(e.title, 60), who: WHO_EV[e.who] ? e.who : "all" };
+  return out;
+}
+function readVax(x) { const o = {}; for (const [k, v] of Object.entries(x && typeof x === "object" ? x : {})) if (typeof v === "string") o[k] = v.slice(0, 10); return o; }
+function onFamilyEvents(ev, vx) { events = readEvents(ev); vaxDone = readVax(vx); if (curView() === "cal") renderCal(); renderToday(); }
+function saveLocalEvents() { lsSet("yw.events", JSON.stringify({ events, vax: vaxDone })); }
+async function evSave(id, e) {
+  events[id] = e; renderCal(); renderToday();
+  try { if (fam) await fam.update({ [`events.${id}`]: e }); else saveLocalEvents(); } catch { showBanner("일정을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+}
+async function evDelete(id) {
+  delete events[id]; renderCal(); renderToday();
+  try { if (fam) await fam.update({ [`events.${id}`]: firebase.firestore.FieldValue.delete() }); else saveLocalEvents(); } catch {}
+}
+async function vaxToggle(k) {
+  const on = !vaxDone[k]; if (on) vaxDone[k] = ymd(new Date()); else delete vaxDone[k]; renderCal(); renderToday();
+  try { if (fam) await fam.update({ [`vax.${k}`]: on ? vaxDone[k] : firebase.firestore.FieldValue.delete() }); else saveLocalEvents(); } catch {}
+}
+function babyDate(months, days) { const b = birth(); return new Date(b.getFullYear(), b.getMonth() + months, b.getDate() + days); }
+function allEvents() {
+  const est = !birthDate ? " (예정일 기준)" : "";
+  return [
+    ...Object.entries(events).map(([id, e]) => ({ id, ...e })),
+    ...VAX.map(([id, m, d, title, note]) => ({ id, d: ymd(babyDate(m, d)), t: "", title: "💉 " + title, who: "baby", note: note + est, vax: true, done: vaxDone[id] })),
+    ...CHECK_EV.map(([id, m, d, title, note]) => ({ id, d: ymd(babyDate(m, d)), t: "", title: "🩺 " + title, who: "baby", note: note + " · 무료" + est, vax: true, done: vaxDone[id] })),
+  ];
+}
+const evsOn = (list, ds) => list.filter(e => e.d === ds).sort((a, b) => (a.t || "99").localeCompare(b.t || "99"));
+const DOW = ["일", "월", "화", "수", "목", "금", "토"];
+const fmtDay = d => `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`;
+
+function evForm(ds, show) {
+  const f = $("#evForm");
+  if (!show) { f.hidden = true; f.replaceChildren(); return; }
+  let who = "all";
+  const seg = el("div", { class: "seg", role: "group", "aria-label": "누구 일정" });
+  const drawSeg = () => seg.replaceChildren(...Object.entries(WHO_EV).map(([k, [n]]) => el("button", { type: "button", "aria-pressed": String(who === k), text: n, onclick: () => { who = k; drawSeg(); } })));
+  drawSeg();
+  f.replaceChildren(
+    el("label", { style: "grid-column: 1 / -1" }, "무슨 일정", el("input", { id: "evTitle", required: true, maxlength: "60", placeholder: "예: 산부인과 정기검진" })),
+    el("label", {}, "날짜", el("input", { type: "date", id: "evDate", value: ds, required: true })),
+    el("label", {}, "시간 (선택)", el("input", { type: "time", id: "evTime" })),
+    seg, el("button", { class: "btn", type: "submit", text: "일정 저장" }));
+  f.hidden = false;
+  f.onsubmit = e => {
+    e.preventDefault();
+    const title = str($("#evTitle").value, 60), d = $("#evDate").value;
+    if (!title || !ymdOk(d)) return;
+    evSave("e" + Date.now().toString(36), { d, t: $("#evTime").value || "", title, who });
+    calSel = d; evForm(null, false);
+  };
+  $("#evTitle").focus();
+}
+
+function renderCal() {
+  if (curView() !== "cal") return;
+  const t0 = today0(); if (!calCursor) calCursor = t0; if (!calSel) calSel = ymd(t0);
+  document.querySelectorAll("#calView .seg.mini button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.m === calMode)));
+  const list = allEvents(), grid = $("#calGrid"), todayS = ymd(t0);
+  if (calMode === "month") {
+    const y = calCursor.getFullYear(), m = calCursor.getMonth(), first = new Date(y, m, 1), start = new Date(y, m, 1 - first.getDay());
+    $("#calLabel").textContent = `${y}년 ${m + 1}월`;
+    const cells = [];
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), ds = ymd(d);
+      if (i >= 35 && d.getMonth() !== m) break;
+      const es = evsOn(list, ds);
+      cells.push(el("button", { type: "button", class: (d.getMonth() !== m ? "out " : "") + (ds === todayS ? "today" : ""), "aria-pressed": String(ds === calSel),
+        "aria-label": `${fmtDay(d)} 일정 ${es.length}개`, onclick: () => { calSel = ds; evForm(null, false); renderCal(); } },
+        el("span", { class: "dn" + (d.getDay() === 0 ? " sun" : ""), text: String(d.getDate()) }),
+        el("span", { class: "dots" }, es.slice(0, 4).map(e => el("i", { style: `--cc: var(${WHO_EV[e.who][1]})` })))));
+    }
+    grid.replaceChildren(el("div", { class: "cal-h" }, DOW.map(x => el("span", { text: x }))), el("div", { class: "cal-m" }, cells));
+  } else {
+    const ws = new Date(calCursor.getFullYear(), calCursor.getMonth(), calCursor.getDate() - calCursor.getDay()), we = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + 6);
+    $("#calLabel").textContent = `${ws.getMonth() + 1}.${ws.getDate()} ~ ${we.getMonth() + 1}.${we.getDate()}`;
+    const rows = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + i), ds = ymd(d), es = evsOn(list, ds);
+      rows.push(el("button", { type: "button", "aria-pressed": String(ds === calSel), onclick: () => { calSel = ds; evForm(null, false); renderCal(); } },
+        el("span", { class: "dl" + (ds === todayS ? " today" : ""), text: `${d.getMonth() + 1}/${d.getDate()} ${DOW[d.getDay()]}` }),
+        el("span", { class: "it" }, es.length ? es.map(e => el("span", { style: `--cc: var(${WHO_EV[e.who][1]})` }, el("i"), `${e.t ? e.t + " " : ""}${e.title}`)) : el("span", { style: "color:var(--muted)", text: "–" }))));
+    }
+    grid.replaceChildren(el("div", { class: "cal-w" }, rows));
+  }
+  $("#calLegend").replaceChildren(...Object.values(WHO_EV).map(([n, c]) => el("span", { style: `--cc: var(${c})` }, el("i"), n)));
+  const sd = parseYmd(calSel), es = evsOn(list, calSel);
+  $("#calDayTitle").textContent = fmtDay(sd) + (calSel === todayS ? " · 오늘" : "");
+  $("#calDay").replaceChildren(...(es.length ? es.map(e => el("div", { class: "ev" + (e.vax && e.done ? " vdone" : ""), style: `--cc: var(${WHO_EV[e.who][1]})` },
+    el("span", { class: "tm", text: e.t || "하루" }),
+    el("span", {}, el("span", { class: "ti" }, el("i"), e.title), el("small", { text: e.vax ? (e.done ? `${e.done} 완료 · ` : "") + e.note : WHO_EV[e.who][0] })),
+    e.vax ? el("button", { type: "button", text: e.done ? "완료 취소" : "완료", disabled: !e.done && e.d > todayS, title: !e.done && e.d > todayS ? "그날이 되면 체크할 수 있어요" : null, onclick: () => vaxToggle(e.id) })
+      : el("button", { type: "button", "aria-label": `${e.title} 지우기`, text: "지우기", onclick: () => evDelete(e.id) }))) : [el("p", { class: "note", text: "일정이 없어요." })]));
+}
+function setupCal() {
+  document.querySelectorAll("#calView .seg.mini button").forEach(b => b.addEventListener("click", () => { calMode = b.dataset.m; calCursor = calSel ? parseYmd(calSel) : today0(); renderCal(); }));
+  const move = n => { const c = calCursor || today0(); calCursor = calMode === "month" ? new Date(c.getFullYear(), c.getMonth() + n, 1) : new Date(c.getFullYear(), c.getMonth(), c.getDate() + 7 * n); renderCal(); };
+  $("#calPrev").addEventListener("click", () => move(-1)); $("#calNext").addEventListener("click", () => move(1));
+  $("#calAddBtn").addEventListener("click", () => evForm(calSel || ymd(today0()), $("#evForm").hidden));
+}
+
+// ---------- Home: today summary + assistant chat ----------
+function careSummary(d) {
+  const list = Object.values(care[dayKey(d)] || {});
+  const feeds = list.filter(e => e.k === "feed"), ml = feeds.reduce((s, e) => s + e.ml, 0), n = k => list.filter(e => e.k === k).length;
+  const sl = list.filter(e => e.k === "sleep").reduce((s, e) => s + e.min, 0);
+  const last = feeds.map(e => e.t).sort().pop();
+  return { feeds: feeds.length, ml, pee: n("pee"), poop: n("poop"), sleep: sl, last, any: list.length > 0 };
+}
+function renderToday() {
+  const box = $("#today"); if (!box || curView() !== "home") return;
+  const t0 = today0(), c = careSummary(t0);
+  let ago = "";
+  if (c.last) { const [h, m] = c.last.split(":").map(Number); const mins = Math.round((Date.now() - new Date(t0.getFullYear(), t0.getMonth(), t0.getDate(), h, m)) / 6e4); if (mins >= 0) ago = `마지막 수유 ${mins >= 60 ? Math.floor(mins / 60) + "시간 " : ""}${mins % 60}분 전`; }
+  const up = allEvents().filter(e => e.d >= ymd(t0) && !(e.vax && e.done)).sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99"))).slice(0, 3);
+  box.replaceChildren(
+    el("a", { class: "tcell", href: "#grow" }, el("span", { class: "k", text: "오늘 기록" }),
+      el("span", { class: "v" }, el("div", { text: `수유 ${c.feeds}번${c.ml ? ` · ${c.ml}ml` : ""}` }), el("div", { text: `소변 ${c.pee} · 대변 ${c.poop}` }), el("div", { text: ago || (c.any ? "" : "아직 기록이 없어요") }))),
+    el("a", { class: "tcell", href: "#cal" }, el("span", { class: "k", text: "다가오는 일정" }),
+      el("span", { class: "v" }, up.length ? up.map(e => { const d = parseYmd(e.d); return el("div", { text: `${d.getMonth() + 1}/${d.getDate()} ${e.title.replace(/^\S+ /, e.vax ? "" : "$&")}` }); }) : el("div", { text: "일정이 없어요" }))));
+}
+
+let botLog = [], botBusy = false;
+const BOT_CHIPS = ["분유 80ml 기록해", "소변 기록", "12월 일정 알려줘", "내일 오후 3시 소아과 일정 추가해", "다음 예방접종 언제야?", "오늘 기록 요약해줘"];
+function saveBot() { lsSet("yw.bot", JSON.stringify(botLog.slice(-40).map(m => ({ r: m.r, x: m.x, done: m.done })))); }
+function drawBot() {
+  const box = $("#botMsgs");
+  const kids = botLog.map(m => m.r === "u" ? el("div", { class: "qm", text: m.x })
+    : el("div", { class: "am" }, el("span", { text: m.x }),
+        (m.done || []).length ? el("span", { class: "done", text: "✓ " + m.done.join("\n✓ ") }) : null,
+        m.undo ? el("button", { type: "button", class: "toggle", text: "되돌리기", onclick: () => { m.undo(); m.undo = null; m.done = (m.done || []).map(x => x + " (되돌림)"); saveBot(); drawBot(); } }) : null));
+  if (!botLog.length) kids.push(el("div", { class: "am" }, el("span", { text: "수유·기저귀·잠 기록이나 일정 추가, 일정·기록 질문을 말로 해 보세요." })));
+  if (botBusy) kids.push(el("div", { class: "am" }, el("div", { class: "working" }, el("span", { class: "spin" }), el("span", { text: "생각하는 중이에요…" }))));
+  box.replaceChildren(...kids); box.scrollTop = box.scrollHeight;
+}
+function parseClock(s) {
+  const m = s.match(/(오전|오후|아침|낮|저녁|밤|새벽)?\s*(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분|\s*(반))?/); if (!m) return null;
+  let h = +m[2]; const mi = m[3] ? +m[3] : m[4] ? 30 : 0;
+  if (/오후|저녁|밤/.test(m[1] || "") && h < 12) h += 12; if (/낮/.test(m[1] || "") && h < 7) h += 12; if (m[1] === "오전" && h === 12) h = 0;
+  if (h > 23 || mi > 59) return null;
+  return { t: `${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`, raw: m[0] };
+}
+function listEventsText(list) { return list.length ? list.map(e => { const d = parseYmd(e.d); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]}) ${e.t ? e.t + " " : ""}${e.title}${e.vax ? (e.done ? " ✓" : "") : ` · ${WHO_EV[e.who][0]}`}`; }).join("\n") : "일정이 없어요."; }
+// Common commands are handled on the phone, so they cost no Gemini requests.
+function localCommand(s) {
+  const now = new Date(), today = ymd(now), all = allEvents().sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99")));
+  let m;
+  if ((m = s.match(/(\d{1,2})\s*월\s*(일정|스케줄|계획|예약)/)) && !/추가|넣어|잡아|등록/.test(s)) {
+    const mon = +m[1], y = now.getFullYear() + (mon < now.getMonth() + 1 - 2 ? 1 : 0), pre = `${y}-${String(mon).padStart(2, "0")}`;
+    return { reply: `${mon}월 일정이에요.\n` + listEventsText(all.filter(e => e.d.startsWith(pre))) };
+  }
+  if ((m = s.match(/(오늘|내일|이번\s*주|다음\s*주)\s*(일정|스케줄|뭐)/)) && !/추가|넣어|잡아|등록/.test(s)) {
+    const t0 = today0(), add = n => ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + n)), w = m[1].replace(/\s/g, "");
+    const [a, b] = w === "오늘" ? [add(0), add(0)] : w === "내일" ? [add(1), add(1)] : w === "이번주" ? [add(-t0.getDay()), add(6 - t0.getDay())] : [add(7 - t0.getDay()), add(13 - t0.getDay())];
+    return { reply: `${m[1]} 일정이에요.\n` + listEventsText(all.filter(e => e.d >= a && e.d <= b)) };
+  }
+  if (/(예방\s*)?접종|검진/.test(s) && /언제|다음|남은|일정|알려/.test(s) && !/추가|넣어|등록/.test(s)) {
+    return { reply: "다가오는 접종·검진이에요.\n" + listEventsText(all.filter(e => e.vax && !e.done && e.d >= ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30))).slice(0, 5)) };
+  }
+  if (/(오늘)?\s*기록\s*(요약|정리|어때|알려)/.test(s)) {
+    const c = careSummary(today0());
+    return { reply: `오늘은 수유 ${c.feeds}번${c.ml ? `(총 ${c.ml}ml)` : ""}, 소변 ${c.pee}번, 대변 ${c.poop}번, 잠 ${Math.floor(c.sleep / 60)}시간 ${c.sleep % 60}분이에요.${c.last ? ` 마지막 수유는 ${c.last}였어요.` : ""}` };
+  }
+  // quick care logs for today (anything with other dates or sleep goes to Gemini)
+  if (/어제|그제|그저께|내일|모레|월\s*\d|\d\s*월|일정|잠|잤|재웠|낮잠/.test(s)) return null;
+  const clock = parseClock(s), t = clock ? clock.t : hm(now), rest = clock ? s.replace(clock.raw, " ") : s;
+  if (clock && t > hm(now)) return null;
+  const acts = [];
+  if (/분유|수유|모유|유축|맘마|젖/.test(rest)) {
+    const ml = rest.match(/(\d{1,3})\s*(ml|mL|ML|미리|cc|씨씨|밀리)/) || rest.match(/(?:분유|유축|수유|맘마)\D{0,4}(\d{2,3})(?!\s*분)/);
+    const mn = rest.match(/(\d{1,3})\s*분/);
+    const ft = /유축/.test(rest) ? "pumped" : /분유/.test(rest) ? "formula" : /모유|젖|직접/.test(rest) && !ml ? "breast" : ml ? "formula" : "breast";
+    if (!ml && !mn && ft !== "breast") return null;
+    acts.push({ type: "care", k: "feed", ft, ml: ml ? +ml[1] : 0, min: !ml && mn ? +mn[1] : 0, date: today, t });
+  }
+  if (/소변|쉬야|오줌|쉬\s*(했|하|쌌|봤|함|1)|기저귀\s*쉬/.test(rest)) acts.push({ type: "care", k: "pee", date: today, t });
+  if (/대변|응가|똥/.test(rest)) acts.push({ type: "care", k: "poop", date: today, t });
+  if (!acts.length) return null;
+  return { reply: acts.length > 1 ? "기록했어요." : "기록했어요.", actions: acts };
+}
+function botPrompt(text) {
+  const now = new Date(), t0 = today0();
+  const evs = allEvents().filter(e => e.d >= ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 14))).sort((a, b) => (a.d + (a.t || "")).localeCompare(b.d + (b.t || ""))).slice(0, 80)
+    .map(e => `${e.d} ${e.t || "--:--"} ${e.title}${e.vax ? (e.done ? " (완료)" : "") : ` [${WHO_EV[e.who][0]}]`}`).join("\n") || "(없음)";
+  const days = [0, 1, 2].map(n => { const d = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - n), c = careSummary(d);
+    return `${ymd(d)}: 수유 ${c.feeds}번${c.ml ? `(총 ${c.ml}ml)` : ""}, 소변 ${c.pee}, 대변 ${c.poop}, 잠 ${Math.round(c.sleep / 6) / 10}시간${c.last ? `, 마지막 수유 ${c.last}` : ""}`; }).join("\n");
+  const prev = botLog.slice(-6).map(m => `${m.r === "u" ? "부모" : "비서"}: ${m.x}`).join("\n");
+  return `너는 "영웅이 육아노트" 앱의 비서야. ${familyContext()} 지금은 ${ymd(now)}(${DOW[now.getDay()]}) ${hm(now)}.
+부모가 한 말: """${text}"""
+
+앱에서 할 수 있는 일은 actions로 돌려줘:
+- 기록: {"type":"care","k":"feed|pee|poop|sleep","ft":"formula|pumped|breast","ml":숫자,"min":숫자,"date":"YYYY-MM-DD","t":"HH:MM"}
+  수유량은 ml, 직접 수유는 min(분). 잠은 t=잠든 시각, min=잔 시간(분). 시간 말이 없으면 지금 시각.
+- 일정 추가: {"type":"event","date":"YYYY-MM-DD","t":"HH:MM 또는 빈 문자열","title":"짧은 제목","who":"mom|dad|baby|all"}
+- 기록이나 일정을 묻는 말이면 actions 없이 아래 자료만 보고 답해. 자료에 없으면 없다고 해.
+- 육아 정보 질문이면 1~3문장으로 짧게 답하고, 자세한 건 꿀팁 탭에서 물어보라고 해. 걱정되는 증상이면 소아과나 119를 먼저 말해.
+- 날짜나 시간이 애매하면 가장 그럴듯하게 정하고 reply에 어떻게 정했는지 적어.
+
+[일정·예방접종]
+${evs}
+
+[최근 기록]
+${days}
+${prev ? `\n[앞선 대화]\n${prev}\n` : ""}
+JSON 하나만 출력해: {"reply":"해요체 1~3문장","actions":[]}`;
+}
+function execActions(acts) {
+  const done = [], undos = [];
+  for (const a of Array.isArray(acts) ? acts.slice(0, 6) : []) {
+    if (a?.type === "care" && CARE_K[a.k]) {
+      const date = ymdOk(a.date) ? a.date : ymd(today0()), day = "d" + date.replace(/-/g, ""), id = "e" + Date.now().toString(36) + done.length;
+      const e = { k: a.k, t: /^\d{2}:\d{2}$/.test(a.t || "") ? a.t : hm(new Date()), ft: a.k === "feed" ? (FEED_T[a.ft] ? a.ft : (+a.ml ? "formula" : "breast")) : "",
+        ml: a.k === "feed" ? Math.max(0, Math.min(400, Math.round(+a.ml || 0))) : 0, min: Math.max(0, Math.min(1440, Math.round(+a.min || 0))) };
+      careSave(day, id, e); undos.push(() => careDelete(day, id));
+      const dd = parseYmd(date), dl = date === ymd(today0()) ? "" : `${dd.getMonth() + 1}/${dd.getDate()} `;
+      done.push(`${dl}${e.t} ${e.k === "feed" ? `${FEED_T[e.ft]}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}` : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60)}시간 ${e.min % 60}분` : CARE_K[e.k]} 기록`);
+    } else if (a?.type === "event" && ymdOk(a.date) && str(a.title, 60)) {
+      const id = "e" + Date.now().toString(36) + done.length, e = { d: a.date, t: /^\d{2}:\d{2}$/.test(a.t || "") ? a.t : "", title: str(a.title, 60), who: WHO_EV[a.who] ? a.who : "all" };
+      evSave(id, e); undos.push(() => evDelete(id));
+      const dd = parseYmd(e.d); done.push(`${fmtDay(dd)} ${e.t} ${e.title} 일정 추가 (${WHO_EV[e.who][0]})`.replace(/  +/g, " "));
+    }
+  }
+  return { done, undo: undos.length ? () => undos.forEach(f => f()) : null };
+}
+async function runBot(text) {
+  text = str(text, 300); if (!text || botBusy) return;
+  botLog.push({ r: "u", x: text }); $("#botIn").value = "";
+  const local = localCommand(text);
+  if (local) { const r = execActions(local.actions); botLog.push({ r: "a", x: local.reply, done: r.done, undo: r.undo }); saveBot(); drawBot(); return; }
+  if (!getKey()) { botLog.push({ r: "a", x: "이 말은 제미나이가 필요해요. 오른쪽 위 설정에서 제미나이 API 키를 넣어 주세요." }); saveBot(); drawBot(); return; }
+  botBusy = true; $("#botBtn").disabled = true; drawBot();
+  try {
+    const j = await generate({ contents: [{ role: "user", parts: [{ text: botPrompt(text) }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.2 } });
+    const txt = (j.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
+    let out; try { out = parseLooseJson(txt); } catch { out = { reply: str(txt, 600) }; }
+    const r = execActions(out?.actions);
+    botLog.push({ r: "a", x: str(out?.reply, 800) || (r.done.length ? "했어요." : "잘 모르겠어요. 다르게 말해 주세요."), done: r.done, undo: r.undo });
+  } catch (e) { botLog.push({ r: "a", x: errText(e, "답을 만들지 못했어요. 잠시 뒤 다시 해 주세요.") }); }
+  finally { botBusy = false; $("#botBtn").disabled = false; saveBot(); drawBot(); }
+}
+function setupBot() {
+  try { botLog = (JSON.parse(lsGet("yw.bot") || "[]") || []).filter(m => m && (m.r === "u" || m.r === "a") && typeof m.x === "string"); } catch { botLog = []; }
+  $("#botChips").replaceChildren(...BOT_CHIPS.map(t => el("button", { type: "button", text: t, onclick: () => { $("#botIn").value = t; $("#botIn").focus(); } })));
+  $("#botForm").addEventListener("submit", e => { e.preventDefault(); runBot($("#botIn").value); });
+  $("#botIn").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); runBot($("#botIn").value); } });
+  $("#botClear").addEventListener("click", () => { botLog = []; saveBot(); drawBot(); });
+  drawBot();
+}
+
 // ---------- Share target (Android share sheet → 영웅이노트) ----------
 let shareHandled = false;
 async function maybeHandleShare() {
@@ -1980,7 +2325,9 @@ async function maybeHandleShare() {
 async function boot() {
   setupAsk();
   setupGrow();
-  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); } catch {}
+  setupCal();
+  setupBot();
+  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); const lv = JSON.parse(lsGet("yw.events") || "{}"); events = readEvents(lv.events); vaxDone = readVax(lv.vax); } catch {}
   setBirth(lsGet("yw.birth"));
   showView();
   window.addEventListener("hashchange", () => { showView(); window.scrollTo(0, 0); });
