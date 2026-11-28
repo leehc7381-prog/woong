@@ -291,7 +291,7 @@ button { cursor: pointer; }
 .thumbs figure { margin: 0; position: relative; width: 72px; height: 72px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
 .thumbs img { width: 100%; height: 100%; object-fit: cover; }
 .thumbs button { position: absolute; top: 2px; right: 2px; border: 0; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; font-size: .7rem; }
-.status { font-size: .88rem; color: var(--muted); background: var(--surface); border-radius: 12px; padding: 10px 12px; }
+.status { white-space: pre-wrap; font-size: .88rem; color: var(--muted); background: var(--surface); border-radius: 12px; padding: 10px 12px; }
 .status.err { color: var(--danger); }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .actions .btn { flex: 1 1 auto; }
@@ -819,15 +819,15 @@ ${text || "(글 없음. 첨부한 이미지만 보고 정리해 줘.)"}
 const QUOTA_HELP = "새 API 키를 만들어도 같은 구글 프로젝트 안이면 한도를 같이 써서 늘지 않아요. 한도를 늘리려면 Google AI Studio의 API 키 화면에서 그 프로젝트에 결제(Billing)를 연결해야 해요. 결제를 연결하면 쓴 만큼 요금이 나와요.";
 function errText(e, fallback) {
   if (e?.code === "quota_day") return `오늘 쓸 수 있는 제미나이 무료 횟수를 다 썼어요. ${resetText()}에 다시 채워져요.`;
-  if (e?.code === "quota_zero") return "지금 키의 무료 등급에서는 이 기능을 쓸 수 없다고 해요. 구글 검색으로 찾기는 무료 등급에서 막혀 있을 수 있어요.";
+  if (e?.code === "quota_zero") return "구글이 이 키로는 지금 제미나이를 쓸 수 없다고 해요(무료 한도가 없거나 다 썼어요). 키가 들어 있는 구글 프로젝트의 한도를 확인해 주세요.";
   return ERR[e?.code] || fallback;
 }
 function errBox(e, fallback) {
   const quota = /^quota_/.test(e?.code || "");
   return el("div", { class: "status err" },
     el("div", { text: errText(e, fallback) }),
-    quota ? el("p", { class: "note", style: "margin:6px 0 0" }, QUOTA_HELP + " ", el("a", { href: "https://aistudio.google.com/apikey", target: "_blank", rel: "noopener noreferrer", text: "AI Studio 열기" })) : null,
-    e?.message ? el("details", { style: "margin-top:6px;font-size:.75rem" }, el("summary", { text: "구글이 보낸 원래 메시지" }), el("div", { text: String(e.message).slice(0, 400) })) : null);
+    quota ? el("p", { class: "note", style: "margin:6px 0 0" }, QUOTA_HELP + " ", el("a", { href: "https://ai.dev/rate-limit", target: "_blank", rel: "noopener noreferrer", text: "내 키의 한도 보기" }), " · ", el("a", { href: "https://aistudio.google.com/apikey", target: "_blank", rel: "noopener noreferrer", text: "AI Studio 열기" })) : null,
+    e?.message ? el("details", { style: "margin-top:6px;font-size:.75rem" }, el("summary", { text: "구글이 보낸 원래 메시지" }), el("div", { style: "white-space:pre-wrap;word-break:break-all", text: String(e.message).slice(0, 1500) })) : null);
 }
 
 function setStatus(msg, err) { const s = $("#aiStatus"); if (!s) return; s.hidden = !msg; s.textContent = msg || ""; s.classList.toggle("err", !!err); }
@@ -835,7 +835,7 @@ function setStatus(msg, err) { const s = $("#aiStatus"); if (!s) return; s.hidde
 const ERR = {
   no_key: "제미나이 API 키가 없어요. 설정에서 키를 넣어 주세요.",
   bad_key: "API 키가 맞지 않아요. 설정에서 키를 다시 확인해 주세요.",
-  rate_limited: "1분 동안 쓸 수 있는 횟수를 넘었어요. 1분쯤 뒤에 다시 눌러 주세요.",
+  rate_limited: "1분 동안 쓸 수 있는 양을 넘었어요. 잠시 기다렸다 다시 해 봤는데도 막혔어요. 1~2분 뒤에 다시 눌러 주세요.",
   upload: "영상을 제미나이에 올리지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.",
   processing: "제미나이가 영상을 읽는 데 너무 오래 걸려요. 조금 짧은 영상으로 다시 시도해 주세요.",
   blocked: "제미나이가 이 자료는 정리할 수 없다고 했어요. 캡션이나 캡처로 다시 시도해 주세요.",
@@ -1057,12 +1057,16 @@ function tipChat(t, ref) {
   const input = el("textarea", { rows: "1", "aria-label": "이 꿀팁에 대해 묻기", placeholder: "예: 광주에서는 어디서 신청해요?" });
   const btn = el("button", { class: "btn", type: "submit", text: "묻기" });
   const status = el("div");
-  const ask = async (q, noSearch) => {
+  const ask = async (q, noSearch = !searchOn()) => {
     q = str(q, 400); if (!q || btn.disabled) return;
     if (!getKey()) { status.replaceChildren(el("div", { class: "status err", text: ERR.no_key })); return; }
     btn.disabled = true; btn.textContent = "답 찾는 중…"; status.replaceChildren(el("div", { class: "working" }, el("span", { class: "spin" }), el("span", { text: "제미나이가 찾아보는 중이에요." })));
     try {
-      const j = await generate({ contents: [{ role: "user", parts: [{ text: tipChatPrompt(t, q, noSearch) }] }], ...(noSearch ? {} : { tools: [{ google_search: {} }] }), generationConfig: { temperature: 0.3 } });
+      const gen = ns => generate({ contents: [{ role: "user", parts: [{ text: tipChatPrompt(t, q, ns) }] }], ...(ns ? {} : { tools: [{ google_search: {} }] }), generationConfig: { temperature: 0.3 } },
+        { onWait: sec => { const w = status.querySelector(".working span:last-child"); if (w) w.textContent = `1분 한도에 걸려서 ${sec}초 기다렸다가 다시 해 볼게요.`; } });
+      let j;
+      try { j = await gen(noSearch); }
+      catch (e) { if (noSearch || !/^quota_/.test(e?.code || "")) throw e; noSearch = true; j = await gen(true); }
       const cand = j.candidates?.[0];
       if (!cand || j.promptFeedback?.blockReason || cand.finishReason === "SAFETY") throw { code: "blocked" };
       const a = str((cand.content?.parts || []).map(p => p.text || "").join("").replace(/\*\*/g, ""), 3000) || "답을 만들지 못했어요. 다르게 물어봐 주세요.";
@@ -1151,10 +1155,14 @@ async function gfetch(path, opts = {}) {
   if (!r.ok) {
     let m = "", det = []; try { const er = (await r.json()).error || {}; m = er.message || ""; det = er.details || []; } catch {}
     const ids = det.flatMap(d => (d.violations || []).map(v => `${v.quotaId || ""} ${v.quotaMetric || ""}`)).join(" ");
+    const rd = det.find(d => d.retryDelay)?.retryDelay || (m.match(/retry in ([\d.]+)s/i) || [])[1];
+    const retry = rd ? Math.ceil(parseFloat(rd)) || 0 : 0;
     if (r.status === 429 || /free.?tier|FREE_TIER/i.test(m) && r.status === 403) {
       // limit 0 = this model or feature has no free allowance; PerDay = today's allowance is used up; else per-minute.
-      const code = /limit:\s*0\b/.test(m) || r.status === 403 ? "quota_zero" : /PerDay|per day|daily/i.test(`${m} ${ids}`) ? "quota_day" : "rate_limited";
-      throw { code, message: m };
+      // Google's generic "exceeded your current quota ... billing" with no per-minute counter usually means no free allowance for this request.
+      const all = `${m} ${ids}`;
+      const code = /limit:\s*0\b/.test(m) || r.status === 403 ? "quota_zero" : /PerDay|per day|daily/i.test(all) ? "quota_day" : /PerMinute|per minute/i.test(all) ? "rate_limited" : "quota_zero";
+      throw { code, message: m, retry, quota: ids.trim() };
     }
     if (r.status === 400 && /api key/i.test(m) || r.status === 401 || r.status === 403) throw { code: "bad_key", message: m };
     throw { code: "api", message: m || `HTTP ${r.status}` };
@@ -1170,12 +1178,12 @@ async function listModels() {
   modelList = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent")).map(m => m.name.replace(/^models\//, ""));
   return modelList;
 }
-function modelChain(ok) {
+function modelChain(ok, liteFirst) {
   const ver = re => n => { const m = n.match(re); return m ? parseFloat(m[1]) : -1; };
   const vf = ver(/^gemini-(\d+(?:\.\d+)?)-flash$/), vl = ver(/^gemini-(\d+(?:\.\d+)?)-flash-lite$/);
   const flash = ok.filter(n => vf(n) > 0).sort((a, b) => vf(b) - vf(a)), lite = ok.filter(n => vl(n) > 0).sort((a, b) => vl(b) - vl(a));
   const extra = ["gemini-flash-latest", "gemini-flash-lite-latest"].filter(n => ok.includes(n));
-  const out = [...flash.slice(0, 3), ...lite.slice(0, 2), ...extra];
+  const out = liteFirst ? [...lite.slice(0, 2), ...flash.slice(0, 3), ...extra] : [...flash.slice(0, 3), ...lite.slice(0, 2), ...extra];
   return out.length ? out : ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
 }
 // Free daily allowances reset at midnight Pacific time.
@@ -1191,27 +1199,38 @@ function usedUp() { try { const o = JSON.parse(lsGet("yw.usedUp") || "{}"); cons
 function markUsedUp(m) { const o = usedUp(); o[m] = ptDate(); lsSet("yw.usedUp", JSON.stringify(o)); }
 
 // Call generateContent, falling back through the model chain when a model's free allowance is gone.
-async function generate(body, onTry) {
+async function generate(body, opts = {}) {
   const skip = usedUp();
-  let chain = modelChain(await listModels());
-  const saved = lsGet(LS.model); if (chain.includes(saved)) chain = [saved, ...chain.filter(n => n !== saved)];
+  // Without search, start with Flash-Lite: it has the biggest free daily allowance.
+  const liteFirst = opts.lite ?? !body.tools, mk = LS.model + (liteFirst ? ".lite" : "");
+  let chain = modelChain(await listModels(), liteFirst);
+  const saved = lsGet(mk); if (chain.includes(saved)) chain = [saved, ...chain.filter(n => n !== saved)];
   const key = m => m + (body.tools ? "+search" : "");
   const open = chain.filter(n => !skip[key(n)]);
   if (!open.length) throw { code: "quota_day" };
-  let worst = null;
+  const call = async m => { const j = await (await gfetch(`/v1beta/models/${m}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })).json(); lsSet(mk, m); return j; };
+  const tried = [];
   const rank = { rate_limited: 1, quota_day: 2, quota_zero: 3 };
   for (const m of open) {
-    try {
-      onTry?.(m);
-      const j = await (await gfetch(`/v1beta/models/${m}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })).json();
-      lsSet(LS.model, m); return j;
-    } catch (e) {
+    try { return await call(m); }
+    catch (e) {
       if (!rank[e?.code] && !(e?.code === "api" && /not found|not supported|unavailable|is not available/i.test(e.message || ""))) throw e;
       if (e.code === "quota_day" || e.code === "quota_zero") markUsedUp(key(m));
-      if (!worst || (rank[e.code] || 0) < (rank[worst.code] || 9)) worst = e;   // report the most hopeful reason
+      tried.push({ m, ...e });
+      // A per-minute limit on the model we usually use: wait it out once instead of burning other models.
+      if (e.code === "rate_limited") {
+        const wait = Math.min(Math.max(e.retry || 20, 5), 60);
+        opts.onWait?.(wait);
+        await new Promise(r => setTimeout(r, wait * 1000));
+        try { return await call(m); } catch (e2) { tried.push({ m, ...e2, again: true }); if (e2?.code !== "rate_limited") { if (/^quota_/.test(e2?.code || "")) markUsedUp(key(m)); } }
+      }
     }
   }
-  throw worst || { code: "quota_day" };
+  const order = ["quota_zero", "quota_day", "rate_limited"];
+  const last = tried[tried.length - 1] || { code: "quota_day" };
+  // Report the reason that best explains the whole run: all "zero" -> setup issue; any day limit -> wait until reset.
+  const code = tried.every(x => x.code === "quota_zero") ? "quota_zero" : tried.some(x => x.code === "quota_day") && !tried.some(x => x.code === "rate_limited" && !x.again) ? "quota_day" : last.code;
+  throw { code, message: tried.map(x => `${x.m}${x.again ? " (다시)" : ""}: ${x.message || x.code}${x.quota ? ` [${x.quota}]` : ""}`).join("\n"), tried };
 }
 
 const b64 = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = () => rej(fr.error); fr.readAsDataURL(blob); });
@@ -1251,7 +1270,7 @@ async function gemini(prompt, { video, youtube, images = [], onStage } = {}) {
     for (const im of images) parts.push({ inline_data: { mime_type: im.type || "image/jpeg", data: await b64(im) } });
     parts.push({ text: prompt });
     onStage?.(video || youtube ? "제미나이가 영상을 보고 듣는 중이에요. 보통 10~40초 걸려요." : "제미나이가 읽고 분류하는 중이에요.");
-    const j = await generate({ contents: [{ role: "user", parts }], generationConfig: { responseMimeType: "application/json", temperature: 0.3 } });
+    const j = await generate({ contents: [{ role: "user", parts }], generationConfig: { responseMimeType: "application/json", temperature: 0.3 } }, { lite: false, onWait: sec => onStage?.(`1분 한도에 걸려서 ${sec}초 기다렸다가 다시 해 볼게요.`) });
     const cand = j.candidates?.[0];
     if (!cand || j.promptFeedback?.blockReason || cand.finishReason === "SAFETY") throw { code: "blocked" };
     const txt = (cand.content?.parts || []).map(p => p.text || "").join("").trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
@@ -1301,6 +1320,28 @@ function openSettings() {
           const m = modelChain(await listModels())[0]; setStatus(`연결됐어요. ${m} 모델부터 쓰고, 무료 횟수가 끝나면 다른 모델로 넘어가요.`); showBanner("");
         } catch (err) { setStatus(ERR[err?.code] || "확인하지 못했어요. 키를 다시 확인해 주세요.", true); }
         finally { e.target.disabled = false; }
+      } })),
+    el("div", { class: "blk" },
+      el("h4", { text: "구글 검색" }),
+      el("p", { class: "note", text: "켜면 제미나이가 구글에서 최신 정보를 찾아 출처를 달아요. 구글 무료 등급에서는 검색이 막혀 있어서, AI Studio에서 결제를 연결한 키일 때만 켜 주세요. 꺼 두면 가벼운 모델로 검색 없이 정리하고, 확인할 공식 기관 링크를 달아요." }),
+      el("label", { class: "check", for: "searchChk" },
+        el("input", { type: "checkbox", id: "searchChk", checked: searchOn(), onchange: e => lsSet("yw.search", e.target.checked ? "1" : "") }),
+        el("span", { text: "구글 검색으로 찾기" })),
+      el("button", { class: "btn ghost", type: "button", text: "내 키 점검하기 (요청 2번)", onclick: async e => {
+        if (!getKey()) { setStatus(ERR.no_key, true); return; }
+        e.target.disabled = true; setStatus("점검하는 중이에요…");
+        const ok = await listModels().catch(() => null);
+        if (!ok) { setStatus("모델 목록을 못 받았어요. 키가 맞는지 확인해 주세요.", true); e.target.disabled = false; return; }
+        const test = async (m, search) => {
+          try { await gfetch(`/v1beta/models/${m}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "OK라고만 답해" }] }], ...(search ? { tools: [{ google_search: {} }] } : {}), generationConfig: { maxOutputTokens: 5 } }) }); return ""; }
+          catch (err) { return errText(err, err?.message || "실패"); }
+        };
+        const lite = modelChain(ok, true)[0], flash = modelChain(ok, false)[0];
+        const a = await test(lite, false), b = await test(flash, true);
+        if (!b) { lsSet("yw.search", "1"); $("#searchChk").checked = true; }
+        setStatus(`검색 없이 (${lite}): ${a ? "안 돼요 · " + a : "돼요"}\n구글 검색 (${flash}): ${b ? "안 돼요 · " + b : "돼요, 그래서 검색을 켰어요"}`, !!a);
+        e.target.disabled = false;
       } })),
     el("div", { class: "blk" },
       el("h4", { text: "자동 수집 꿀팁" }),
@@ -1509,19 +1550,25 @@ function startFamily(code, isNew) {
 
 // ---------- Ask Gemini (search-grounded tips) ----------
 const ASK_SUGGEST = ["출생신고하는 법", "광주광역시 출산 지원금", "출산 지원금 총정리", "신생아 목욕 방법", "신생아 수유 간격", "아기 열날 때 대처", "산후조리 꿀팁"];
+const searchOn = () => lsGet("yw.search") === "1";
+const OFFICIAL = [["정부24", "https://www.gov.kr"], ["복지로", "https://www.bokjiro.go.kr"], ["아이사랑", "https://www.childcare.go.kr"], ["보건복지부", "https://www.mohw.go.kr"],
+  ["질병관리청", "https://www.kdca.go.kr"], ["예방접종도우미", "https://nip.kdca.go.kr"], ["국민건강보험공단", "https://www.nhis.or.kr"], ["고용노동부", "https://www.moel.go.kr"],
+  ["고용24", "https://www.work24.go.kr"], ["광주광역시청", "https://www.gwangju.go.kr"], ["대한소아청소년과학회", "https://www.pediatrics.or.kr"],
+  ["미국소아과학회 HealthyChildren", "https://www.healthychildren.org"], ["미국 CDC", "https://www.cdc.gov"], ["세계보건기구", "https://www.who.int"]];
+const officialFor = u => { const h = hostOf(u); return OFFICIAL.find(([, o]) => { const oh = hostOf(o); return h === oh || h.endsWith("." + oh.replace(/^www\./, "")); }); };
 const TRUSTED = "정부24(gov.kr), 복지로(bokjiro.go.kr), 아이사랑(childcare.go.kr), 보건복지부(mohw.go.kr), 질병관리청(kdca.go.kr), 예방접종도우미(nip.kdca.go.kr), 국민건강보험(nhis.or.kr), 고용노동부(moel.go.kr), 대한소아청소년과학회(pediatrics.or.kr), 서울아산·서울대·삼성서울병원 등 대학병원, 세계보건기구(who.int), 미국소아과학회(healthychildren.org), 미국 CDC(cdc.gov)";
 let askBusy = false;
 
 function askPrompt(q, noSearch) {
   const catText = CATS.map(c => `- ${c.id} (${c.name}): ${subsOf(c.id).join(", ") || "(없음)"}`).join("\n");
-  const have = tips.slice(0, 150).map(t => `- [${t.category}] ${t.title}`).join("\n") || "(없음)";
+  const have = tips.slice(0, 60).map(t => `- ${t.title}`).join("\n") || "(없음)";
   const today = new Date().toISOString().slice(0, 10);
   return `너는 한국에 사는 초보 부모를 돕는 육아 정보 정리 도우미야. ${familyContext()}
 지원금·대여·보건소처럼 지역마다 다른 정보는 전국 제도와 함께 ${REGION}(시·구청, 보건소) 것도 찾아서 따로 꿀팁으로 정리해.
 부모의 요청: """${q}"""
 
 할 일:
-${noSearch ? "1. 지금은 구글 검색을 쓸 수 없어. 네가 확실히 아는 일반적인 내용만 쓰고, 금액·기한·자격처럼 바뀌는 숫자는 쓰지 마. sources는 빈 배열로 둬." : "1. 구글 검색으로 요청에 맞는 최신 정보를 찾아. 반드시 검색 결과에 근거해서만 써. 모르는 건 지어내지 마."}
+${noSearch ? `1. 검색 없이 네가 확실히 아는 내용만 써. 금액·기한·자격처럼 해마다 바뀌는 숫자는 쓰지 말고 "공식 사이트에서 확인"이라고 안내해. sources에는 이 내용을 확인할 수 있는 기관을 아래 목록에서만 1~3개 골라 이름과 주소를 그대로 적어: ${OFFICIAL.map(([n, u]) => `${n} ${u}`).join(", ")}` : "1. 구글 검색으로 요청에 맞는 최신 정보를 찾아. 반드시 검색 결과에 근거해서만 써. 모르는 건 지어내지 마."}
 2. 출처는 믿을 수 있는 곳을 우선해: ${TRUSTED}. 개인 블로그·커뮤니티·쇼핑몰은 공식 자료가 전혀 없을 때만 쓰고, 그때는 cautions에 "개인 경험담 기반"이라고 적어.
 3. 내용을 부모가 바로 따라 할 수 있는 꿀팁 1~5개로 나눠. 꿀팁 하나는 한 가지 주제만 다뤄.
 4. 이미 저장된 꿀팁과 같은 내용이면 만들지 마.
@@ -1559,7 +1606,8 @@ function parseLooseJson(txt) {
 }
 
 async function askGemini(q, noSearch) {
-  const j = await generate({ contents: [{ role: "user", parts: [{ text: askPrompt(q, noSearch) }] }], ...(noSearch ? {} : { tools: [{ google_search: {} }] }), generationConfig: { temperature: 0.2 } });
+  const j = await generate({ contents: [{ role: "user", parts: [{ text: askPrompt(q, noSearch) }] }], ...(noSearch ? {} : { tools: [{ google_search: {} }] }), generationConfig: { temperature: 0.2 } },
+    { onWait: sec => { const w = document.querySelector("#askOut .working span:last-child"); if (w) w.textContent = `1분 한도에 걸려서 ${sec}초 기다렸다가 자동으로 다시 해 볼게요.`; } });
   const cand = j.candidates?.[0];
   if (!cand || j.promptFeedback?.blockReason || cand.finishReason === "SAFETY") throw { code: "blocked" };
   const txt = (cand.content?.parts || []).map(p => p.text || "").join("");
@@ -1576,6 +1624,8 @@ async function askGemini(q, noSearch) {
     tips: list.slice(0, 6).map(t => {
       let srcs = (Array.isArray(t.sources) ? t.sources : []).map(x => ({ name: str(x?.name, 60), url: safeUrl(x?.url) || "" }))
         .filter(x => x.url && x.name && (!chunks.length || isGrounded(hostOf(x.url))));
+      // Without search, keep only known official sites, linked to their home page (no guessed deep links).
+      if (noSearch) srcs = [...new Map(srcs.map(x => officialFor(x.url)).filter(Boolean).map(([n, u]) => [u, { name: n, url: u }])).values()];
       if (!srcs.length) srcs = fallback;
       return { ...t, sources: srcs.slice(0, 5) };
     }),
@@ -1590,16 +1640,25 @@ function renderAskWorking(q) {
 
 async function runAsk(q, noSearch) {
   q = str(q, 500);
+  if (noSearch === undefined) noSearch = !searchOn();
   if (!q || askBusy) return;
   if (!getKey()) { showBanner("오른쪽 위 '설정'에서 제미나이 API 키를 먼저 넣어 주세요."); openSettings(); return; }
   if (!tipsCol) return;
   askBusy = true; $("#askBtn").disabled = true; $("#askBtn").textContent = "찾는 중…";
   renderAskWorking(q);
   try {
-    const r = await askGemini(q, noSearch);
+    let r, fellBack = null;
+    try { r = await askGemini(q, noSearch); }
+    catch (e) {
+      if (noSearch || !/^quota_/.test(e?.code || "")) throw e;
+      // Search grounding has no free allowance on this key: answer without search instead of failing.
+      fellBack = e; noSearch = true;
+      const w = document.querySelector("#askOut .working span:last-child"); if (w) w.textContent = "구글 검색은 지금 키로 쓸 수 없어서, 검색 없이 정리하는 중이에요.";
+      r = await askGemini(q, true);
+    }
     const added = [], newCats = [], made = {};
     const now = Date.now(), today = new Date().toISOString().slice(0, 10);
-    if (noSearch) r.tips.forEach(t => { t.sources = []; t.cautions = ["구글 검색 없이 제미나이가 알고 있는 내용으로 정리했어요. 공식 사이트에서 한 번 더 확인해 주세요.", ...arr(t.cautions)]; });
+    if (noSearch) r.tips.forEach(t => { t.cautions = ["구글 검색 없이 정리했어요. 출처 기관 사이트에서 한 번 더 확인해 주세요.", ...arr(t.cautions)]; });
     for (let i = 0; i < r.tips.length; i++) {
       const t = r.tips[i];
       const tc = OLD_CAT[t.category] || t.category;
@@ -1617,7 +1676,7 @@ async function runAsk(q, noSearch) {
       await tipsCol.doc(id).set(data);
       added.push({ id, ...data });
     }
-    renderAskResult(q, r, added, newCats, noSearch);
+    renderAskResult(q, r, added, newCats, noSearch, fellBack);
     $("#askIn").value = "";
   } catch (e) {
     const out = $("#askOut"); out.hidden = false;
@@ -1627,7 +1686,7 @@ async function runAsk(q, noSearch) {
   } finally { askBusy = false; $("#askBtn").disabled = false; $("#askBtn").textContent = "찾기"; }
 }
 
-function renderAskResult(q, r, added, newCats, noSearch) {
+function renderAskResult(q, r, added, newCats, noSearch, fellBack) {
   const out = $("#askOut"); out.hidden = false;
   const undo = el("button", { class: "toggle", style: "justify-self:start", text: "방금 추가한 것 되돌리기", onclick: async () => {
     undo.disabled = true;
@@ -1643,7 +1702,11 @@ function renderAskResult(q, r, added, newCats, noSearch) {
       added.map(a => { const c = catById[a.category]; return el("button", { style: `--cc: ${catColor(a.category)}`, onclick: () => openDetail(a.id) },
         el("span", { class: "cl", text: `${c?.name || "기타"} · ${a.subcategory}` }), el("span", { class: "tt", text: a.title })); })) : null,
     newCats.length ? el("div", { class: "newcat", text: `새 카테고리를 만들었어요: ${newCats.map(c => c.name).join(", ")}` }) : null,
-    added.length ? el("p", { class: "note", text: noSearch ? "구글 검색 없이 정리해서 출처가 없어요. 중요한 내용은 공식 사이트에서 한 번 더 확인해 주세요." : "꿀팁을 누르면 출처 링크까지 볼 수 있어요." }) : null,
+    added.length ? el("p", { class: "note", text: noSearch ? "구글 검색 없이 정리했어요. 꿀팁을 누르면 확인할 공식 기관 링크가 있어요." : "꿀팁을 누르면 출처 링크까지 볼 수 있어요." }) : null,
+    fellBack ? el("details", { class: "note" }, el("summary", { text: "왜 검색 없이 했나요?" }),
+      el("p", { text: "구글이 이 키로는 검색 기능을 쓸 수 없다고 했어요(무료 한도 없음 또는 오늘 한도 끝). " + QUOTA_HELP }),
+      el("a", { href: "https://ai.dev/rate-limit", target: "_blank", rel: "noopener noreferrer", text: "내 키의 한도 보기" }),
+      el("div", { style: "white-space:pre-wrap;word-break:break-all;font-size:.72rem;margin-top:4px", text: String(fellBack.message || "").slice(0, 1200) })) : null,
     added.length ? undo : null].filter(Boolean));
 }
 
