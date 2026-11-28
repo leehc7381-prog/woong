@@ -257,6 +257,66 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .recform .row2 { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .recform .btn.ghost { background: none; border: 1px solid var(--line); color: var(--ink); }
 .rec .warn { color: var(--danger); }
+.gpane { display: grid; gap: 16px; min-width: 0; }
+.gsub { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 3px; }
+.gsub a { text-align: center; padding: 7px 0; border-radius: 9px; color: var(--muted); text-decoration: none; font-weight: 700; font-size: .86rem; }
+.gsub a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+#gRec .qadd { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.qadd.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#gHealth > section > .warnbox, #hAlert { margin: 0; font-size: .84rem; line-height: 1.5; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--danger) 14%, var(--surface)); color: var(--ink); }
+.hsum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hsum .metric .v { font-size: 1.15rem; }
+.hsum .metric .v.hot { color: var(--danger); }
+.rec .tv { font-weight: 700; }
+.rec .tv.hot { color: var(--danger); } .rec .tv.warm { color: var(--c-feed); }
+.rec small { display: block; color: var(--muted); font-size: .74rem; word-break: keep-all; overflow-wrap: anywhere; }
+.empty-s { color: var(--muted); font-size: .85rem; text-align: center; padding: 10px 0; margin: 0; }
+.tchart svg { display: block; width: 100%; height: auto; }
+.tchart .ln { fill: none; stroke: var(--c-health); stroke-width: 2; }
+.tchart .dot { fill: var(--c-health); }
+.tchart .lim { stroke: var(--danger); stroke-dasharray: 4 4; opacity: .6; }
+.tchart text { fill: var(--muted); font-size: 10px; }
+.pgap { display: grid; gap: 6px; }
+.pgap .row { display: grid; grid-template-columns: 92px minmax(0, 1fr) 72px; gap: 8px; align-items: center; font-size: .8rem; font-variant-numeric: tabular-nums; }
+.pgap .bar { height: 10px; border-radius: 5px; background: var(--c-gear); min-width: 4px; }
+.pgap .row .d { color: var(--muted); } .pgap .row b { text-align: right; }
+.pgap .avg { font-size: .82rem; color: var(--muted); margin: 4px 0 0; }
+.hguide { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; font-size: .86rem; line-height: 1.5; }
+.vxlist { display: grid; gap: 12px; }
+.vxmon { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+.vxmon > h4 { margin: 0; padding: 9px 14px; font-size: .82rem; color: var(--muted); background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.vx { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; padding: 12px 14px; border-top: 1px solid var(--line); }
+.vxmon > h4 + .vx { border-top: 0; }
+.vx .ic { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 1.05rem; border: 2px solid var(--line); background: var(--surface-2); }
+.vx.done .ic { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 800; }
+.vx.late .ic { border-color: var(--danger); }
+.vx.now .ic { border-color: var(--yolk); }
+.vx .nm { font-weight: 700; font-size: .92rem; word-break: keep-all; overflow-wrap: anywhere; }
+.vx .nm .gv { color: var(--muted); font-weight: 600; }
+.vx .meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; font-size: .76rem; color: var(--muted); margin-top: 3px; }
+.vx .tag { border-radius: 6px; padding: 1px 6px; font-size: .7rem; font-weight: 700; background: var(--accent-soft); color: var(--accent); }
+.vx .tag.opt { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.vx .st { border-radius: 999px; padding: 1px 8px; font-size: .72rem; font-weight: 700; }
+.vx .st.done { color: var(--accent); background: var(--accent-soft); }
+.vx .st.late { color: #fff; background: var(--danger); }
+.vx .st.now { color: #1D2925; background: var(--yolk); }
+.vx .st.soon { color: var(--ink); background: var(--yolk-soft); }
+.vx .st.skip { color: var(--muted); border: 1px solid var(--line); }
+.vx .tip { font-size: .78rem; color: var(--muted); line-height: 1.45; margin: 4px 0 0; word-break: keep-all; overflow-wrap: anywhere; }
+.vx .acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
+.vx .acts button { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 5px 12px; font-size: .8rem; color: var(--ink); }
+.vx .acts button.go { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.vx .acts input[type=date] { padding: 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: .84rem; }
+.vx.skip .nm { color: var(--muted); text-decoration: line-through; }
+.vxsum { display: grid; gap: 0; }
+.vxrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); font-size: .88rem; }
+.vxrow:first-child { border-top: 0; }
+.vxrow .dots { display: flex; gap: 4px; }
+.vxrow .dots i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line); }
+.vxrow .dots i.on { background: var(--accent); border-color: var(--accent); }
+.vxrow .dots i.late { border-color: var(--danger); }
+.vxrow .dots i.skip { border-style: dashed; }
+.vxrow small { display: block; color: var(--muted); font-size: .74rem; }
 .recs { display: grid; gap: 4px; }
 .rec { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: .82rem; padding: 6px 2px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .rec .d { color: var(--muted); }
@@ -494,12 +554,17 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
 
   <div id="growView" class="view" hidden>
     <div class="grow-h"><h2 id="growTitle">영웅이 기록</h2><small id="growSub"></small></div>
+    <nav class="gsub" aria-label="발달 보기">
+      <a href="#grow" id="gsRec">기록</a><a href="#grow/health" id="gsHealth">건강</a><a href="#grow/vax" id="gsVax">예방접종</a>
+    </nav>
 
+    <div class="gpane" id="gRec">
     <section class="gcard">
       <div class="gcard-h"><h3>영웅이는</h3>
         <div class="daynav"><button type="button" id="dayPrev" aria-label="전날">‹</button><b id="dayLabel"></b><button type="button" id="dayNext" aria-label="다음날">›</button></div></div>
       <div class="qadd" role="group" aria-label="기록 추가">
         <button type="button" data-k="feed"><span class="e" aria-hidden="true">🍼</span>수유</button>
+        <button type="button" data-k="pump"><span class="e" aria-hidden="true">🥛</span>유축</button>
         <button type="button" data-k="pee"><span class="e" aria-hidden="true">💧</span>소변</button>
         <button type="button" data-k="poop"><span class="e" aria-hidden="true">💩</span>대변</button>
         <button type="button" data-k="sleep"><span class="e" aria-hidden="true">😴</span>잠</button>
@@ -526,6 +591,58 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
       </div>
       <p class="note">아기마다 먹는 양과 자는 시간이 많이 달라요. 범위나 체크리스트는 참고용이고, 걱정되는 점이 있으면 영유아검진이나 소아청소년과에서 상담해 주세요.</p>
     </section>
+    </div>
+
+    <div class="gpane" id="gHealth" hidden>
+      <section class="gcard">
+        <div class="hsum" id="hSum"></div>
+        <div class="qadd three" role="group" aria-label="건강 기록 추가">
+          <button type="button" data-h="temp"><span class="e" aria-hidden="true">🌡️</span>체온</button>
+          <button type="button" data-h="med"><span class="e" aria-hidden="true">💊</span>투약</button>
+          <button type="button" data-h="hosp"><span class="e" aria-hidden="true">🏥</span>병원</button>
+        </div>
+        <form id="hForm" class="recform" hidden></form>
+        <p class="warnbox" id="hAlert" role="note" hidden></p>
+      </section>
+      <section class="gcard">
+        <div class="gcard-h"><h3>🌡️ 체온</h3><small>최근 72시간</small></div>
+        <div class="tchart" id="hTempChart"></div>
+        <div class="recs" id="hTemp"></div>
+      </section>
+      <section class="gcard">
+        <div class="gcard-h"><h3>💊 투약</h3><small>최근 72시간</small></div>
+        <div class="recs" id="hMed"></div>
+      </section>
+      <section class="gcard">
+        <div class="gcard-h"><h3>🏥 병원</h3><small>최근 10번</small></div>
+        <div class="recs" id="hHosp"></div>
+      </section>
+      <section class="gcard">
+        <div class="gcard-h"><h3>💩 대변 간격</h3><small>최근 7번</small></div>
+        <div id="hPoop"></div>
+      </section>
+      <section class="gcard">
+        <h3>열이 날 때</h3>
+        <ul class="hguide" id="hGuide"></ul>
+        <div class="blk src"><h4>출처</h4><ul class="srcs" id="hSrcs"></ul></div>
+        <p class="note">참고용 안내예요. 약 양은 아기 몸무게로 정해지니 약 상자 설명과 소아과·약사의 말을 따라 주세요. 아기가 축 처지거나 숨쉬기 힘들어 보이면 바로 119에 연락하세요.</p>
+      </section>
+    </div>
+
+    <div class="gpane" id="gVax" hidden>
+      <section class="gcard">
+        <div class="gcard-h"><h3>💉 예방접종</h3><small id="vxCount"></small></div>
+        <div class="mtabs" role="tablist" aria-label="예방접종 보기">
+          <button type="button" role="tab" id="vxByDate">날짜별</button><button type="button" role="tab" id="vxByVac">백신별</button>
+        </div>
+        <p class="note" id="vxIntro"></p>
+      </section>
+      <div class="vxlist" id="vxList"></div>
+      <section class="gcard">
+        <div class="blk src"><h4>출처</h4><ul class="srcs" id="vxSrcs"></ul></div>
+        <p class="note">국가예방접종은 보건소와 지정 의료기관에서 무료예요. 접종 날짜와 횟수는 아기 상태와 백신 종류에 따라 달라질 수 있으니, 접종할 때 소아과에서 다음 일정을 꼭 확인해 주세요. 실제 접종 기록은 예방접종도우미 앱에서도 볼 수 있어요.</p>
+      </section>
+    </div>
   </div>
 
 </div>
@@ -761,7 +878,8 @@ function renderList() {
   }
 }
 
-function curView() { const h = location.hash; return h === "#grow" ? "grow" : h === "#cal" ? "cal" : h === "#tips" || h === "#all" ? "tips" : "home"; }
+const growSub = () => location.hash === "#grow/health" ? "health" : location.hash === "#grow/vax" ? "vax" : "rec";
+function curView() { const h = location.hash; return h === "#grow" || h.startsWith("#grow/") ? "grow" : h === "#cal" ? "cal" : h === "#tips" || h === "#all" ? "tips" : "home"; }
 function showView() {
   const v = curView();
   for (const [id, k] of [["#homeView", "home"], ["#growView", "grow"], ["#calView", "cal"], ["#tipsView", "tips"]]) $(id).hidden = v !== k;
@@ -1931,11 +2049,13 @@ async function saveGrowth() {
   try { if (fam) await fam.update({ "growth.done": growth.done }); else lsSet("yw.growth", JSON.stringify(growth)); }
   catch { showBanner("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
 }
-function onFamilyGrowth(x) { growth = readGrowth(x); if (location.hash === "#grow") renderGrow(); }
+function onFamilyGrowth(x) { growth = readGrowth(x); if (curView() === "grow") renderGrow(); }
 function bandFor(months) { let b = MILESTONES[0]; for (const x of MILESTONES) if (months >= x.m - 0.5) b = x; return b; }
 
 // ---------- Daily care log (family doc field care.{dYYYYMMDD}.{id}) ----------
-const CARE_K = { feed: "수유", pee: "소변", poop: "대변", sleep: "잠" };
+const CARE_K = { feed: "수유", pump: "유축", pee: "소변", poop: "대변", sleep: "잠", temp: "체온", med: "투약", hosp: "병원" };
+const PUMP_SIDE = { l: "왼쪽", r: "오른쪽", b: "양쪽" };
+const CARE_ICON = { feed: "🍼", pump: "🥛", pee: "💧", poop: "💩", sleep: "😴", temp: "🌡️", med: "💊", hosp: "🏥" };
 const FEED_T = { formula: "분유", pumped: "유축 모유", breast: "직접 수유" };
 // Poop color / texture. Colors marked w need a gentle heads-up.
 const POOP_C = {
@@ -1949,6 +2069,7 @@ function poopWarn(c, ageDays) {
   if (c === "red") return "빨간 줄이나 피가 섞여 보이면 소아과에 물어보세요. 대부분 괜찮지만 확인하는 게 좋아요. 사진을 찍어 두면 도움이 돼요.";
   return "";
 }
+let pumpSide = "b";
 let care = {}, careDay = null, careOpen = null, careDelAsk = null, feedType = "formula", poopSel = { c: "", tx: "" };
 const dayKey = d => "d" + ymd(d).replace(/-/g, "");
 const today0 = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
@@ -1959,12 +2080,20 @@ function readCare(x) {
     if (!/^d\d{8}$/.test(d) || !day || typeof day !== "object") continue;
     for (const [id, e] of Object.entries(day)) {
       if (!e || !CARE_K[e.k] || !/^\d{2}:\d{2}$/.test(e.t || "")) continue;
-      (out[d] ||= {})[id] = { k: e.k, t: e.t, ft: FEED_T[e.ft] ? e.ft : "", ml: Math.max(0, Math.min(400, +e.ml || 0)), min: Math.max(0, Math.min(1440, +e.min || 0)), ...(e.k === "poop" && POOP_C[e.c] ? { c: e.c } : {}), ...(e.k === "poop" && POOP_X[e.tx] ? { tx: e.tx } : {}) };
+      (out[d] ||= {})[id] = { k: e.k, t: e.t, ft: FEED_T[e.ft] ? e.ft : "", ml: Math.max(0, Math.min(400, +e.ml || 0)), min: Math.max(0, Math.min(1440, +e.min || 0)), ...(e.k === "poop" && POOP_C[e.c] ? { c: e.c } : {}), ...(e.k === "poop" && POOP_X[e.tx] ? { tx: e.tx } : {}), ...healthFields(e) };
     }
   }
   return out;
 }
-function onFamilyCare(x) { care = readCare(x); if (location.hash === "#grow") renderGrow(); renderToday(); }
+// Health entries live in the same care map: temp {v °C}, med {nm, ds}, hosp {nm, memo}.
+function healthFields(e) {
+  if (e.k === "pump") return PUMP_SIDE[e.side] ? { side: e.side } : {};
+  if (e.k === "temp") { const v = Math.round((+e.v || 0) * 10) / 10; return { v: v >= 30 && v <= 45 ? v : 0 }; }
+  if (e.k === "med") return { nm: str(e.nm, 30) || "약", ds: str(e.ds, 20) };
+  if (e.k === "hosp") return { nm: str(e.nm, 30) || "병원", memo: str(e.memo, 120) };
+  return {};
+}
+function onFamilyCare(x) { care = readCare(x); if (curView() === "grow") renderGrow(); renderToday(); }
 async function careSave(day, id, e) {
   (care[day] ||= {})[id] = e; renderGrow(); renderToday();
   try { if (fam) await fam.update({ [`care.${day}.${id}`]: e }); else lsSet("yw.care", JSON.stringify(care)); }
@@ -2000,6 +2129,12 @@ function careForm(k) {
     kids.push(el("div", { class: "seg", role: "group", "aria-label": "수유 종류" }, Object.entries(FEED_T).map(([id, nm]) =>
       el("button", { type: "button", "aria-pressed": String(feedType === id), text: nm, onclick: () => { feedType = id; careForm("feed"); } }))),
       el("label", {}, feedType === "breast" ? "몇 분 먹었나요" : "몇 ml 먹었나요", amt), el("label", {}, "시간", tIn));
+  } else if (k === "pump") {
+    kids.push(el("div", { class: "seg", role: "group", "aria-label": "어느 쪽" }, Object.entries(PUMP_SIDE).map(([id, nm]) =>
+      el("button", { type: "button", "aria-pressed": String(pumpSide === id), text: nm, onclick: () => { const a = $("#cfA")?.value, m = $("#cfM")?.value; pumpSide = id; careForm("pump"); $("#cfA").value = a || ""; $("#cfM").value = m || ""; } }))),
+      el("label", {}, "몇 ml 나왔나요", el("input", { type: "number", id: "cfA", min: "0", max: "400", step: "5", inputmode: "numeric", placeholder: "100" })),
+      el("label", {}, "몇 분 했나요 (선택)", el("input", { type: "number", id: "cfM", min: "0", max: "120", step: "1", inputmode: "numeric", placeholder: "15" })),
+      el("label", { style: "grid-column: 1 / -1" }, "시간", tIn));
   } else if (k === "sleep") {
     const st = el("input", { type: "time", id: "cfS", value: isToday ? hm(new Date(Date.now() - 36e5)) : "13:00", required: true });
     tIn.value = isToday ? now : "14:00";
@@ -2028,6 +2163,7 @@ function careForm(k) {
     const t = $("#cfT").value; if (!/^\d{2}:\d{2}$/.test(t)) return;
     const entry = { k, t, ft: "", ml: 0, min: 0 };
     if (k === "poop") { if (poopSel.c) entry.c = poopSel.c; if (poopSel.tx) entry.tx = poopSel.tx; }
+    if (k === "pump") { entry.ml = Math.max(0, Math.min(400, Math.round(+$("#cfA").value || 0))); entry.min = Math.max(0, Math.min(120, Math.round(+$("#cfM").value || 0))); entry.side = pumpSide; }
     if (k === "feed") { const a = Math.max(0, +$("#cfA").value || 0); entry.ft = feedType; if (feedType === "breast") entry.min = a; else entry.ml = a; }
     if (k === "sleep") {
       const s0 = $("#cfS").value; if (!/^\d{2}:\d{2}$/.test(s0)) return;
@@ -2038,7 +2174,7 @@ function careForm(k) {
     }
     careSave(dayKey(careDay), "e" + Date.now().toString(36), entry); careForm(null);
   };
-  if (k === "feed") $("#cfA").focus?.();
+  if (k === "feed" || k === "pump") $("#cfA").focus?.();
 }
 function renderCare(ageDays, born) {
   if (!careDay) careDay = today0();
@@ -2058,17 +2194,20 @@ function renderCare(ageDays, born) {
   if (lf) { const ago = Math.round((Date.now() - lf) / 6e4); last = ` · 마지막 ${ago >= 60 ? `${Math.floor(ago / 60)}시간 ` : ""}${ago % 60}분 전`; }
   const low = ([min], v) => !isToday && list.length && min && v < min;   // only judge finished days
   const card = (k, v, sub, norm, warn) => el("div", { class: "metric" }, el("span", { class: "k", text: CARE_K[k] }), el("span", { class: "v", text: v }),
-    sub ? el("span", { class: "n", text: sub }) : null, el("span", { class: "n" + (warn ? " warn" : ""), text: (warn ? "보통보다 적어요 · " : "보통 ") + norm }));
+    sub ? el("span", { class: "n", text: sub }) : null, el("span", { class: "n" + (warn ? " warn" : ""), text: (warn ? "보통보다 적어요 · " : k === "pump" ? "" : "보통 ") + norm.replace(/^보통 /, "") }));
   $("#careSum").replaceChildren(
     card("feed", `${feeds.length}번`, (ml ? `총 ${ml}ml` : "") + last || null, N.feed[1], low(N.feed, feeds.length)),
+    card("pump", `${cnt("pump")}번`, (() => { const p = list.filter(e => e.k === "pump").reduce((s, e) => s + e.ml, 0); return p ? `총 ${p}ml` : null; })(), "짜낸 모유는 실온 4시간, 냉장 4일까지 (CDC)"),
     card("pee", `${cnt("pee")}번`, null, N.pee[1], low(N.pee, cnt("pee"))),
     card("poop", `${cnt("poop")}번`, null, N.poop[1], low(N.poop, cnt("poop"))),
     card("sleep", sleepMin ? `${Math.floor(sleepMin / 60)}시간 ${sleepMin % 60}분` : "0시간", null, N.sleep));
-  const desc = e => e.k === "feed" ? `${FEED_T[e.ft] || "수유"}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}`
+  const desc = e => e.k === "pump" ? `유축${e.ml ? ` ${e.ml}ml` : ""}${PUMP_SIDE[e.side] ? ` · ${PUMP_SIDE[e.side]}` : ""}${e.min ? ` · ${e.min}분` : ""}`
+    : e.k === "feed" ? `${FEED_T[e.ft] || "수유"}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}`
     : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60) ? Math.floor(e.min / 60) + "시간 " : ""}${e.min % 60}분`
-    : e.k === "poop" ? [CARE_K.poop, e.c && POOP_C[e.c][0], e.tx && POOP_X[e.tx]].filter(Boolean).join(" · ") : CARE_K[e.k];
+    : e.k === "poop" ? [CARE_K.poop, e.c && POOP_C[e.c][0], e.tx && POOP_X[e.tx]].filter(Boolean).join(" · ")
+    : e.k === "temp" || e.k === "med" || e.k === "hosp" ? healthDesc(e) : CARE_K[e.k];
   const flag = e => e.k === "poop" && e.c && POOP_C[e.c][2] && !(e.c === "black" && dAge >= 0 && dAge < 4);
-  const icon = { feed: "🍼", pee: "💧", poop: "💩", sleep: "😴" };
+  const icon = CARE_ICON;
   $("#careList").replaceChildren(...[...list, ...carried].map(e => el("div", { class: "rec" },
     el("span", { class: "d", text: (e.prev ? "전날 " : "") + e.t }), el("span", {}, `${icon[e.k]} ${desc(e)}`, flag(e) ? el("span", { class: "warn", text: " · 소아과에 물어보세요" }) : null),
     careDelAsk === e.id ? el("span", { class: "delask" },
@@ -2080,10 +2219,16 @@ function renderCare(ageDays, born) {
 }
 
 function renderGrow() {
-  if (location.hash !== "#grow") return;
+  if (curView() !== "grow") return;
   const t = today0(), ageDays = Math.round((t - birth()) / 864e5), born = ageDays >= 0, nowM = ageDays / 30.4375;
   $("#growSub").textContent = born ? `생후 ${ageDays + 1}일 · ${Math.floor(nowM)}개월` : `태어나기 ${-ageDays}일 전`;
   $("#growTitle").textContent = born ? `영웅이 생후 ${ageDays + 1}일` : "영웅이 기록";
+  const sub = growSub();
+  for (const [id, pane, k] of [["#gsRec", "#gRec", "rec"], ["#gsHealth", "#gHealth", "health"], ["#gsVax", "#gVax", "vax"]]) {
+    $(pane).hidden = sub !== k; if (sub === k) $(id).setAttribute("aria-current", "page"); else $(id).removeAttribute("aria-current");
+  }
+  if (sub === "health") return renderHealth(ageDays, born);
+  if (sub === "vax") return renderVax(born);
   renderCare(ageDays, born);
   // milestones
   const cur = bandFor(born ? nowM : 0);
@@ -2115,7 +2260,304 @@ function renderGrow() {
   $("#growSrcs").replaceChildren(...srcKeys.map(k => { const [n, u] = GROW_SRCS[k]; return el("li", {}, el("a", { href: u, target: "_blank", rel: "noopener noreferrer", text: n })); }));
 }
 
+// ---------- 건강: 체온·투약·병원·대변 간격 (care map, kinds temp/med/hosp) ----------
+// Fever reducers: [label, min hours between doses, group]. ibuprofen and dexibuprofen share a group.
+const MEDS = {
+  acet: ["해열제 (아세트아미노펜)", 4, "acet", "타이레놀·세토펜 등"],
+  ibu: ["해열제 (이부프로펜)", 6, "nsaid", "부루펜 등, 생후 6개월부터"],
+  dexi: ["해열제 (덱시부프로펜)", 6, "nsaid", "맥시부펜 등, 생후 6개월부터"],
+};
+function medClass(nm) {
+  nm = nm || "";
+  if (/아세트아미노펜|타이레놀|세토펜/.test(nm)) return "acet";
+  if (/덱시|맥시부펜/.test(nm)) return "dexi";
+  if (/이부프로펜|부루펜/.test(nm)) return "ibu";
+  return "";
+}
+const fmtT = v => (Math.round(v * 10) / 10).toFixed(1);
+function healthDesc(e) {
+  if (e.k === "temp") return `체온 ${fmtT(e.v)}°C`;
+  if (e.k === "med") return `${e.nm}${e.ds ? " " + e.ds : ""}`;
+  if (e.k === "hosp") return `${e.nm}${e.memo ? " · " + e.memo : ""}`;
+  return CARE_K[e.k] || "";
+}
+function careEntries(kinds) {
+  const out = [];
+  for (const [d, day] of Object.entries(care)) {
+    const y = +d.slice(1, 5), m = +d.slice(5, 7) - 1, dd = +d.slice(7, 9);
+    for (const [id, e] of Object.entries(day)) if (kinds.includes(e.k)) { const [h, mi] = e.t.split(":").map(Number); out.push({ id, day: d, at: new Date(y, m, dd, h, mi), ...e }); }
+  }
+  return out.sort((a, b) => b.at - a.at);
+}
+function whenText(at) {
+  const t0 = today0(), d0 = new Date(at.getFullYear(), at.getMonth(), at.getDate()), n = Math.round((t0 - d0) / 864e5);
+  return `${n === 0 ? "오늘" : n === 1 ? "어제" : `${at.getMonth() + 1}/${at.getDate()}`} ${hm(at)}`;
+}
+function agoText(at) {
+  const m = Math.round((Date.now() - at) / 6e4);
+  if (m < 1) return "방금"; if (m < 60) return `${m}분 전`; if (m < 1440) return `${Math.floor(m / 60)}시간 ${m % 60 ? (m % 60) + "분 " : ""}전`;
+  return `${Math.floor(m / 1440)}일 전`;
+}
+const tempLevel = v => v >= 38 ? "hot" : v >= 37.5 ? "warm" : "";
+// A gentle, age-aware heads-up for a temperature (AAP).
+function feverNote(v, ageDays) {
+  if (!v) return "";
+  if (v < 35.5) return "체온이 낮아요. 다시 재 보고, 계속 낮거나 아기가 축 처지면 소아과에 연락하세요.";
+  if (v < 38) return "";
+  if (ageDays >= 0 && ageDays < 90) return "생후 3개월 전 아기가 38.0도 이상이면 해열제를 먹이기 전에 바로 소아과에 연락하거나 응급실로 가세요.";
+  if (v >= 40) return "40도 이상이에요. 소아과에 바로 연락하세요. 축 처지거나 숨쉬기 힘들어 보이면 119에 연락하세요.";
+  return "열이 있어요. 아래 '열이 날 때'를 보고, 열이 24시간 넘게 가거나 잘 안 먹고 기저귀가 마르면 소아과에 가세요.";
+}
+// For each fever reducer group, when the next dose is OK (only if the last dose was within 12 hours).
+function nextMedText() {
+  const seen = {}, out = [];
+  for (const e of careEntries(["med"])) {
+    const c = medClass(e.nm); if (!c || seen[MEDS[c][2]]) continue; seen[MEDS[c][2]] = 1;
+    if (Date.now() - e.at > 12 * 36e5) continue;
+    const next = new Date(+e.at + MEDS[c][1] * 36e5);
+    out.push(next <= Date.now() ? `${c === "acet" ? "아세트아미노펜" : "이부프로펜 계열"}은 지금 먹일 수 있는 간격이에요` : `다음 ${c === "acet" ? "아세트아미노펜" : "이부프로펜 계열"}은 ${hm(next)} 이후`);
+  }
+  return out.join(" · ");
+}
+let hOpen = null, medSel = "acet";
+function healthForm(k) {
+  const f = $("#hForm"); hOpen = k;
+  document.querySelectorAll("#gHealth .qadd button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.h === k)));
+  if (!k) { f.hidden = true; f.replaceChildren(); return; }
+  const now = new Date(), dIn = el("input", { type: "date", id: "hfD", value: ymd(now), max: ymd(now), required: true }), tIn = el("input", { type: "time", id: "hfT", value: hm(now), required: true });
+  const kids = [];
+  if (k === "temp") {
+    kids.push(el("label", { style: "grid-column: 1 / -1" }, "체온 (°C)", el("input", { type: "number", id: "hfV", min: "34", max: "43", step: "0.1", inputmode: "decimal", placeholder: "36.8", required: true })));
+  } else if (k === "med") {
+    const keep = $("#hfDs")?.value || "", other = $("#hfNm")?.value || "";
+    kids.push(el("div", { class: "pick", role: "group", "aria-label": "약" }, "무슨 약인가요",
+      el("div", { class: "chips" }, [...Object.entries(MEDS).map(([id, m]) => [id, m[0].replace("해열제 ", "")]), ["other", "다른 약"]].map(([id, nm]) =>
+        el("button", { type: "button", "aria-pressed": String(medSel === id), text: nm, onclick: () => { medSel = id; healthForm("med"); } })))));
+    if (medSel !== "other") kids.push(el("p", { class: "ask", style: "font-size:.78rem;color:var(--muted)", text: MEDS[medSel][3] }));
+    else kids.push(el("label", { style: "grid-column: 1 / -1" }, "약 이름", el("input", { type: "text", id: "hfNm", maxlength: "30", placeholder: "예: 유산균, 비타민D, 감기약", value: other, required: true })));
+    kids.push(el("label", { style: "grid-column: 1 / -1" }, "얼마나 (선택)", el("input", { type: "text", id: "hfDs", maxlength: "20", placeholder: "예: 3ml", value: keep })));
+  } else {
+    kids.push(el("label", { style: "grid-column: 1 / -1" }, "병원 이름", el("input", { type: "text", id: "hfNm", maxlength: "30", placeholder: "예: 우리소아청소년과", required: true })),
+      el("label", { style: "grid-column: 1 / -1" }, "왜 갔나요 · 들은 말 (선택)", el("input", { type: "text", id: "hfMemo", maxlength: "120", placeholder: "예: 1차 영유아검진, 콧물 · 3일 뒤 다시" })));
+  }
+  kids.push(el("label", {}, "날짜", dIn), el("label", {}, "시간", tIn),
+    el("div", { class: "row2" }, el("button", { class: "btn ghost", type: "button", text: "취소", onclick: () => healthForm(null) }),
+      el("button", { class: "btn", type: "submit", text: `${CARE_K[k]} 기록하기` })));
+  f.replaceChildren(...kids); f.hidden = false;
+  f.onsubmit = ev => {
+    ev.preventDefault();
+    const d = $("#hfD").value, t = $("#hfT").value;
+    if (!ymdOk(d) || !/^\d{2}:\d{2}$/.test(t) || d > ymd(new Date())) return;
+    const e = { k, t, ft: "", ml: 0, min: 0 };
+    if (k === "temp") { const v = Math.round(+$("#hfV").value * 10) / 10; if (!(v >= 34 && v <= 43)) return; e.v = v; }
+    if (k === "med") { e.nm = medSel === "other" ? str($("#hfNm").value, 30) : MEDS[medSel][0]; if (!e.nm) return; e.ds = str($("#hfDs").value, 20); }
+    if (k === "hosp") { e.nm = str($("#hfNm").value, 30); if (!e.nm) return; e.memo = str($("#hfMemo").value, 120); }
+    healthForm(null);
+    careSave("d" + d.replace(/-/g, ""), "e" + Date.now().toString(36), e);
+  };
+  (k === "temp" ? $("#hfV") : k === "med" ? $("#hfDs") : $("#hfNm"))?.focus?.();
+}
+function hRecRow(e, main, cls) {
+  return el("div", { class: "rec" }, el("span", { class: "d", text: whenText(e.at) }), el("span", { class: cls || "" }, main),
+    careDelAsk === e.id ? el("span", { class: "delask" },
+        el("button", { type: "button", class: "yes", "aria-label": `${whenText(e.at)} ${CARE_K[e.k]} 기록 정말 지우기`, text: "지울게요", onclick: () => { careDelAsk = null; careDelete(e.day, e.id); } }),
+        el("button", { type: "button", text: "취소", onclick: () => { careDelAsk = null; renderGrow(); } }))
+      : el("button", { type: "button", "aria-label": `${whenText(e.at)} ${CARE_K[e.k]} 기록 지우기`, text: "지우기", onclick: () => { careDelAsk = e.id; renderGrow(); } }));
+}
+const emptyS = t => el("p", { class: "empty-s", text: t });
+function tempChart(list) {
+  const box = $("#hTempChart");
+  if (list.length < 2) { box.replaceChildren(); return; }
+  const W = 320, H = 120, L = 30, R = 8, T = 8, B = 18, x1 = Date.now(), x0 = x1 - 72 * 36e5;
+  const vs = list.map(e => e.v), lo = Math.min(35.5, ...vs) - .2, hi = Math.max(39, ...vs) + .2;
+  const X = t => L + (t - x0) / (x1 - x0) * (W - L - R), Y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+  const pts = [...list].sort((a, b) => a.at - b.at), ns = "http://www.w3.org/2000/svg";
+  const mk = (tag, a, txt) => { const n = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(a)) n.setAttribute(k, v); if (txt) n.textContent = txt; return n; };
+  const svg = mk("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `최근 72시간 체온 ${pts.map(e => fmtT(e.v)).join(", ")}` });
+  svg.append(mk("line", { class: "lim", x1: L, x2: W - R, y1: Y(38), y2: Y(38) }), mk("text", { x: 2, y: Y(38) + 3 }, "38.0"),
+    mk("text", { x: 2, y: Y(36.5) + 3 }, "36.5"));
+  for (const [h, lb] of [[72, "3일 전"], [48, "2일 전"], [24, "어제"], [0, "지금"]]) svg.append(mk("text", { x: Math.min(W - R - 18, X(x1 - h * 36e5) - (h === 72 ? 0 : 10)), y: H - 4 }, lb));
+  svg.append(mk("polyline", { class: "ln", points: pts.map(e => `${X(+e.at).toFixed(1)},${Y(e.v).toFixed(1)}`).join(" ") }));
+  for (const e of pts) svg.append(mk("circle", { class: "dot", cx: X(+e.at).toFixed(1), cy: Y(e.v).toFixed(1), r: 3 }));
+  box.replaceChildren(svg);
+}
+const durText = m => `${Math.floor(m / 60) ? Math.floor(m / 60) + "시간 " : ""}${m % 60}분`;
+const HEALTH_SRCS = [
+  ["미국소아과학회(AAP) · 열이 날 때 소아과에 연락할 때", "https://www.healthychildren.org/English/health-issues/conditions/fever/Pages/When-to-Call-the-Pediatrician.aspx"],
+  ["미국소아과학회(AAP) · 열과 아기", "https://www.healthychildren.org/English/health-issues/conditions/fever/Pages/Fever-and-Your-Baby.aspx"],
+];
+function renderHealth(ageDays, born) {
+  const cut = Date.now() - 72 * 36e5;
+  const temps = careEntries(["temp"]).filter(e => e.v), meds = careEntries(["med"]), hosp = careEntries(["hosp"]), poops = careEntries(["poop"]).filter(e => e.at <= Date.now());
+  const lt = temps[0], lm = meds[0], nx = nextMedText();
+  $("#hSum").replaceChildren(
+    el("div", { class: "metric" }, el("span", { class: "k", text: "🌡️ 최근 체온" }), el("span", { class: "v" + (lt && tempLevel(lt.v) === "hot" ? " hot" : ""), text: lt ? `${fmtT(lt.v)}°` : "기록 없음" }),
+      lt ? el("span", { class: "n", text: agoText(lt.at) }) : null),
+    el("div", { class: "metric" }, el("span", { class: "k", text: "💊 최근 투약" }), el("span", { class: "v", style: "font-size:.95rem; font-family:inherit; font-weight:700", text: lm ? lm.nm.replace(/^해열제 \((.+)\)$/, "$1") : "기록 없음" }),
+      lm ? el("span", { class: "n", text: agoText(lm.at) + (lm.ds ? ` · ${lm.ds}` : "") }) : null, nx ? el("span", { class: "n", text: nx }) : null));
+  const alert = lt && Date.now() - lt.at < 24 * 36e5 ? feverNote(lt.v, Math.round((lt.at - birth()) / 864e5)) : "";
+  $("#hAlert").hidden = !alert; $("#hAlert").textContent = alert;
+  const t72 = temps.filter(e => e.at >= cut);
+  tempChart(t72);
+  $("#hTemp").replaceChildren(...(t72.length ? t72.map(e => hRecRow(e, `${fmtT(e.v)}°C${tempLevel(e.v) === "hot" ? " · 열" : tempLevel(e.v) === "warm" ? " · 미열" : ""}`, "tv " + tempLevel(e.v))) : [emptyS("기록 없음")]));
+  const m72 = meds.filter(e => e.at >= cut);
+  $("#hMed").replaceChildren(...(m72.length ? m72.map(e => hRecRow(e, healthDesc(e))) : [emptyS("기록 없음")]));
+  $("#hHosp").replaceChildren(...(hosp.length ? hosp.slice(0, 10).map(e => hRecRow(e, el("span", {}, e.nm, e.memo ? el("small", { text: e.memo }) : null))) : [emptyS("기록 없음")]));
+  // Gaps between the last 8 poops (7 gaps), newest first.
+  const gaps = poops.slice(0, 8).map((e, i, a) => i + 1 < a.length ? { at: e.at, m: Math.round((e.at - a[i + 1].at) / 6e4) } : null).filter(Boolean);
+  if (gaps.length) {
+    const mx = Math.max(...gaps.map(g => g.m), 1), avg = Math.round(gaps.reduce((s, g) => s + g.m, 0) / gaps.length), since = Math.round((Date.now() - poops[0].at) / 6e4);
+    $("#hPoop").replaceChildren(el("div", { class: "pgap" }, ...gaps.map(g => el("div", { class: "row" }, el("span", { class: "d", text: whenText(g.at) }),
+        el("span", {}, el("div", { class: "bar", style: `width:${Math.max(3, g.m / mx * 100)}%` })), el("b", { text: durText(g.m) }))),
+      el("p", { class: "avg", text: `평균 ${durText(avg)}마다 · 마지막 대변 ${durText(since)} 전` })),
+      el("p", { class: "note", text: "생후 한 달쯤까지는 하루 여러 번이 보통이고, 그 뒤로는 며칠에 한 번인 아기도 있어요. 배가 빵빵하고 토하거나 잘 안 먹으면 소아과에 물어보세요." }));
+  } else $("#hPoop").replaceChildren(emptyS(poops.length ? "대변 기록이 2번 이상 있으면 간격을 보여 줘요" : "기록 없음"), el("p", { class: "note", text: "대변은 기록 탭의 💩 버튼이나 홈 채팅으로 기록해요." }));
+  $("#hGuide").replaceChildren(...[
+    born && ageDays < 90 ? "지금 영웅이는 생후 3개월 전이에요. 38.0도 이상이면 약을 먹이기 전에 바로 소아과에 연락하거나 응급실로 가세요." : "생후 3개월 전 아기가 38.0도 이상이면 약을 먹이기 전에 바로 소아과에 연락하거나 응급실로 가세요.",
+    "보통 38.0도 이상을 열로 봐요. 귀·이마·겨드랑이로 잰 값은 조금씩 달라서, 같은 체온계로 같은 곳을 재서 비교하세요.",
+    "아세트아미노펜(타이레놀 등)은 4~6시간 간격이에요. 생후 12주 전에는 먹이기 전에 의사와 먼저 상의하세요.",
+    "이부프로펜·덱시부프로펜(부루펜·맥시부펜 등)은 생후 6개월부터, 6~8시간 간격이에요. 둘은 같은 계열이라 번갈아 먹이면 안 돼요.",
+    "2살 전 아기가 열이 24시간 넘게 가거나, 잘 안 먹고 기저귀가 마르거나, 축 처지면 소아과에 가세요.",
+  ].map(t => el("li", { text: t })));
+  $("#hSrcs").replaceChildren(...HEALTH_SRCS.map(([n, u]) => el("li", {}, el("a", { href: u, target: "_blank", rel: "noopener noreferrer", text: n }))));
+}
+
+// ---------- 예방접종 체크 (family doc: vax.<doseId> = "YYYY-MM-DD" | "skip") ----------
+// 질병관리청 표준예방접종일정(어린이) + 많이 맞는 선택 접종. Calendar groups national doses by day.
+const VAC = {
+  bcg: ["BCG", "결핵 (BCG)"], hepb: ["B형간염", "B형간염 (HepB)"], dtap: ["DTaP", "디프테리아·파상풍·백일해 (DTaP)"], ipv: ["폴리오", "폴리오 (IPV)"],
+  hib: ["Hib", "b형 헤모필루스 인플루엔자 (Hib)"], pcv: ["폐렴구균", "폐렴구균 (PCV)"], rv: ["로타", "로타바이러스 (RV)"], flu: ["독감", "인플루엔자 (독감)"],
+  mmr: ["MMR", "홍역·유행성이하선염·풍진 (MMR)"], var: ["수두", "수두 (VAR)"], hepa: ["A형간염", "A형간염 (HepA)"], je: ["일본뇌염", "일본뇌염 (JE)"], men: ["수막구균", "수막구균 (MenACWY)"],
+};
+// [id, vaccine, dose (0 = one time), from [months, days], to [months, days], n national | c national, only for some | o optional (paid), note, calendar day]
+const VDOSES = [
+  ["hepb1", "hepb", 1, [0, 0], [0, 1], "n", "태어나고 24시간 안에, 보통 분만한 병원에서 맞아요. 엄마가 B형간염 양성이면 12시간 안에 면역글로불린도 같이 맞아요."],
+  ["bcg1", "bcg", 0, [0, 0], [0, 28], "n", "생후 4주 안에. 피내용(주사)은 무료예요. 경피용(도장식)은 유료로 고를 수 있어요.", [0, 7]],
+  ["hepb2", "hepb", 2, [1, 0], [2, 0], "n", "생후 1개월"],
+  ["dtap1", "dtap", 1, [2, 0], [3, 0], "n", "생후 2개월"], ["ipv1", "ipv", 1, [2, 0], [3, 0], "n", "생후 2개월"],
+  ["hib1", "hib", 1, [2, 0], [3, 0], "n", "생후 2개월"], ["pcv1", "pcv", 1, [2, 0], [3, 0], "n", "생후 2개월"],
+  ["rv1", "rv", 1, [2, 0], [3, 0], "n", "생후 2개월. 1차는 생후 15주 전에 맞아야 해요. 로타릭스는 2번, 로타텍은 3번 먹는 백신이에요."],
+  ["men1", "men", 0, [2, 0], [24, 0], "o", "유료 선택 접종이에요. 제품에 따라 생후 2개월부터 여러 번 맞아요. 맞을지 소아과와 상의해 보세요."],
+  ["dtap2", "dtap", 2, [4, 0], [5, 0], "n", "생후 4개월"], ["ipv2", "ipv", 2, [4, 0], [5, 0], "n", "생후 4개월"],
+  ["hib2", "hib", 2, [4, 0], [5, 0], "n", "생후 4개월"], ["pcv2", "pcv", 2, [4, 0], [5, 0], "n", "생후 4개월"], ["rv2", "rv", 2, [4, 0], [5, 0], "n", "생후 4개월"],
+  ["dtap3", "dtap", 3, [6, 0], [7, 0], "n", "생후 6개월"], ["hib3", "hib", 3, [6, 0], [7, 0], "n", "생후 6개월"], ["pcv3", "pcv", 3, [6, 0], [7, 0], "n", "생후 6개월"],
+  ["hepb3", "hepb", 3, [6, 0], [7, 0], "n", "생후 6개월"], ["ipv3", "ipv", 3, [6, 0], [19, 0], "n", "생후 6~18개월"],
+  ["rv3", "rv", 3, [6, 0], [7, 0], "c", "로타텍(3회)을 맞는 경우만이에요. 로타릭스(2회)였으면 '해당 없음'을 눌러 주세요."],
+  ["flu1", "flu", 1, [6, 0], [12, 0], "n", "생후 6개월부터 매년 가을에 맞아요. 처음 맞는 해는 4주 간격으로 2번이에요."],
+  ["flu2", "flu", 2, [6, 28], [12, 28], "n", "처음 맞는 해 2번째, 1차 4주 뒤"],
+  ["mmr1", "mmr", 1, [12, 0], [16, 0], "n", "생후 12~15개월"], ["var1", "var", 0, [12, 0], [16, 0], "n", "생후 12~15개월"],
+  ["hib4", "hib", 4, [12, 0], [16, 0], "n", "생후 12~15개월"], ["pcv4", "pcv", 4, [12, 0], [16, 0], "n", "생후 12~15개월"],
+  ["hepa1", "hepa", 1, [12, 0], [24, 0], "n", "생후 12~23개월"],
+  ["je1", "je", 1, [12, 0], [24, 0], "n", "생후 12~23개월. 불활성화 백신(5번)이나 생백신(2번) 중 하나로 맞아요."],
+  ["je2", "je", 2, [13, 0], [36, 0], "n", "불활성화: 1차 7~30일 뒤 · 생백신: 1차 12개월 뒤"],
+  ["dtap4", "dtap", 4, [15, 0], [19, 0], "n", "생후 15~18개월"],
+  ["hepa2", "hepa", 2, [18, 0], [36, 0], "n", "1차 6~12개월 뒤"],
+  ["je3", "je", 3, [24, 0], [36, 0], "c", "불활성화 백신만, 2차 12개월 뒤. 생백신으로 맞았으면 '해당 없음'을 눌러 주세요."],
+  ["dtap5", "dtap", 5, [48, 0], [84, 0], "n", "만 4~6세"], ["ipv4", "ipv", 4, [48, 0], [84, 0], "n", "만 4~6세"], ["mmr2", "mmr", 2, [48, 0], [84, 0], "n", "만 4~6세"],
+  ["je4", "je", 4, [72, 0], [84, 0], "c", "불활성화 백신만, 만 6세. 생백신으로 맞았으면 '해당 없음'을 눌러 주세요."],
+].map(([id, v, n, from, to, kind, note, cal]) => ({ id, v, n, from, to, kind, note, cal: cal || from }));
+const VDOSE = Object.fromEntries(VDOSES.map(d => [d.id, d]));
+// Older app versions checked whole visits (v2 = everything at 2 months). Spread them onto the doses.
+const VAX_OLD = { v0: ["hepb1"], v0b: ["bcg1"], v1: ["hepb2"], v2: ["dtap1", "ipv1", "hib1", "pcv1", "rv1"], v4: ["dtap2", "ipv2", "hib2", "pcv2", "rv2"],
+  v6: ["dtap3", "hib3", "pcv3", "hepb3", "ipv3"], v6f: ["flu1"], v12: ["mmr1", "var1", "hib4", "pcv4"], v12b: ["hepa1", "je1"], v15: ["dtap4"] };
+function migrateVax() {
+  const up = {};
+  for (const [old, ids] of Object.entries(VAX_OLD)) if (vaxDone[old]) {
+    for (const id of ids) if (!vaxDone[id]) { vaxDone[id] = vaxDone[old]; up[`vax.${id}`] = vaxDone[id]; }
+    delete vaxDone[old]; up[`vax.${old}`] = null;
+  }
+  if (!Object.keys(up).length) return;
+  if (fam) fam.update(Object.fromEntries(Object.entries(up).map(([k, v]) => [k, v === null ? firebase.firestore.FieldValue.delete() : v]))).catch(() => {});
+  else saveLocalEvents();
+}
+const vDate = mdd => babyDate(mdd[0], mdd[1]);
+const vName = d => `${VAC[d.v][0]}${d.n ? ` ${d.n}차` : ""}`;
+const vAge = ([m, d]) => !m && !d ? "출생 직후" : !m ? `생후 ${d}일` : m < 36 ? `생후 ${m}개월${d ? ` ${d}일` : ""}` : `만 ${Math.floor(m / 12)}세`;
+const dotYmd = s => s.replace(/-/g, ".");
+// status: done | skip | late | now | soon | later
+function vStatus(d) {
+  const v = vaxDone[d.id];
+  if (v === "skip") return "skip";
+  if (ymdOk(v)) return "done";
+  const t = today0(), a = vDate(d.from), b = vDate(d.to);
+  if (t < a) return (a - t) / 864e5 <= 30 ? "soon" : "later";
+  if (t <= b || d.kind === "o") return "now";
+  return "late";
+}
+const V_ST = { done: "완료", skip: "해당 없음", late: "시기 지났어요", now: "지금 맞을 때", soon: "곧 맞아요", later: "" };
+async function vaxSet(ids, val) {
+  for (const id of ids) { if (val) vaxDone[id] = val; else delete vaxDone[id]; }
+  renderGrow(); if (curView() === "cal") renderCal(); renderToday();
+  try { if (fam) await fam.update(Object.fromEntries(ids.map(id => [`vax.${id}`, val || firebase.firestore.FieldValue.delete()]))); else saveLocalEvents(); }
+  catch { showBanner("접종 체크를 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+}
+// Calendar: national doses (not marked 해당 없음) grouped by their day.
+function vaxCalGroups() {
+  const g = {};
+  for (const d of VDOSES) if (d.kind !== "o" && vaxDone[d.id] !== "skip") (g[ymd(vDate(d.cal))] ||= []).push(d);
+  return Object.entries(g).map(([ds, list]) => {
+    const byN = {};
+    for (const d of list) (byN[d.n] ||= []).push(VAC[d.v][0]);
+    const title = Object.entries(byN).sort((a, b) => +b[0] - +a[0]).map(([n, nm]) => `${nm.join("·")}${+n ? ` ${n}차` : ""}`).join(", ");
+    const dates = list.map(d => vaxDone[d.id]).filter(ymdOk).sort();
+    return { id: "vg" + ds.replace(/-/g, ""), d: ds, title, doses: list.map(d => d.id), note: vAge(list[0].cal) + " · 국가예방접종 무료", done: dates.length === list.length ? dates.pop() : undefined };
+  });
+}
+let vxMode = "date", vxPick = null, vxAll = false;
+function renderVax(born) {
+  const nat = VDOSES.filter(d => d.kind !== "o" && vaxDone[d.id] !== "skip"), doneN = nat.filter(d => ymdOk(vaxDone[d.id])).length, late = VDOSES.filter(d => vStatus(d) === "late").length;
+  $("#vxCount").textContent = `국가접종 ${doneN}/${nat.length}${late ? ` · 놓친 것 ${late}` : ""}`;
+  $("#vxByDate").setAttribute("aria-selected", String(vxMode === "date")); $("#vxByVac").setAttribute("aria-selected", String(vxMode === "vac"));
+  $("#vxIntro").textContent = (birthDate ? `생일(${dotYmd(ymd(birthDate))}) 기준으로 계산했어요.` : `아직 태어나기 전이라 예정일(${dotYmd(ymd(DUE))}) 기준으로 계산했어요. 설정에서 생일을 넣으면 다시 계산해요.`)
+    + " 맞은 날 '맞았어요'를 누르면 캘린더에도 완료로 보여요.";
+  const box = $("#vxList");
+  if (vxMode === "vac") {
+    box.replaceChildren(el("section", { class: "vxmon vxsum" }, ...Object.entries(VAC).map(([v, [, full]]) => {
+      const ds = VDOSES.filter(d => d.v === v), live = ds.filter(d => vaxDone[d.id] !== "skip"), ok = live.filter(d => ymdOk(vaxDone[d.id])).length;
+      const next = live.find(d => !ymdOk(vaxDone[d.id]));
+      return el("div", { class: "vxrow" }, el("span", {}, full + (ds[0].kind === "o" ? " · 선택" : ""),
+          el("small", { text: next ? `다음: ${vName(next)} · ${dotYmd(ymd(vDate(next.from)))}~${V_ST[vStatus(next)] ? ` · ${V_ST[vStatus(next)]}` : ""}` : `모두 마쳤어요 (${ok}번)` })),
+        el("span", { class: "dots", "aria-label": `${ok}/${live.length} 완료` }, ...ds.map(d => { const s = vStatus(d); return el("i", { class: s === "done" ? "on" : s === "late" ? "late" : s === "skip" ? "skip" : "", title: vName(d) }); })));
+    })));
+    return;
+  }
+  const lim = ymd(babyDate(24, 0)), shown = VDOSES.filter(d => vxAll || ymd(vDate(d.from)) < lim || ymdOk(vaxDone[d.id]));
+  const months = {};
+  for (const d of [...shown].sort((a, b) => vDate(a.from) - vDate(b.from))) { const a = vDate(d.from); (months[`${a.getFullYear()}년 ${a.getMonth() + 1}월`] ||= []).push(d); }
+  const t = ymd(new Date());
+  box.replaceChildren(...Object.entries(months).map(([mon, list]) => el("section", { class: "vxmon" }, el("h4", { text: mon }), ...list.map(d => {
+    const s = vStatus(d), val = vaxDone[d.id], canMark = ymd(vDate(d.from)) <= t;
+    const acts = [];
+    if (vxPick === d.id) {
+      const inp = el("input", { type: "date", value: ymdOk(val) ? val : t, max: t, min: ymd(birth()), "aria-label": `${vName(d)} 맞은 날` });
+      acts.push(el("span", { style: "font-size:.8rem; color:var(--muted)", text: "맞은 날" }), inp,
+        el("button", { type: "button", class: "go", text: "저장", onclick: () => { if (!ymdOk(inp.value) || inp.value > t) return; vxPick = null; vaxSet([d.id], inp.value); } }),
+        el("button", { type: "button", text: "취소", onclick: () => { vxPick = null; renderGrow(); } }));
+    } else if (s === "done") {
+      acts.push(el("button", { type: "button", text: "날짜 바꾸기", onclick: () => { vxPick = d.id; renderGrow(); } }),
+        el("button", { type: "button", text: "체크 취소", onclick: () => vaxSet([d.id], "") }));
+    } else if (s === "skip") {
+      acts.push(el("button", { type: "button", text: "되돌리기", onclick: () => vaxSet([d.id], "") }));
+    } else {
+      if (canMark) acts.push(el("button", { type: "button", class: "go", text: "맞았어요", onclick: () => { vxPick = d.id; renderGrow(); } }));
+      if (d.kind !== "n") acts.push(el("button", { type: "button", text: "해당 없음", onclick: () => vaxSet([d.id], "skip") }));
+    }
+    return el("div", { class: `vx ${s}` },
+      el("span", { class: "ic", "aria-hidden": "true", text: s === "done" ? "✓" : "💉" }),
+      el("div", {},
+        el("div", { class: "nm" }, `${vName(d)} `, el("span", { class: "gv", text: `· ${VAC[d.v][1].replace(/\s*\(.*\)$/, "")}` })),
+        el("div", { class: "meta" }, el("span", { class: "tag" + (d.kind === "o" ? " opt" : ""), text: d.kind === "o" ? "선택 (유료)" : "국가 (무료)" }),
+          el("span", { text: `${dotYmd(ymd(vDate(d.from)))}${ymd(vDate(d.to)) !== ymd(vDate(d.from)) && d.kind !== "o" ? " ~ " + dotYmd(ymd(vDate(d.to))) : d.kind === "o" ? "부터" : ""}` }),
+          V_ST[s] ? el("span", { class: "st " + s, text: s === "done" ? `${dotYmd(val)} 맞음` : V_ST[s] }) : null),
+        el("p", { class: "tip", text: d.note }),
+        acts.length ? el("div", { class: "acts" }, ...acts) : null));
+  }))), vxAll ? null : el("button", { type: "button", class: "btn ghost", text: "만 4~6세 접종까지 보기", onclick: () => { vxAll = true; renderGrow(); } }));
+}
+
 function setupGrow() {
+  document.querySelectorAll("#gHealth .qadd button").forEach(b => b.addEventListener("click", () => healthForm(hOpen === b.dataset.h ? null : b.dataset.h)));
+  $("#vxByDate").addEventListener("click", () => { vxMode = "date"; renderGrow(); });
+  $("#vxByVac").addEventListener("click", () => { vxMode = "vac"; renderGrow(); });
   document.querySelectorAll(".qadd button").forEach(b => b.addEventListener("click", () => {
     const k = b.dataset.k;
     careForm(careOpen === k ? null : k);
@@ -2126,19 +2568,7 @@ function setupGrow() {
 
 // ---------- Calendar (family doc: events.<id>, vax.<group>) ----------
 const WHO_EV = { all: ["같이", "--accent"], mom: ["엄마", "--c-mom"], dad: ["아빠", "--c-docs"], baby: ["영웅이", "--c-feed"] };
-// Korean national schedule (질병관리청 표준예방접종일정), grouped by visit. [id, months, days, title, note]
-const VAX = [
-  ["v0", 0, 0, "B형간염 1차", "출생 직후(24시간 이내)"],
-  ["v0b", 0, 7, "BCG(결핵)", "생후 4주 이내"],
-  ["v1", 1, 0, "B형간염 2차", "생후 1개월"],
-  ["v2", 2, 0, "DTaP·폴리오·Hib·폐렴구균·로타바이러스 1차", "생후 2개월"],
-  ["v4", 4, 0, "DTaP·폴리오·Hib·폐렴구균·로타바이러스 2차", "생후 4개월"],
-  ["v6", 6, 0, "DTaP·Hib·폐렴구균·B형간염 3차, 폴리오 3차", "생후 6개월 (폴리오 3차는 6~18개월, 로타텍이면 로타 3차도)"],
-  ["v6f", 6, 7, "인플루엔자 (첫해 2회)", "생후 6개월부터 매년, 첫해는 4주 간격 2회"],
-  ["v12", 12, 0, "MMR·수두·Hib 4차·폐렴구균 4차", "생후 12~15개월"],
-  ["v12b", 12, 14, "A형간염 1차·일본뇌염 1차", "생후 12~23개월"],
-  ["v15", 15, 0, "DTaP 4차", "생후 15~18개월"],
-];
+// Vaccine doses (VDOSES) are defined with the 예방접종 check list; the calendar shows them grouped by day.
 const CHECK_EV = [["c1", 0, 14, "1차 영유아검진", "생후 14~35일"], ["c2", 4, 0, "2차 영유아검진", "생후 4~6개월"], ["c3", 9, 0, "3차 영유아검진", "생후 9~12개월"], ["c4", 18, 0, "4차 영유아검진", "생후 18~24개월"]];
 let events = {}, vaxDone = {}, calMode = "month", calCursor = null, calSel = null, evDelAsk = null;
 const ymdOk = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "");
@@ -2150,7 +2580,7 @@ function readEvents(x) {
   return out;
 }
 function readVax(x) { const o = {}; for (const [k, v] of Object.entries(x && typeof x === "object" ? x : {})) if (typeof v === "string") o[k] = v.slice(0, 10); return o; }
-function onFamilyEvents(ev, vx) { events = readEvents(ev); shift = readShift(ev?.shift); vaxDone = readVax(vx); if (curView() === "cal") renderCal(); renderToday(); }
+function onFamilyEvents(ev, vx) { events = readEvents(ev); shift = readShift(ev?.shift); vaxDone = readVax(vx); migrateVax(); if (curView() === "cal") renderCal(); if (curView() === "grow") renderGrow(); renderToday(); }
 function saveLocalEvents() { lsSet("yw.events", JSON.stringify({ events, vax: vaxDone, shift })); }
 
 // ---------- 아빠 교대근무: 4조 2교대 (주간 → 야간 → 비번 → 휴무) ----------
@@ -2215,6 +2645,11 @@ async function evDelete(id) {
   catch { showBanner("일정을 지우지 못했어요. 인터넷 연결을 확인해 주세요."); }
 }
 async function vaxToggle(k) {
+  if (k.startsWith("vg")) {   // a day of vaccine doses: check every dose that day, or uncheck them all
+    const g = vaxCalGroups().find(x => x.id === k); if (!g) return;
+    const all = g.doses.every(id => ymdOk(vaxDone[id]));
+    return vaxSet(all ? g.doses : g.doses.filter(id => !ymdOk(vaxDone[id])), all ? "" : ymd(new Date()));
+  }
   const on = !vaxDone[k]; if (on) vaxDone[k] = ymd(new Date()); else delete vaxDone[k]; renderCal(); renderToday();
   try { if (fam) await fam.update({ [`vax.${k}`]: on ? vaxDone[k] : firebase.firestore.FieldValue.delete() }); else saveLocalEvents(); }
   catch { showBanner("접종 체크를 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
@@ -2224,7 +2659,7 @@ function allEvents() {
   const est = !birthDate ? " (예정일 기준)" : "";
   return [
     ...Object.entries(events).map(([id, e]) => ({ id, ...e })),
-    ...VAX.map(([id, m, d, title, note]) => ({ id, d: ymd(babyDate(m, d)), t: "", title: "💉 " + title, who: "baby", note: note + est, vax: true, done: vaxDone[id] })),
+    ...vaxCalGroups().map(g => ({ ...g, t: "", title: "💉 " + g.title, who: "baby", note: g.note + est, vax: true })),
     ...CHECK_EV.map(([id, m, d, title, note]) => ({ id, d: ymd(babyDate(m, d)), t: "", title: "🩺 " + title, who: "baby", note: note + " · 무료" + est, vax: true, done: vaxDone[id] })),
   ];
 }
@@ -2368,7 +2803,8 @@ function careSummary(d) {
   const sl = list.filter(e => e.k === "sleep").reduce((s, e) => s + Math.min(e.min, 1440 - toM(e.t)), 0)
     + prev.filter(e => e.k === "sleep").reduce((s, e) => s + Math.max(0, toM(e.t) + e.min - 1440), 0);
   const last = feeds.map(e => e.t).sort().pop();
-  return { feeds: feeds.length, ml, pee: n("pee"), poop: n("poop"), sleep: sl, last, any: list.length > 0 };
+  const pumps = list.filter(e => e.k === "pump");
+  return { feeds: feeds.length, ml, pee: n("pee"), poop: n("poop"), sleep: sl, last, any: list.length > 0, pump: pumps.length, pumpMl: pumps.reduce((s, e) => s + e.ml, 0) };
 }
 function renderToday() {
   const box = $("#today"); if (!box || curView() !== "home") return;
@@ -2379,14 +2815,16 @@ function renderToday() {
   const up = allEvents().filter(e => evEnd(e) >= ymd(t0) && !(e.vax && e.done)).sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99"))).slice(0, 3);
   box.replaceChildren(
     el("a", { class: "tcell", href: "#grow" }, el("span", { class: "k", text: "오늘 기록" }),
-      el("span", { class: "v" }, el("div", { text: `수유 ${c.feeds}번${c.ml ? ` · ${c.ml}ml` : ""}` }), el("div", { text: `소변 ${c.pee} · 대변 ${c.poop}` }), el("div", { text: ago || (c.any ? "" : "아직 기록이 없어요") }))),
+      el("span", { class: "v" }, el("div", { text: `수유 ${c.feeds}번${c.ml ? ` · ${c.ml}ml` : ""}` }), el("div", { text: `소변 ${c.pee} · 대변 ${c.poop}` }), c.pump ? el("div", { text: `유축 ${c.pump}번${c.pumpMl ? ` · ${c.pumpMl}ml` : ""}` }) : null,
+        (() => { const lt = careEntries(["temp"]).find(e => e.v); return lt && Date.now() - lt.at < 24 * 36e5 ? el("div", { class: tempLevel(lt.v) === "hot" ? "shr" : "", text: `체온 ${fmtT(lt.v)}° · ${agoText(lt.at)}` }) : null; })(),
+        el("div", { text: ago || (c.any ? "" : "아직 기록이 없어요") }))),
     el("a", { class: "tcell", href: "#cal" }, el("span", { class: "k", text: "다가오는 일정" }),
       el("span", { class: "v" }, ...(() => { const a = shiftOn(ymd(t0)), b = shiftOn(ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + 1))); return a ? [el("div", {}, "아빠 ", el("b", { class: a.work ? "shw" : "shr", text: a.l }), " · 내일 ", el("b", { class: b.work ? "shw" : "shr", text: b.l }))] : []; })(),
         ...(up.length ? up.map(e => { return el("div", { text: `${evRange(e)} ${e.title.replace(/^\S+ /, e.vax ? "" : "$&")}` }); }) : [el("div", { text: "일정이 없어요" })]))));
 }
 
 let botLog = [], botBusy = false;
-const BOT_CHIPS = ["분유 80ml 기록해", "소변 기록", "12월 일정 알려줘", "12월 5일 연차", "이번 주 근무 알려줘", "내일 오후 3시 소아과 일정 추가해", "다음 예방접종 언제야?", "오늘 기록 요약해줘"];
+const BOT_CHIPS = ["분유 80ml 기록해", "유축 100ml 기록해", "체온 37.8 기록", "해열제 먹였어", "소변 기록", "12월 일정 알려줘", "12월 5일 연차", "이번 주 근무 알려줘", "내일 오후 3시 소아과 일정 추가해", "다음 예방접종 언제야?", "오늘 기록 요약해줘"];
 function saveBot() { lsSet("yw.bot", JSON.stringify(botLog.slice(-40).map(m => ({ r: m.r, x: m.x, done: m.done })))); }
 function drawBot() {
   const box = $("#botMsgs");
@@ -2394,7 +2832,7 @@ function drawBot() {
     : el("div", { class: "am" }, el("span", { text: m.x }),
         (m.done || []).length ? el("span", { class: "done", text: "✓ " + m.done.join("\n✓ ") }) : null,
         m.undo ? el("button", { type: "button", class: "toggle", text: "되돌리기", onclick: () => { m.undo(); m.undo = null; m.done = (m.done || []).map(x => x + " (되돌림)"); saveBot(); drawBot(); } }) : null));
-  if (!botLog.length) kids.push(el("div", { class: "am" }, el("span", { text: "수유·기저귀·잠 기록이나 일정 추가, 일정·기록 질문을 말로 해 보세요." })));
+  if (!botLog.length) kids.push(el("div", { class: "am" }, el("span", { text: "수유·유축·기저귀·잠·체온·투약 기록이나 일정 추가, 일정·기록 질문을 말로 해 보세요." })));
   if (botBusy) kids.push(el("div", { class: "am" }, el("div", { class: "working" }, el("span", { class: "spin" }), el("span", { text: "생각하는 중이에요…" }))));
   box.replaceChildren(...kids); box.scrollTop = box.scrollHeight;
 }
@@ -2480,8 +2918,45 @@ function localCommand(s) {
   if (/어제|그제|그저께|내일|모레|월\s*\d|\d\s*월|일정|잠|잤|재웠|낮잠/.test(s)) return null;
   const clock = parseClock(s), t = clock ? clock.t : hm(now), rest = clock ? s.replace(clock.raw, " ") : s;
   if (clock && t > hm(now)) return null;
-  const acts = [];
-  if (/분유|수유|모유|유축|맘마|젖/.test(rest)) {
+  const acts = [], ask = /\?|얼마|언제|몇|어떻게|괜찮|될까|돼\?|해도/.test(rest);
+  let note = "";
+  // 체온: "체온 37.8 기록", "열 38.2", "37.8도"
+  const tm = rest.match(/(?<![\d.])(3[4-9]|4[0-2])(?:\.(\d))?(?![\d.])(?!\s*(?:mg|ml|mL|cc|분|시|번|개월))\s*(?:도|℃|°)?/);
+  if (!ask && tm && /체온|열(?!제)|도|℃|°/.test(rest) && !/ml|mL|분유|수유/.test(rest)) {
+    const v = +(tm[1] + "." + (tm[2] || "0"));
+    acts.push({ type: "care", k: "temp", v, date: today, t });
+    note = feverNote(v, Math.round((today0() - birth()) / 864e5));
+  }
+  // 투약: "해열제 먹였어", "타이레놀 3ml 먹임", "유산균 줬어"
+  if (!ask && /해열제|타이레놀|세토펜|부루펜|이부프로펜|아세트아미노펜|맥시부펜|덱시|유산균|비타민\s*d|철분제|감기약|약/i.test(rest) && /먹였|먹임|먹였어|줬|투약|기록|먹었/.test(rest)) {
+    const c = medClass(rest);
+    const nm = c ? MEDS[c][0] : /해열제/.test(rest) ? "해열제" : ((rest.match(/유산균|비타민\s*D|비타민\s*d|철분제|감기약|[가-힣A-Za-z]+약/) || ["약"])[0]).replace(/\s/g, "");
+    const ds = (rest.match(/\d+(?:\.\d+)?\s*(?:ml|mL|cc|mg|알|포|방울)/) || [""])[0].replace(/\s/g, "");
+    acts.push({ type: "care", k: "med", nm, ds, date: today, t });
+  }
+  // 병원: "소아과 다녀왔어", "우리소아과 진료 받음"
+  if (!ask && /병원|소아과|소아청소년과|의원|응급실/.test(rest) && /다녀|갔다|갔어|갔음|진료|왔어|왔음/.test(rest)) {
+    const nm = (rest.match(/[가-힣A-Za-z0-9]*(?:소아청소년과|소아과|병원|의원|응급실)/) || ["병원"])[0];
+    const memo = str(rest.replace(nm, " ").replace(/다녀\S*|갔\S*|왔\S*|진료\s*받\S*|기록\S*|에서|에/g, " ").replace(/\s+/g, " "), 120);
+    acts.push({ type: "care", k: "hosp", nm, memo, date: today, t });
+  }
+  // 예방접종: "BCG 맞았어", "B형간염 2차 맞음", "2개월 접종 맞았어"
+  if (!ask && /맞았|맞음|맞고\s*왔|접종\s*(했|함|완료)/.test(rest)) {
+    const VK = [["bcg", /BCG|결핵/i], ["hepa", /A형\s*간염/], ["hepb", /B형\s*간염|HepB/i], ["dtap", /DTaP|디티|디프테리아|파상풍|백일해/i], ["ipv", /폴리오|소아마비|IPV/i], ["hib", /Hib|뇌수막염/i],
+      ["pcv", /폐렴구균|프리베나|PCV/i], ["rv", /로타/], ["flu", /독감|인플루엔자/], ["mmr", /MMR|홍역/i], ["var", /수두/], ["je", /일본뇌염/], ["men", /수막구균|멘비오/]];
+    const nn = rest.match(/(\d)\s*차/), mo = rest.match(/(\d{1,2})\s*개월\s*(?:접종|예방접종|주사)/);
+    let ids = [];
+    const open = x => !ymdOk(vaxDone[x.id]) && vaxDone[x.id] !== "skip" && vDate(x.from) <= now;   // only doses whose time has come
+    for (const [v, re] of VK) if (re.test(rest)) { const d = VDOSES.find(x => x.v === v && (nn ? x.n === +nn[1] && vDate(x.from) <= now : open(x))); if (d) ids.push(d.id); }
+    if (!ids.length && mo) ids = VDOSES.filter(x => x.kind === "n" && x.from[0] === +mo[1] && !x.from[1] && open(x)).map(x => x.id);
+    if (!ids.length) return { reply: `아직 맞을 때가 안 됐거나 이미 체크된 접종이에요.${birthDate ? "" : " 지금은 예정일 기준이라, 태어났으면 설정에서 생일을 먼저 넣어 주세요."} 발달 → 예방접종에서 확인할 수 있어요.` };
+    if (ids.length) acts.push({ type: "vax", ids, date: today });
+  }
+  if (/분유|수유|모유|유축|맘마|젖/.test(rest) && /유축/.test(rest) && !/먹였|먹임|먹었|수유|맘마|줬/.test(rest)) {
+    // 유축 itself (엄마가 짠 것): "유축 100ml 기록해", "양쪽 유축 120ml 15분"
+    const ml = rest.match(/(\d{1,3})\s*(ml|mL|ML|미리|cc|씨씨|밀리)/) || rest.match(/유축\D{0,4}(\d{2,3})(?!\s*분)/), mn = rest.match(/(\d{1,3})\s*분/);
+    acts.push({ type: "care", k: "pump", ml: ml ? +ml[1] : 0, min: mn ? +mn[1] : 0, side: /양쪽|양측/.test(rest) ? "b" : /왼/.test(rest) ? "l" : /오른/.test(rest) ? "r" : "", date: today, t });
+  } else if (/분유|수유|모유|유축|맘마|젖/.test(rest)) {
     const ml = rest.match(/(\d{1,3})\s*(ml|mL|ML|미리|cc|씨씨|밀리)/) || rest.match(/(?:분유|유축|수유|맘마)\D{0,4}(\d{2,3})(?!\s*분)/);
     const mn = rest.match(/(\d{1,3})\s*분/);
     const ft = /유축/.test(rest) ? "pumped" : /분유/.test(rest) ? "formula" : /모유|젖|직접/.test(rest) && !ml ? "breast" : ml ? "formula" : "breast";
@@ -2491,7 +2966,8 @@ function localCommand(s) {
   if (/소변|쉬야|오줌|쉬\s*(했|하|쌌|봤|함|1)|기저귀\s*쉬/.test(rest)) acts.push({ type: "care", k: "pee", date: today, t });
   if (/대변|응가|똥/.test(rest)) acts.push({ type: "care", k: "poop", date: today, t });
   if (!acts.length) return null;
-  return { reply: acts.length > 1 ? "기록했어요." : "기록했어요.", actions: acts };
+  const nx = acts.some(a => a.k === "med") ? (() => { const c = medClass(acts.find(a => a.k === "med").nm); return c ? `다음 ${c === "acet" ? "아세트아미노펜" : "이부프로펜 계열"}은 ${MEDS[c][1]}시간 뒤(${hm(new Date(Date.now() + MEDS[c][1] * 36e5))})부터예요.` : ""; })() : "";
+  return { reply: ["기록했어요.", note, nx].filter(Boolean).join(" "), actions: acts };
 }
 function botPrompt(text) {
   const now = new Date(), t0 = today0();
@@ -2504,8 +2980,10 @@ function botPrompt(text) {
 부모가 한 말: """${text}"""
 
 앱에서 할 수 있는 일은 actions로 돌려줘:
-- 기록: {"type":"care","k":"feed|pee|poop|sleep","ft":"formula|pumped|breast","ml":숫자,"min":숫자,"date":"YYYY-MM-DD","t":"HH:MM"}
-  수유량은 ml, 직접 수유는 min(분). 잠은 t=잠든 시각, min=잔 시간(분), date=잠든 날짜(밤 11시에 자서 아침에 깼으면 전날 날짜). 시간 말이 없으면 지금 시각.
+- 기록: {"type":"care","k":"feed|pump|pee|poop|sleep","ft":"formula|pumped|breast","ml":숫자,"min":숫자,"date":"YYYY-MM-DD","t":"HH:MM"}
+  수유량은 ml, 직접 수유는 min(분). pump는 엄마가 유축한 것(ml, min, "side":"l|r|b"). 아기가 유축한 모유를 먹었으면 feed + ft "pumped".
+- 건강 기록: 체온 {"type":"care","k":"temp","v":37.8,"date","t"}, 투약 {"type":"care","k":"med","nm":"해열제 (아세트아미노펜)|해열제 (이부프로펜)|해열제 (덱시부프로펜)|약 이름","ds":"3ml 같은 양, 없으면 빈 문자열","date","t"}, 병원 {"type":"care","k":"hosp","nm":"병원 이름","memo":"왜 갔는지·들은 말","date","t"}
+- 예방접종 맞음: {"type":"vax","ids":["아래 목록의 id"],"date":"YYYY-MM-DD"} 잠은 t=잠든 시각, min=잔 시간(분), date=잠든 날짜(밤 11시에 자서 아침에 깼으면 전날 날짜). 시간 말이 없으면 지금 시각.
 - 일정 추가: {"type":"event","date":"YYYY-MM-DD","date2":"여러 날이면 마지막 날 YYYY-MM-DD, 하루면 빈 문자열","t":"HH:MM 또는 빈 문자열","title":"짧은 제목","who":"mom|dad|baby|all"}
 - 아빠 교대근무 바꾸기: {"type":"shift","date":"YYYY-MM-DD","label":"주간|야간|비번|휴무|연차|초)주간|초)야간|지정근무|병가|휴가 등 8자 이내, 원래 순서로 되돌리면 빈 문자열"}
 - 기록이나 일정을 묻는 말이면 actions 없이 아래 자료만 보고 답해. 자료에 없으면 없다고 해.
@@ -2517,6 +2995,12 @@ ${evs}
 
 [최근 기록]
 ${days}
+
+[최근 72시간 체온·투약·병원]
+${careEntries(["temp", "med", "hosp"]).filter(e => Date.now() - e.at < 72 * 36e5).slice(0, 20).map(e => `${ymd(e.at)} ${e.t} ${healthDesc(e)}`).join("\n") || "(없음)"}
+
+[예방접종 목록 (id 이름 권장 시작일 상태)]
+${VDOSES.filter(d => ymd(vDate(d.from)) <= ymd(babyDate(24, 0))).map(d => `${d.id} ${vName(d)} ${ymd(vDate(d.from))} ${V_ST[vStatus(d)] || "예정"}${ymdOk(vaxDone[d.id]) ? " " + vaxDone[d.id] : ""}`).join("\n")}
 ${shift.off ? "" : `\n[아빠 교대근무 (주간→야간→비번→휴무 4조 2교대)]\n${[...Array(21)].map((_, i) => { const ds = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + i)), sh = shiftOn(ds); return `${ds} ${sh.l}${sh.chg ? ` (원래 ${sh.base})` : ""}`; }).join("\n")}\n`}
 ${prev ? `\n[앞선 대화]\n${prev}\n` : ""}
 JSON 하나만 출력해: {"reply":"해요체 1~3문장","actions":[]}`;
@@ -2529,10 +3013,17 @@ function execActions(acts) {
       if (a.k === "sleep" && date === ymd(today0()) && /^\d{2}:\d{2}$/.test(a.t || "") && a.t > hm(new Date())) { const t0 = today0(); date = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 1)); }
       const day = "d" + date.replace(/-/g, ""), id = "e" + Date.now().toString(36) + done.length;
       const e = { k: a.k, t: /^\d{2}:\d{2}$/.test(a.t || "") ? a.t : hm(new Date()), ft: a.k === "feed" ? (FEED_T[a.ft] ? a.ft : (+a.ml ? "formula" : "breast")) : "",
-        ml: a.k === "feed" ? Math.max(0, Math.min(400, Math.round(+a.ml || 0))) : 0, min: Math.max(0, Math.min(1440, Math.round(+a.min || 0))) };
+        ml: a.k === "feed" || a.k === "pump" ? Math.max(0, Math.min(400, Math.round(+a.ml || 0))) : 0, min: Math.max(0, Math.min(1440, Math.round(+a.min || 0))), ...healthFields(a) };
+      if (a.k === "temp" && !(e.v >= 34 && e.v <= 43)) continue;
       careSave(day, id, e); undos.push(() => careDelete(day, id));
       const dd = parseYmd(date), dl = date === ymd(today0()) ? "" : `${dd.getMonth() + 1}/${dd.getDate()} `;
-      done.push(`${dl}${e.t} ${e.k === "feed" ? `${FEED_T[e.ft]}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}` : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60)}시간 ${e.min % 60}분` : CARE_K[e.k]} 기록`);
+      done.push(`${dl}${e.t} ${e.k === "temp" || e.k === "med" || e.k === "hosp" ? healthDesc(e) : e.k === "pump" ? `유축${e.ml ? ` ${e.ml}ml` : ""}${PUMP_SIDE[e.side] ? ` ${PUMP_SIDE[e.side]}` : ""}` : e.k === "feed" ? `${FEED_T[e.ft]}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}` : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60)}시간 ${e.min % 60}분` : CARE_K[e.k]} 기록`);
+    } else if (a?.type === "vax" && Array.isArray(a.ids)) {
+      const ids = a.ids.filter(id => VDOSE[id]).slice(0, 12), date = ymdOk(a.date) && a.date <= ymd(new Date()) ? a.date : ymd(new Date());
+      if (!ids.length) continue;
+      const prev = Object.fromEntries(ids.map(id => [id, vaxDone[id] || ""]));
+      vaxSet(ids, date); undos.push(() => { for (const id of ids) vaxSet([id], prev[id]); });
+      done.push(`${md(date)} ${ids.map(id => vName(VDOSE[id])).join(", ")} 접종 완료 체크`);
     } else if (a?.type === "shift" && ymdOk(a.date) && typeof a.label === "string" && !shift.off) {
       const prev = shiftSet(a.date, a.label), date = a.date; undos.push(() => shiftSet(date, prev));
       const sh = shiftOn(date); done.push(`${fmtDay(parseYmd(date))} 아빠 ${sh.l}${sh.chg ? "" : " (원래 순서)"}`);
@@ -2609,7 +3100,7 @@ async function boot() {
   setupGrow();
   setupCal();
   setupBot();
-  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); const lv = JSON.parse(lsGet("yw.events") || "{}"); events = readEvents(lv.events); shift = readShift(lv.shift); vaxDone = readVax(lv.vax); } catch {}
+  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); const lv = JSON.parse(lsGet("yw.events") || "{}"); events = readEvents(lv.events); shift = readShift(lv.shift); vaxDone = readVax(lv.vax); migrateVax(); } catch {}
   setBirth(lsGet("yw.birth"));
   showView();
   window.addEventListener("hashchange", () => { showView(); window.scrollTo(0, 0); });
