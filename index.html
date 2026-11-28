@@ -184,6 +184,9 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .ev .delask { display: flex; gap: 4px; align-items: center; }
 .ev .delask button { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--ink); }
 .ev .delask .yes { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 700; }
+.rec .delask { display: flex; gap: 4px; align-items: center; }
+.rec .delask button { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--ink); }
+.rec .delask .yes { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 700; }
 .tab[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 .grow-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .grow-h h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; margin: 0; }
@@ -1941,7 +1944,7 @@ function poopWarn(c, ageDays) {
   if (c === "red") return "빨간 줄이나 피가 섞여 보이면 소아과에 물어보세요. 대부분 괜찮지만 확인하는 게 좋아요. 사진을 찍어 두면 도움이 돼요.";
   return "";
 }
-let care = {}, careDay = null, careOpen = null, feedType = "formula", poopSel = { c: "", tx: "" };
+let care = {}, careDay = null, careOpen = null, careDelAsk = null, feedType = "formula", poopSel = { c: "", tx: "" };
 const dayKey = d => "d" + ymd(d).replace(/-/g, "");
 const today0 = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
 const hm = d => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -2025,6 +2028,8 @@ function careForm(k) {
       const s0 = $("#cfS").value; if (!/^\d{2}:\d{2}$/.test(s0)) return;
       const toM = x => +x.slice(0, 2) * 60 + +x.slice(3); let dur = toM(t) - toM(s0); if (dur <= 0) dur += 1440;
       entry.t = s0; entry.min = dur;
+      // Fell asleep later than the wake-up time (e.g. 23:00 → 06:00): it started the day before.
+      if (toM(s0) >= toM(t)) { careSave(dayKey(new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1)), "e" + Date.now().toString(36), entry); careForm(null); return; }
     }
     careSave(dayKey(careDay), "e" + Date.now().toString(36), entry); careForm(null);
   };
@@ -2035,13 +2040,17 @@ function renderCare(ageDays, born) {
   const isToday = careDay.getTime() === today0().getTime();
   $("#dayLabel").textContent = `${careDay.getMonth() + 1}월 ${careDay.getDate()}일${isToday ? " (오늘)" : ""}`;
   $("#dayNext").disabled = isToday;
-  const list = Object.entries(care[dayKey(careDay)] || {}).map(([id, e]) => ({ id, ...e })).sort((a, b) => b.t.localeCompare(a.t));
+  const dk = dayKey(careDay), pk = dayKey(new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1));
+  const list = Object.entries(care[dk] || {}).map(([id, e]) => ({ id, day: dk, ...e })).sort((a, b) => b.t.localeCompare(a.t));
+  // Sleep from the night before that ran past midnight is shown at the bottom of this day too.
+  const carried = Object.entries(care[pk] || {}).filter(([, e]) => e.k === "sleep" && +e.t.slice(0, 2) * 60 + +e.t.slice(3) + e.min > 1440)
+    .map(([id, e]) => ({ id, day: pk, prev: true, ...e })).sort((a, b) => b.t.localeCompare(a.t));
   const dAge = Math.round((careDay - birth()) / 864e5), N = careNorms(dAge);
   const feeds = list.filter(e => e.k === "feed"), ml = feeds.reduce((s, e) => s + e.ml, 0);
-  const cnt = k => list.filter(e => e.k === k).length, sleepMin = list.filter(e => e.k === "sleep").reduce((s, e) => s + e.min, 0);
+  const cnt = k => list.filter(e => e.k === k).length, sleepMin = careSummary(careDay).sleep;
   let last = "";
-  if (isToday && feeds.length) { const [h, m] = feeds[0].t.split(":").map(Number); const ago = Math.round((Date.now() - new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate(), h, m)) / 6e4);
-    if (ago >= 0) last = ` · 마지막 ${ago >= 60 ? `${Math.floor(ago / 60)}시간 ` : ""}${ago % 60}분 전`; }
+  const lf = isToday ? lastFeedAt() : null;
+  if (lf) { const ago = Math.round((Date.now() - lf) / 6e4); last = ` · 마지막 ${ago >= 60 ? `${Math.floor(ago / 60)}시간 ` : ""}${ago % 60}분 전`; }
   const low = ([min], v) => !isToday && list.length && min && v < min;   // only judge finished days
   const card = (k, v, sub, norm, warn) => el("div", { class: "metric" }, el("span", { class: "k", text: CARE_K[k] }), el("span", { class: "v", text: v }),
     sub ? el("span", { class: "n", text: sub }) : null, el("span", { class: "n" + (warn ? " warn" : ""), text: (warn ? "보통보다 적어요 · " : "보통 ") + norm }));
@@ -2055,9 +2064,12 @@ function renderCare(ageDays, born) {
     : e.k === "poop" ? [CARE_K.poop, e.c && POOP_C[e.c][0], e.tx && POOP_X[e.tx]].filter(Boolean).join(" · ") : CARE_K[e.k];
   const flag = e => e.k === "poop" && e.c && POOP_C[e.c][2] && !(e.c === "black" && dAge >= 0 && dAge < 4);
   const icon = { feed: "🍼", pee: "💧", poop: "💩", sleep: "😴" };
-  $("#careList").replaceChildren(...list.map(e => el("div", { class: "rec" },
-    el("span", { class: "d", text: e.t }), el("span", {}, `${icon[e.k]} ${desc(e)}`, flag(e) ? el("span", { class: "warn", text: " · 소아과에 물어보세요" }) : null),
-    el("button", { type: "button", "aria-label": `${e.t} ${CARE_K[e.k]} 기록 지우기`, text: "지우기", onclick: () => careDelete(dayKey(careDay), e.id) }))));
+  $("#careList").replaceChildren(...[...list, ...carried].map(e => el("div", { class: "rec" },
+    el("span", { class: "d", text: (e.prev ? "전날 " : "") + e.t }), el("span", {}, `${icon[e.k]} ${desc(e)}`, flag(e) ? el("span", { class: "warn", text: " · 소아과에 물어보세요" }) : null),
+    careDelAsk === e.id ? el("span", { class: "delask" },
+        el("button", { type: "button", class: "yes", "aria-label": `${e.t} ${CARE_K[e.k]} 기록 정말 지우기`, text: "지울게요", onclick: () => { careDelAsk = null; careDelete(e.day, e.id); } }),
+        el("button", { type: "button", text: "취소", onclick: () => { careDelAsk = null; renderGrow(); } }))
+      : el("button", { type: "button", "aria-label": `${e.t} ${CARE_K[e.k]} 기록 지우기`, text: "지우기", onclick: () => { careDelAsk = e.id; renderGrow(); } }))));
   $("#careNote").textContent = !list.length ? (born ? "위 버튼을 누르고 확인하면 기록돼요. 엄마 아빠 휴대폰에 같이 보여요." : "태어나면 위 버튼으로 수유, 기저귀, 잠을 기록해 보세요. 엄마 아빠 휴대폰에 같이 보여요.")
     : `${N.ml}. 소변이 계속 적거나 잘 안 먹으면 소아과에 물어보세요.`;
 }
@@ -2103,8 +2115,8 @@ function setupGrow() {
     const k = b.dataset.k;
     careForm(careOpen === k ? null : k);
   }));
-  $("#dayPrev").addEventListener("click", () => { careDay = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1); careForm(null); renderGrow(); });
-  $("#dayNext").addEventListener("click", () => { if (careDay < today0()) careDay = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() + 1); careForm(null); renderGrow(); });
+  $("#dayPrev").addEventListener("click", () => { careDay = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1); careDelAsk = null; careForm(null); renderGrow(); });
+  $("#dayNext").addEventListener("click", () => { if (careDay < today0()) careDay = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() + 1); careDelAsk = null; careForm(null); renderGrow(); });
 }
 
 // ---------- Calendar (family doc: events.<id>, vax.<group>) ----------
@@ -2318,12 +2330,12 @@ function setupCal() {
 }
 
 // ---------- Home: today summary + assistant chat ----------
-// Most recent feeding as a Date, looking back over the last 2 days so it survives midnight.
+// Most recent feeding as a Date, whatever day it was logged on.
 function lastFeedAt() {
-  const t0 = today0(); let best = null;
-  for (let n = 0; n <= 2; n++) {
-    const d = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - n);
-    for (const e of Object.values(care[dayKey(d)] || {})) {
+  let best = null;
+  for (const [k, day] of Object.entries(care)) {
+    const d = new Date(+k.slice(1, 5), +k.slice(5, 7) - 1, +k.slice(7, 9));
+    for (const e of Object.values(day || {})) {
       if (e.k !== "feed") continue;
       const [h, m] = e.t.split(":").map(Number), at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m);
       if (at <= Date.now() && (!best || at > best)) best = at;
@@ -2477,7 +2489,7 @@ function botPrompt(text) {
 
 앱에서 할 수 있는 일은 actions로 돌려줘:
 - 기록: {"type":"care","k":"feed|pee|poop|sleep","ft":"formula|pumped|breast","ml":숫자,"min":숫자,"date":"YYYY-MM-DD","t":"HH:MM"}
-  수유량은 ml, 직접 수유는 min(분). 잠은 t=잠든 시각, min=잔 시간(분). 시간 말이 없으면 지금 시각.
+  수유량은 ml, 직접 수유는 min(분). 잠은 t=잠든 시각, min=잔 시간(분), date=잠든 날짜(밤 11시에 자서 아침에 깼으면 전날 날짜). 시간 말이 없으면 지금 시각.
 - 일정 추가: {"type":"event","date":"YYYY-MM-DD","date2":"여러 날이면 마지막 날 YYYY-MM-DD, 하루면 빈 문자열","t":"HH:MM 또는 빈 문자열","title":"짧은 제목","who":"mom|dad|baby|all"}
 - 아빠 교대근무 바꾸기: {"type":"shift","date":"YYYY-MM-DD","label":"주간|야간|비번|휴무|연차|초)주간|초)야간|지정근무|병가|휴가 등 8자 이내, 원래 순서로 되돌리면 빈 문자열"}
 - 기록이나 일정을 묻는 말이면 actions 없이 아래 자료만 보고 답해. 자료에 없으면 없다고 해.
@@ -2497,7 +2509,9 @@ function execActions(acts) {
   const done = [], undos = [];
   for (const a of Array.isArray(acts) ? acts.slice(0, 31) : []) {
     if (a?.type === "care" && CARE_K[a.k]) {
-      const date = ymdOk(a.date) ? a.date : ymd(today0()), day = "d" + date.replace(/-/g, ""), id = "e" + Date.now().toString(36) + done.length;
+      let date = ymdOk(a.date) ? a.date : ymd(today0());
+      if (a.k === "sleep" && date === ymd(today0()) && /^\d{2}:\d{2}$/.test(a.t || "") && a.t > hm(new Date())) { const t0 = today0(); date = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 1)); }
+      const day = "d" + date.replace(/-/g, ""), id = "e" + Date.now().toString(36) + done.length;
       const e = { k: a.k, t: /^\d{2}:\d{2}$/.test(a.t || "") ? a.t : hm(new Date()), ft: a.k === "feed" ? (FEED_T[a.ft] ? a.ft : (+a.ml ? "formula" : "breast")) : "",
         ml: a.k === "feed" ? Math.max(0, Math.min(400, Math.round(+a.ml || 0))) : 0, min: Math.max(0, Math.min(1440, Math.round(+a.min || 0))) };
       careSave(day, id, e); undos.push(() => careDelete(day, id));
