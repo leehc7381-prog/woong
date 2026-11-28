@@ -4,7 +4,7 @@ service cloud.firestore {
     // 가족 코드(추측하기 어려운 무작위 문자열)를 아는 사람만 그 가족의 데이터를 읽고 쓸 수 있어요.
     // 앱이 쓰는 필드만, 정해진 모양으로만 쓸 수 있게 막아요.
     function famFields() {
-      return ['createdAt', 'geminiKey', 'autoFeed', 'birthDate', 'growth', 'care', 'events', 'vax'];
+      return ['createdAt', 'geminiKey', 'autoFeed', 'birthDate', 'growth', 'care', 'events', 'vax', 'logsV', 'logsMovedAt'];
     }
     function famShapeOk(d) {
       return (!('createdAt' in d) || d.createdAt is number)
@@ -14,15 +14,29 @@ service cloud.firestore {
         && (!('growth' in d) || d.growth is map)
         && (!('care' in d) || (d.care is map && d.care.size() <= 2000))
         && (!('events' in d) || (d.events is map && d.events.size() <= 1000))
-        && (!('vax' in d) || (d.vax is map && d.vax.size() <= 200));
+        && (!('vax' in d) || (d.vax is map && d.vax.size() <= 200))
+        && (!('logsV' in d) || d.logsV is number)
+        && (!('logsMovedAt' in d) || d.logsMovedAt is number);
     }
     match /families/{code} {
       allow get: if request.auth != null && code.matches('yw-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}');
       allow create: if request.auth != null && code.matches('yw-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}')
         && request.resource.data.keys().hasOnly(famFields()) && famShapeOk(request.resource.data);
       allow update: if request.auth != null && code.matches('yw-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}')
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(famFields()) && famShapeOk(request.resource.data);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(famFields()) && famShapeOk(request.resource.data)
+        // 육아 기록은 logs/{달} 에만 써요. 가족 문서의 예전 care 는 새로 쓰거나 바꿀 수 없고, 통째로 지우는 것만 돼요.
+        && (!('care' in request.resource.data.diff(resource.data).affectedKeys()) || !('care' in request.resource.data));
       allow list, delete: if false;
+
+      // 육아 기록: 한 달에 문서 하나 (logs/2026-12 = { care: { d20261215: { 기록id: 기록 } } })
+      match /logs/{month} {
+        allow read: if request.auth != null && code.matches('yw-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}');
+        allow create, update: if request.auth != null && code.matches('yw-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}')
+          && month.matches('[0-9]{4}-[0-9]{2}')
+          && request.resource.data.keys().hasOnly(['care'])
+          && request.resource.data.care is map && request.resource.data.care.size() <= 31;
+        allow delete: if false;
+      }
 
       match /{col}/{doc} {
         allow read, delete: if request.auth != null && (col == 'tips' || col == 'categories');
