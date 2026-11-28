@@ -108,7 +108,11 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .tabs { display: grid; grid-template-columns: 44px 1fr 1fr 1fr; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 3px; }
 .tab { text-align: center; padding: 7px 0; border-radius: 9px; color: var(--muted); text-decoration: none; font-weight: 700; font-size: .9rem; }
 .home-tab { display: grid; place-items: center; padding: 6px 0; }
-.today { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.today { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 8px; }
+.tcell .v.evs { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 6px; row-gap: 2px; align-items: start; }
+.tcell .v.evs div + div { margin-top: 0; }
+.tcell .v.evs .sh { grid-column: 1 / -1; }
+.tcell .v.evs .dt { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .tcell { display: grid; gap: 4px; align-content: start; text-align: left; border: 0; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: 10px 12px; color: var(--ink); text-decoration: none; min-width: 0; }
 .tcell .k { font-size: .72rem; color: var(--muted); font-weight: 700; }
 .tcell .v { font-size: .86rem; line-height: 1.45; }
@@ -3102,8 +3106,9 @@ function renderToday() {
   const up = allEvents().filter(e => evEnd(e) >= ymd(t0) && !(e.vax && e.done)).sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99"))).slice(0, 3);
   box.replaceChildren(
     el("a", { class: "tcell", href: "#cal" }, el("span", { class: "k", text: "다가오는 일정" }),
-      el("span", { class: "v" }, ...(() => { const a = shiftOn(ymd(t0)), b = shiftOn(ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + 1))); return a ? [el("div", {}, "아빠 ", el("b", { class: a.work ? "shw" : "shr", text: a.l }), " · 내일 ", el("b", { class: b.work ? "shw" : "shr", text: b.l }))] : []; })(),
-        ...(up.length ? up.map(e => { return el("div", { text: `${evRange(e)} ${e.title.replace(/^\S+ /, e.vax ? "" : "$&")}` }); }) : [el("div", { text: "일정이 없어요" })]))),
+      el("span", { class: "v evs" }, ...(() => { const a = shiftOn(ymd(t0)), b = shiftOn(ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + 1))); return a ? [el("div", { class: "sh" }, "오늘 ", el("b", { class: a.work ? "shw" : "shr", text: a.l }), " · 내일 ", el("b", { class: b.work ? "shw" : "shr", text: b.l }))] : []; })(),
+        // Date in its own column, so a long title wraps under the title, not under the date.
+        ...(up.length ? up.flatMap(e => [el("div", { class: "dt", text: evRange(e) }), el("div", { text: e.title.replace(/^\S+ /, e.vax ? "" : "$&") })]) : [el("div", { class: "sh", text: "일정이 없어요" })]))),
     el("a", { class: "tcell", href: "#grow" }, el("span", { class: "k", text: "오늘 기록" }),
       el("span", { class: "v" }, el("div", { text: `수유 ${c.feeds}번${c.ml ? ` · ${c.ml}ml` : ""}` }), el("div", { text: `소변 ${c.pee} · 대변 ${c.poop}` }), c.pump ? el("div", { text: `유축 ${c.pump}번${c.pumpMl ? ` · ${c.pumpMl}ml` : ""}` }) : null,
         (() => { const lt = careEntries(["temp"]).find(e => e.v); return lt && Date.now() - lt.at < 24 * 36e5 ? el("div", { class: tempLevel(lt.v) === "hot" ? "shr" : "", text: `체온 ${fmtT(lt.v)}° · ${agoText(lt.at)}` }) : null; })(),
