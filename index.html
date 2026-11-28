@@ -1061,14 +1061,15 @@ function openDetail(id) {
   const catSel = el("select", { id: "dCat", "aria-label": "카테고리 옮기기" }, CATS.map(x => el("option", { value: x.id, selected: x.id === t.category, text: x.name })));
   catSel.addEventListener("change", async () => {
     const nc = catById[catSel.value];
-    try { await ref.update({ category: nc.id, subcategory: subsOf(nc.id).includes(t.subcategory) ? t.subcategory : (subsOf(nc.id)[0] || "기타") }); } catch {}
+    try { await ref.update({ category: nc.id, subcategory: subsOf(nc.id).includes(t.subcategory) ? t.subcategory : (subsOf(nc.id)[0] || "기타") }); }
+    catch { catSel.value = t.category; showBanner("카테고리를 옮기지 못했어요. 인터넷 연결을 확인해 주세요."); }
   });
 
   const confirmBox = el("div", { class: "confirm", hidden: true },
     el("span", { text: t.auto ? "이 꿀팁을 목록에서 뺄까요? 다시 들어오지 않아요." : "이 꿀팁을 지울까요? 되돌릴 수 없어요." }),
     el("div", { class: "actions" },
       el("button", { class: "btn ghost", text: "취소", onclick: () => { confirmBox.hidden = true; } }),
-      el("button", { class: "btn danger", text: "지우기", onclick: async () => { try { await (t.auto ? ref.update({ hidden: true }) : ref.delete()); closeSheet(); } catch {} } })));
+      el("button", { class: "btn danger", text: "지우기", onclick: async () => { try { await (t.auto ? ref.update({ hidden: true }) : ref.delete()); closeSheet(); } catch { showBanner("꿀팁을 지우지 못했어요. 인터넷 연결을 확인해 주세요."); } } })));
 
   const href = safeUrl(t.url);
   const body = el("div", { class: "detail", style: `--cc: var(${c.c})` },
@@ -1096,7 +1097,8 @@ function openDetail(id) {
       el("div", { class: "field" }, el("label", { for: "dCat", text: "카테고리 옮기기" }), catSel)),
     el("div", { class: "actions" },
       el("button", { class: "btn ghost", text: t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기", onclick: async e => {
-        try { await ref.update({ starred: !t.starred }); t.starred = !t.starred; e.target.textContent = t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기"; } catch {} } }),
+        try { await ref.update({ starred: !t.starred }); t.starred = !t.starred; e.target.textContent = t.starred ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기"; }
+        catch { showBanner("즐겨찾기를 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); } } }),
       el("button", { class: "btn danger", text: "지우기", onclick: () => { confirmBox.hidden = false; } })),
     confirmBox,
     tipChat(t, ref));
@@ -1149,7 +1151,7 @@ function tipChat(t, ref) {
         .slice(0, 4).map(w => ({ name: str(w.title, 60) || "검색 출처", url: w.uri }));
       t.chat = [...(t.chat || []), { q, a, sources, at: Date.now(), ...(noSearch ? { ns: true } : {}) }].slice(-20);
       draw(); input.value = ""; status.replaceChildren();
-      try { await ref.update({ chat: t.chat }); } catch {}
+      try { await ref.update({ chat: t.chat }); } catch { showBanner("질문과 답을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
     } catch (e) {
       status.replaceChildren(errBox(e, "답을 찾다가 문제가 생겼어요. 잠시 뒤 다시 눌러 주세요."),
         e?.code === "quota_zero" && !noSearch ? el("button", { class: "btn ghost", type: "button", text: "검색 없이 답 받기", onclick: () => ask(q, true) }) : "");
@@ -1423,7 +1425,8 @@ function openSettings() {
       el("label", { class: "check", for: "autoChk" },
         el("input", { type: "checkbox", id: "autoChk", checked: !autoOff, onchange: async e => {
           const on = e.target.checked;
-          try { if (fam) await fam.set({ autoFeed: on }, { merge: true }); else lsSet(LS.autoOff, on ? "" : "1"); } catch {}
+          try { if (fam) await fam.set({ autoFeed: on }, { merge: true }); else lsSet(LS.autoOff, on ? "" : "1"); }
+          catch { e.target.checked = !on; setStatus("설정을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", true); return; }
           autoOff = !on; applyVisible(); render(); if (on) syncFeed();
         } }),
         el("span", { text: "자동 수집 꿀팁 받기 (끄면 목록에서 숨겨요)" }))),
@@ -1434,12 +1437,13 @@ function openSettings() {
         el("input", { id: "bdayIn", type: "date", value: ymd(birth()), "aria-label": "영웅이 생일" }),
         el("button", { class: "btn ghost", text: "저장", onclick: async () => {
           const v = $("#bdayIn").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return;
-          try { if (fam) await fam.set({ birthDate: v }, { merge: true }); else lsSet("yw.birth", v); } catch {}
+          try { if (fam) await fam.set({ birthDate: v }, { merge: true }); else lsSet("yw.birth", v); }
+          catch { setStatus("생일을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", true); return; }
           setBirth(v); selStage = null; renderDday(); render(); setStatus("생일을 저장했어요.");
         } }))),
     el("div", { class: "blk" },
       el("h4", { text: "백업" }),
-      el("p", { class: "note", text: "꿀팁 전체를 파일로 저장하거나 불러올 수 있어요." }),
+      el("p", { class: "note", text: "꿀팁, 수유·대소변·잠 기록, 발달 체크, 일정·접종, 생일을 파일로 저장하거나 불러올 수 있어요." }),
       el("div", { class: "actions" },
         el("button", { class: "btn ghost", text: "백업 파일 저장", onclick: exportBackup }),
         el("button", { class: "btn ghost", text: "백업 불러오기", onclick: () => importIn.click() })),
@@ -1448,8 +1452,9 @@ function openSettings() {
 }
 
 async function exportBackup() {
-  const data = { app: "yeongwoong-notes", version: 1, exportedAt: new Date().toISOString(),
-    tips: await dumpCol("tips"), categories: await dumpCol("categories") };
+  const data = { app: "yeongwoong-notes", version: 2, exportedAt: new Date().toISOString(),
+    tips: await dumpCol("tips"), categories: await dumpCol("categories"),
+    care, growth, events, vax: vaxDone, birthDate: birthDate ? ymd(birthDate) : "" };
   const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
   const d = new Date(); a.download = `영웅이노트-백업-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}.json`;
@@ -1463,7 +1468,20 @@ async function importBackup(file) {
     if (j.app !== "yeongwoong-notes") throw 0;
     for (const r of j.categories || []) if (r?.id && r.data) await catsCol.doc(String(r.id)).set(r.data);
     for (const r of j.tips || []) if (r?.id && r.data) await tipsCol.doc(String(r.id)).set(r.data);
-    setStatus(`꿀팁 ${(j.tips || []).length}개를 불러왔어요.`);
+    // Records are merged in: nothing already on this phone or in the family is removed.
+    const c = readCare(j.care), g = readGrowth(j.growth), ev = readEvents(j.events), vx = readVax(j.vax);
+    const bd = /^\d{4}-\d{2}-\d{2}$/.test(j.birthDate || "") ? j.birthDate : "";
+    const nCare = Object.values(c).reduce((s, d) => s + Object.keys(d).length, 0);
+    if (fam) await fam.set({ care: c, growth: g, events: ev, vax: vx, ...(bd ? { birthDate: bd } : {}) }, { merge: true });
+    else {
+      for (const [d, day] of Object.entries(c)) care[d] = { ...(care[d] || {}), ...day };
+      Object.assign(growth.done, g.done); Object.assign(events, ev); Object.assign(vaxDone, vx);
+      lsSet("yw.care", JSON.stringify(care)); lsSet("yw.growth", JSON.stringify(growth)); saveLocalEvents();
+      if (bd) lsSet("yw.birth", bd);
+    }
+    if (bd) { setBirth(bd); selStage = null; renderDday(); }
+    render(); renderToday();
+    setStatus(`꿀팁 ${(j.tips || []).length}개${nCare ? `, 기록 ${nCare}개` : ""}를 불러왔어요.`);
   } catch { setStatus("이 파일은 불러올 수 없어요. 이 앱에서 저장한 백업 파일인지 확인해 주세요.", true); }
 }
 
@@ -1517,9 +1535,9 @@ async function joinFamily(code, isNew) {
   } catch (e) { setStatus("연결하지 못했어요. 인터넷 연결을 확인해 주세요." + (e?.message ? ` (${e.message})` : ""), true); }
 }
 
-let unsubs = [];
+let unsubs = [], catsLoaded = false;
 function attach(seedIfEmpty) {
-  unsubs.forEach(u => { try { u(); } catch {} }); unsubs = [];
+  unsubs.forEach(u => { try { u(); } catch {} }); unsubs = []; catsLoaded = false;
   tipsCol = db.collection("tips");
   catsCol = db.collection("categories");
   unsubs.push(catsCol.orderBy("createdAt", "asc").onSnapshot(snap => {
@@ -1527,7 +1545,7 @@ function attach(seedIfEmpty) {
       const x = d.data() || {};
       return { id: d.id, custom: true, name: str(x.name, 20) || "새 카테고리", subs: arr(x.subs), c: PALETTE.includes(x.color) ? x.color : PALETTE[0] };
     }).filter(c => !BASE_CATS.some(b => b.id === c.id)));
-    applyVisible(); render();
+    catsLoaded = true; applyVisible(); render();
   }, () => {}));
   let first = true;
   unsubs.push(tipsCol.orderBy("createdAt", "desc").onSnapshot(snap => {
@@ -1544,25 +1562,24 @@ function attach(seedIfEmpty) {
 // ---------- Auto-collected tips (tips-feed.json, curated by Claude with sources) ----------
 function normTip(t) {
   let cat = OLD_CAT[t.category] || t.category;
-  if (!BASE_CATS.some(b => b.id === cat)) {
-    const custom = catById[cat];
-    const g = guessCat([custom?.name, t.subcategory, t.title].join(" "));
+  // Only re-home tips whose category no longer exists. Custom categories the family made stay as they are.
+  if (catsLoaded && !BASE_CATS.some(b => b.id === cat) && !catById[cat]) {
+    const g = guessCat([t.subcategory, t.title].join(" "));
     if (g) cat = g;
   }
   const sub = OLD_SUB[t.subcategory] || t.subcategory || "기타";
   return cat === t.category && sub === t.subcategory ? t : { ...t, category: cat, subcategory: sub, _moved: true };
 }
 function applyVisible() { tips = allTips.filter(t => !t.hidden && !(autoOff && t.auto)).map(normTip); migrateCats(); }
-// Save the tidied categories back once, and drop custom categories that were folded into the main ones.
+// Save the tidied categories back once. Custom categories are never deleted here.
 let migrating = false;
 async function migrateCats() {
-  if (migrating || !tipsCol) return;
-  const moved = tips.filter(t => t._moved); const folded = CATS.filter(c => c.custom && guessCat(c.name));
-  if (!moved.length && !folded.length) return;
+  if (migrating || !tipsCol || !catsLoaded) return;
+  const moved = tips.filter(t => t._moved);
+  if (!moved.length) return;
   migrating = true;
   try {
     for (const t of moved) await tipsCol.doc(t.id).update({ category: t.category, subcategory: t.subcategory });
-    for (const c of folded) if (!allTips.some(t => t.category === c.id && !moved.some(m => m.id === t.id))) await catsCol.doc(c.id).delete();
   } catch {} finally { migrating = false; }
 }
 let feedBusy = false;
@@ -1880,14 +1897,7 @@ function readCare(x) {
   }
   return out;
 }
-function onFamilyCare(x) { care = readCare(x); pruneCare(); if (location.hash === "#grow") renderGrow(); renderToday(); }
-let pruned = false;
-function pruneCare() {
-  if (pruned || !fam) return; pruned = true;
-  const old = dayKey(new Date(Date.now() - 120 * 864e5));
-  const upd = {}; for (const d of Object.keys(care)) if (d < old) upd["care." + d] = firebase.firestore.FieldValue.delete();
-  if (Object.keys(upd).length) fam.update(upd).catch(() => {});
-}
+function onFamilyCare(x) { care = readCare(x); if (location.hash === "#grow") renderGrow(); renderToday(); }
 async function careSave(day, id, e) {
   (care[day] ||= {})[id] = e; renderGrow(); renderToday();
   try { if (fam) await fam.update({ [`care.${day}.${id}`]: e }); else lsSet("yw.care", JSON.stringify(care)); }
@@ -1895,7 +1905,8 @@ async function careSave(day, id, e) {
 }
 async function careDelete(day, id) {
   if (care[day]) delete care[day][id]; renderGrow(); renderToday();
-  try { if (fam) await fam.update({ [`care.${day}.${id}`]: firebase.firestore.FieldValue.delete() }); else lsSet("yw.care", JSON.stringify(care)); } catch {}
+  try { if (fam) await fam.update({ [`care.${day}.${id}`]: firebase.firestore.FieldValue.delete() }); else lsSet("yw.care", JSON.stringify(care)); }
+  catch { showBanner("기록을 지우지 못했어요. 인터넷 연결을 확인해 주세요."); }
 }
 // Typical ranges by age in days (AAP, CDC, AASM).
 function careNorms(d) {
@@ -2051,11 +2062,13 @@ async function evSave(id, e) {
 }
 async function evDelete(id) {
   delete events[id]; renderCal(); renderToday();
-  try { if (fam) await fam.update({ [`events.${id}`]: firebase.firestore.FieldValue.delete() }); else saveLocalEvents(); } catch {}
+  try { if (fam) await fam.update({ [`events.${id}`]: firebase.firestore.FieldValue.delete() }); else saveLocalEvents(); }
+  catch { showBanner("일정을 지우지 못했어요. 인터넷 연결을 확인해 주세요."); }
 }
 async function vaxToggle(k) {
   const on = !vaxDone[k]; if (on) vaxDone[k] = ymd(new Date()); else delete vaxDone[k]; renderCal(); renderToday();
-  try { if (fam) await fam.update({ [`vax.${k}`]: on ? vaxDone[k] : firebase.firestore.FieldValue.delete() }); else saveLocalEvents(); } catch {}
+  try { if (fam) await fam.update({ [`vax.${k}`]: on ? vaxDone[k] : firebase.firestore.FieldValue.delete() }); else saveLocalEvents(); }
+  catch { showBanner("접종 체크를 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
 }
 function babyDate(months, days) { const b = birth(); return new Date(b.getFullYear(), b.getMonth() + months, b.getDate() + days); }
 function allEvents() {
@@ -2141,10 +2154,27 @@ function setupCal() {
 }
 
 // ---------- Home: today summary + assistant chat ----------
+// Most recent feeding as a Date, looking back over the last 2 days so it survives midnight.
+function lastFeedAt() {
+  const t0 = today0(); let best = null;
+  for (let n = 0; n <= 2; n++) {
+    const d = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - n);
+    for (const e of Object.values(care[dayKey(d)] || {})) {
+      if (e.k !== "feed") continue;
+      const [h, m] = e.t.split(":").map(Number), at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m);
+      if (at <= Date.now() && (!best || at > best)) best = at;
+    }
+  }
+  return best;
+}
 function careSummary(d) {
   const list = Object.values(care[dayKey(d)] || {});
   const feeds = list.filter(e => e.k === "feed"), ml = feeds.reduce((s, e) => s + e.ml, 0), n = k => list.filter(e => e.k === k).length;
-  const sl = list.filter(e => e.k === "sleep").reduce((s, e) => s + e.min, 0);
+  // Sleep that runs past midnight counts toward each day by the minutes spent in it.
+  const toM = t => +t.slice(0, 2) * 60 + +t.slice(3);
+  const prev = Object.values(care[dayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1))] || {});
+  const sl = list.filter(e => e.k === "sleep").reduce((s, e) => s + Math.min(e.min, 1440 - toM(e.t)), 0)
+    + prev.filter(e => e.k === "sleep").reduce((s, e) => s + Math.max(0, toM(e.t) + e.min - 1440), 0);
   const last = feeds.map(e => e.t).sort().pop();
   return { feeds: feeds.length, ml, pee: n("pee"), poop: n("poop"), sleep: sl, last, any: list.length > 0 };
 }
@@ -2152,7 +2182,8 @@ function renderToday() {
   const box = $("#today"); if (!box || curView() !== "home") return;
   const t0 = today0(), c = careSummary(t0);
   let ago = "";
-  if (c.last) { const [h, m] = c.last.split(":").map(Number); const mins = Math.round((Date.now() - new Date(t0.getFullYear(), t0.getMonth(), t0.getDate(), h, m)) / 6e4); if (mins >= 0) ago = `마지막 수유 ${mins >= 60 ? Math.floor(mins / 60) + "시간 " : ""}${mins % 60}분 전`; }
+  const lf = lastFeedAt();
+  if (lf) { const mins = Math.round((Date.now() - lf) / 6e4); ago = `마지막 수유 ${mins >= 60 ? Math.floor(mins / 60) + "시간 " : ""}${mins % 60}분 전`; }
   const up = allEvents().filter(e => e.d >= ymd(t0) && !(e.vax && e.done)).sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99"))).slice(0, 3);
   box.replaceChildren(
     el("a", { class: "tcell", href: "#grow" }, el("span", { class: "k", text: "오늘 기록" }),
