@@ -112,7 +112,8 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .tcell { display: grid; gap: 4px; align-content: start; text-align: left; border: 0; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: 10px 12px; color: var(--ink); text-decoration: none; min-width: 0; }
 .tcell .k { font-size: .72rem; color: var(--muted); font-weight: 700; }
 .tcell .v { font-size: .86rem; line-height: 1.45; }
-.tcell .v div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tcell .v div { word-break: keep-all; overflow-wrap: anywhere; }
+.tcell .v div + div { margin-top: 2px; }
 .bot .bmsgs { display: grid; gap: 8px; max-height: 52vh; overflow-y: auto; }
 .bot .qm, .bot .am { font-size: .9rem; border-radius: 14px; padding: 8px 12px; white-space: pre-wrap; line-height: 1.5; max-width: 88%; }
 .bot .qm { justify-self: end; background: var(--accent-soft); border-radius: 14px 14px 4px 14px; }
@@ -139,13 +140,14 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .cal-w .dl { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .cal-w .dl.today { color: var(--accent); font-weight: 700; }
 .cal-w .it { display: grid; gap: 2px; font-size: .84rem; min-width: 0; }
-.cal-w .it span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-w .it span { word-break: keep-all; overflow-wrap: anywhere; }
 .cal-w .it i, .ev i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); margin-right: 5px; vertical-align: 1px; }
 .legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: .72rem; color: var(--muted); }
 .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); margin-right: 4px; }
 .evs { display: grid; gap: 4px; }
 .ev { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 2px; border-top: 1px solid var(--line); font-size: .88rem; }
 .ev .tm { color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.ev .ti { word-break: keep-all; overflow-wrap: anywhere; }
 .ev small { display: block; color: var(--muted); font-size: .74rem; }
 .ev.vdone .ti { text-decoration: line-through; color: var(--muted); }
 .ev button { border: 0; background: none; color: var(--muted); font-size: .8rem; }
@@ -204,6 +206,16 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .recform label { display: grid; gap: 4px; font-size: .78rem; color: var(--muted); min-width: 0; }
 .recform input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
 .recform .btn { grid-column: 1 / -1; }
+.recform .pick { grid-column: 1 / -1; display: grid; gap: 6px; font-size: .78rem; color: var(--muted); }
+.recform .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.recform .chips button { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 6px 12px; font-size: .82rem; color: var(--ink); display: inline-flex; align-items: center; gap: 6px; }
+.recform .chips button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 700; background: var(--accent-soft); }
+.recform .chips .sw { width: 12px; height: 12px; border-radius: 50%; background: var(--sw); border: 1px solid rgba(128,128,128,.5); }
+.recform .ask { grid-column: 1 / -1; margin: 0; font-size: .86rem; }
+.recform .warnbox { grid-column: 1 / -1; margin: 0; font-size: .8rem; line-height: 1.5; padding: 8px 10px; border-radius: 10px; background: var(--yolk-soft); color: var(--ink); }
+.recform .row2 { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.recform .btn.ghost { background: none; border: 1px solid var(--line); color: var(--ink); }
+.rec .warn { color: var(--danger); }
 .recs { display: grid; gap: 4px; }
 .rec { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: .82rem; padding: 6px 2px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .rec .d { color: var(--muted); }
@@ -1882,7 +1894,19 @@ function bandFor(months) { let b = MILESTONES[0]; for (const x of MILESTONES) if
 // ---------- Daily care log (family doc field care.{dYYYYMMDD}.{id}) ----------
 const CARE_K = { feed: "수유", pee: "소변", poop: "대변", sleep: "잠" };
 const FEED_T = { formula: "분유", pumped: "유축 모유", breast: "직접 수유" };
-let care = {}, careDay = null, careOpen = null, feedType = "formula";
+// Poop color / texture. Colors marked w need a gentle heads-up.
+const POOP_C = {
+  yellow: ["노랑", "#E3B23C"], green: ["초록", "#6E8B3D"], brown: ["갈색", "#8A5A2B"],
+  black: ["검정", "#222", 1], red: ["빨강", "#C0392B", 1], white: ["흰색·회색", "#E8E4D8", 1],
+};
+const POOP_X = { watery: "묽음", soft: "보통", hard: "단단", mucus: "점액", seedy: "몽글몽글" };
+function poopWarn(c, ageDays) {
+  if (c === "white") return "흰색·회색·아주 옅은 노란색 변은 담도폐쇄증 같은 간 문제의 신호일 수 있어요. 산모수첩의 대변 색 카드와 비교해 보고, 같은 색이 또 나오면 바로 소아과에 보여 주세요. 사진을 찍어 두면 도움이 돼요.";
+  if (c === "black") return ageDays >= 0 && ageDays < 4 ? "태어나고 처음 며칠은 끈적한 검은 태변이 정상이에요. 며칠 지나면 초록, 노랑으로 바뀌어요." : "태변 시기가 지났는데 검은 변이 나오면 소아과에 물어보세요. 철분제를 먹는 중이면 진하게 나올 수 있어요. 사진을 찍어 두면 도움이 돼요.";
+  if (c === "red") return "빨간 줄이나 피가 섞여 보이면 소아과에 물어보세요. 대부분 괜찮지만 확인하는 게 좋아요. 사진을 찍어 두면 도움이 돼요.";
+  return "";
+}
+let care = {}, careDay = null, careOpen = null, feedType = "formula", poopSel = { c: "", tx: "" };
 const dayKey = d => "d" + ymd(d).replace(/-/g, "");
 const today0 = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
 const hm = d => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -1892,7 +1916,7 @@ function readCare(x) {
     if (!/^d\d{8}$/.test(d) || !day || typeof day !== "object") continue;
     for (const [id, e] of Object.entries(day)) {
       if (!e || !CARE_K[e.k] || !/^\d{2}:\d{2}$/.test(e.t || "")) continue;
-      (out[d] ||= {})[id] = { k: e.k, t: e.t, ft: FEED_T[e.ft] ? e.ft : "", ml: Math.max(0, Math.min(400, +e.ml || 0)), min: Math.max(0, Math.min(1440, +e.min || 0)) };
+      (out[d] ||= {})[id] = { k: e.k, t: e.t, ft: FEED_T[e.ft] ? e.ft : "", ml: Math.max(0, Math.min(400, +e.ml || 0)), min: Math.max(0, Math.min(1440, +e.min || 0)), ...(e.k === "poop" && POOP_C[e.c] ? { c: e.c } : {}), ...(e.k === "poop" && POOP_X[e.tx] ? { tx: e.tx } : {}) };
     }
   }
   return out;
@@ -1920,11 +1944,13 @@ function careNorms(d) {
   };
 }
 function careForm(k) {
-  const f = $("#careForm"); careOpen = k;
+  const f = $("#careForm"), same = careOpen === k; careOpen = k;
   document.querySelectorAll(".qadd button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.k === k)));
-  if (!k) { f.hidden = true; f.replaceChildren(); return; }
+  if (!k) { f.hidden = true; f.replaceChildren(); poopSel = { c: "", tx: "" }; return; }
+  const prevT = same ? $("#cfT")?.value : "";
+  if (!same) poopSel = { c: "", tx: "" };
   const isToday = careDay.getTime() === today0().getTime(), now = isToday ? hm(new Date()) : "12:00";
-  const tIn = el("input", { type: "time", id: "cfT", value: now, required: true });
+  const tIn = el("input", { type: "time", id: "cfT", value: k === "poop" && prevT ? prevT : now, required: true });
   const kids = [];
   if (k === "feed") {
     const amt = el("input", { type: "number", id: "cfA", min: "0", max: k === "feed" && feedType === "breast" ? "180" : "400", step: feedType === "breast" ? "1" : "5", inputmode: "numeric", placeholder: feedType === "breast" ? "15" : "80" });
@@ -1935,13 +1961,30 @@ function careForm(k) {
     const st = el("input", { type: "time", id: "cfS", value: isToday ? hm(new Date(Date.now() - 36e5)) : "13:00", required: true });
     tIn.value = isToday ? now : "14:00";
     kids.push(el("label", {}, "잠든 시간", st), el("label", {}, "깬 시간", tIn));
-  } else kids.push(el("label", { style: "grid-column: 1 / -1" }, "시간", tIn));
-  kids.push(el("button", { class: "btn", type: "submit", text: `${CARE_K[k]} 기록하기` }));
+  } else if (k === "poop") {
+    const ageD = Math.round((careDay - birth()) / 864e5);
+    const pick = (label, map, key, sw) => el("div", { class: "pick", role: "group", "aria-label": label }, label,
+      el("div", { class: "chips" }, Object.entries(map).map(([id, v]) => el("button", { type: "button", "aria-pressed": String(poopSel[key] === id),
+        onclick: () => { poopSel[key] = poopSel[key] === id ? "" : id; careForm("poop"); } },
+        sw ? el("span", { class: "sw", style: `--sw: ${v[1]}`, "aria-hidden": "true" }) : null, sw ? v[0] : v))));
+    kids.push(el("p", { class: "ask", text: "대변을 기록할까요? 색과 모양을 골라 주세요. (모르면 비워 둬도 돼요)" }),
+      pick("색깔", POOP_C, "c", true), pick("모양", POOP_X, "tx", false));
+    const w = poopWarn(poopSel.c, ageD);
+    if (w) kids.push(el("p", { class: "warnbox", role: "note", text: w }));
+    kids.push(el("label", { style: "grid-column: 1 / -1" }, "시간", tIn));
+  } else {
+    kids.push(el("p", { class: "ask", text: "소변을 기록할까요? 시간이 맞는지 확인해 주세요." }), el("label", { style: "grid-column: 1 / -1" }, "시간", tIn));
+  }
+  if (k === "pee" || k === "poop") kids.push(el("div", { class: "row2" },
+    el("button", { class: "btn ghost", type: "button", text: "취소", onclick: () => careForm(null) }),
+    el("button", { class: "btn", type: "submit", text: "네, 기록할게요" })));
+  else kids.push(el("button", { class: "btn", type: "submit", text: `${CARE_K[k]} 기록하기` }));
   f.replaceChildren(...kids); f.hidden = false;
   f.onsubmit = e => {
     e.preventDefault();
     const t = $("#cfT").value; if (!/^\d{2}:\d{2}$/.test(t)) return;
     const entry = { k, t, ft: "", ml: 0, min: 0 };
+    if (k === "poop") { if (poopSel.c) entry.c = poopSel.c; if (poopSel.tx) entry.tx = poopSel.tx; }
     if (k === "feed") { const a = Math.max(0, +$("#cfA").value || 0); entry.ft = feedType; if (feedType === "breast") entry.min = a; else entry.ml = a; }
     if (k === "sleep") {
       const s0 = $("#cfS").value; if (!/^\d{2}:\d{2}$/.test(s0)) return;
@@ -1950,7 +1993,7 @@ function careForm(k) {
     }
     careSave(dayKey(careDay), "e" + Date.now().toString(36), entry); careForm(null);
   };
-  (k === "feed" ? $("#cfA") : tIn).focus?.();
+  if (k === "feed") $("#cfA").focus?.();
 }
 function renderCare(ageDays, born) {
   if (!careDay) careDay = today0();
@@ -1973,12 +2016,14 @@ function renderCare(ageDays, born) {
     card("poop", `${cnt("poop")}번`, null, N.poop[1], low(N.poop, cnt("poop"))),
     card("sleep", sleepMin ? `${Math.floor(sleepMin / 60)}시간 ${sleepMin % 60}분` : "0시간", null, N.sleep));
   const desc = e => e.k === "feed" ? `${FEED_T[e.ft] || "수유"}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}`
-    : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60) ? Math.floor(e.min / 60) + "시간 " : ""}${e.min % 60}분` : CARE_K[e.k];
+    : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60) ? Math.floor(e.min / 60) + "시간 " : ""}${e.min % 60}분`
+    : e.k === "poop" ? [CARE_K.poop, e.c && POOP_C[e.c][0], e.tx && POOP_X[e.tx]].filter(Boolean).join(" · ") : CARE_K[e.k];
+  const flag = e => e.k === "poop" && e.c && POOP_C[e.c][2] && !(e.c === "black" && dAge >= 0 && dAge < 4);
   const icon = { feed: "🍼", pee: "💧", poop: "💩", sleep: "😴" };
   $("#careList").replaceChildren(...list.map(e => el("div", { class: "rec" },
-    el("span", { class: "d", text: e.t }), el("span", { text: `${icon[e.k]} ${desc(e)}` }),
+    el("span", { class: "d", text: e.t }), el("span", {}, `${icon[e.k]} ${desc(e)}`, flag(e) ? el("span", { class: "warn", text: " · 소아과에 물어보세요" }) : null),
     el("button", { type: "button", "aria-label": `${e.t} ${CARE_K[e.k]} 기록 지우기`, text: "지우기", onclick: () => careDelete(dayKey(careDay), e.id) }))));
-  $("#careNote").textContent = !list.length ? (born ? "위 버튼을 누르면 바로 기록돼요. 엄마 아빠 휴대폰에 같이 보여요." : "태어나면 위 버튼으로 수유, 기저귀, 잠을 기록해 보세요. 엄마 아빠 휴대폰에 같이 보여요.")
+  $("#careNote").textContent = !list.length ? (born ? "위 버튼을 누르고 확인하면 기록돼요. 엄마 아빠 휴대폰에 같이 보여요." : "태어나면 위 버튼으로 수유, 기저귀, 잠을 기록해 보세요. 엄마 아빠 휴대폰에 같이 보여요.")
     : `${N.ml}. 소변이 계속 적거나 잘 안 먹으면 소아과에 물어보세요.`;
 }
 
@@ -2021,7 +2066,6 @@ function renderGrow() {
 function setupGrow() {
   document.querySelectorAll(".qadd button").forEach(b => b.addEventListener("click", () => {
     const k = b.dataset.k;
-    if ((k === "pee" || k === "poop") && careDay?.getTime() === today0().getTime()) { careForm(null); careSave(dayKey(careDay), "e" + Date.now().toString(36), { k, t: hm(new Date()), ft: "", ml: 0, min: 0 }); return; }
     careForm(careOpen === k ? null : k);
   }));
   $("#dayPrev").addEventListener("click", () => { careDay = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1); careForm(null); renderGrow(); });
