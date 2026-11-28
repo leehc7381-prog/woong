@@ -45,5 +45,59 @@
         }
       ]
     }
-  }
+  },
+  "shortcuts": [
+    {
+      "name": "수유 기록",
+      "short_name": "수유",
+      "description": "분유·모유 수유를 바로 기록해요",
+      "url": "./?go=feed#grow",
+      "icons": [
+        {
+          "src": "sc-feed.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "소변 기록",
+      "short_name": "소변",
+      "description": "소변 기저귀를 확인하고 기록해요",
+      "url": "./?go=pee#grow",
+      "icons": [
+        {
+          "src": "sc-pee.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "대변 기록",
+      "short_name": "대변",
+      "description": "대변 색과 모양을 골라 기록해요",
+      "url": "./?go=poop#grow",
+      "icons": [
+        {
+          "src": "sc-poop.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "오늘 일정",
+      "short_name": "오늘 일정",
+      "description": "오늘 일정과 아빠 근무를 봐요",
+      "url": "./?go=today#cal",
+      "icons": [
+        {
+          "src": "sc-today.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
 }

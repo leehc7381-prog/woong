@@ -1,4 +1,5 @@
 // 영웅이노트 service worker: receives shares from other apps (Android share sheet).
+// v2: app icon shortcuts (manifest "shortcuts").
 const SHARE_CACHE = "yw-share";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
