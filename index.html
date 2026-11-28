@@ -3095,6 +3095,27 @@ async function maybeHandleShare() {
   else if (isInsta(link) && !videoFile) setStatus("인스타 링크를 받았어요. 이 릴스의 공유 → '다운로드'로 영상을 저장한 뒤, 위의 '릴스 영상 올리기'로 골라 주세요. 갤러리에서 영상을 영웅이노트로 공유해도 돼요.");
 }
 
+// App icon shortcuts (manifest "shortcuts"): ./?go=feed|pee|poop|today
+function handleShortcut() {
+  const go = new URLSearchParams(location.search).get("go");
+  if (!go) return;
+  const q = new URLSearchParams(location.search); q.delete("go");
+  const rest = q.toString();
+  if (go === "today") {
+    calMode = "month"; calCursor = today0(); calSel = ymd(today0());
+    history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + "#cal");
+    showView();
+    setTimeout(() => $("#calDayTitle")?.scrollIntoView({ block: "start", behavior: "smooth" }), 60);
+    return;
+  }
+  if (!["feed", "pump", "pee", "poop"].includes(go)) return;
+  careDay = today0(); careDelAsk = null;
+  history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + "#grow");
+  showView();
+  careForm(go);
+  setTimeout(() => $("#careForm")?.scrollIntoView({ block: "center", behavior: "smooth" }), 60);
+}
+
 async function boot() {
   setupAsk();
   setupGrow();
@@ -3103,6 +3124,7 @@ async function boot() {
   try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); const lv = JSON.parse(lsGet("yw.events") || "{}"); events = readEvents(lv.events); shift = readShift(lv.shift); vaxDone = readVax(lv.vax); migrateVax(); } catch {}
   setBirth(lsGet("yw.birth"));
   showView();
+  handleShortcut();
   window.addEventListener("hashchange", () => { showView(); window.scrollTo(0, 0); });
   if (location.hash === "#all") history.replaceState(null, "", location.pathname + location.search);
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
