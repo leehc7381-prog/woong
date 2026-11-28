@@ -243,6 +243,7 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .chart .ln { stroke: var(--ink); fill: none; stroke-width: 1.5; }
 .chart .today { stroke: var(--yolk); stroke-width: 1.5; }
 .addrec summary { cursor: pointer; color: var(--accent); font-weight: 700; font-size: .9rem; }
+.saved-note { margin: 10px 0 0; font-size: .84rem; line-height: 1.5; padding: 8px 12px; border-radius: 12px; background: var(--yolk-soft); color: var(--ink); }
 .recform { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
 .recform label { display: grid; gap: 4px; font-size: .78rem; color: var(--muted); min-width: 0; }
 .recform input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
@@ -569,7 +570,8 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
         <button type="button" data-k="poop"><span class="e" aria-hidden="true">💩</span>대변</button>
         <button type="button" data-k="sleep"><span class="e" aria-hidden="true">😴</span>잠</button>
       </div>
-      <form id="careForm" class="recform" hidden></form>
+        <p class="saved-note" id="careFlash" role="status" hidden></p>
+        <form id="careForm" class="recform" hidden></form>
       <div class="metrics two" id="careSum"></div>
       <div class="recs" id="careList"></div>
       <p class="note" id="careNote"></p>
@@ -2170,11 +2172,23 @@ function careForm(k) {
       const toM = x => +x.slice(0, 2) * 60 + +x.slice(3); let dur = toM(t) - toM(s0); if (dur <= 0) dur += 1440;
       entry.t = s0; entry.min = dur;
       // Fell asleep later than the wake-up time (e.g. 23:00 → 06:00): it started the day before.
-      if (toM(s0) >= toM(t)) { careSave(dayKey(new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1)), "e" + Date.now().toString(36), entry); careForm(null); return; }
+      if (toM(s0) >= toM(t)) {
+        const pd = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1);
+        careSave(dayKey(pd), "e" + Date.now().toString(36), entry); careForm(null);
+        careFlash(`${careDay.getTime() === today0().getTime() ? "어제" : `${pd.getMonth() + 1}월 ${pd.getDate()}일`} 밤잠으로 저장했어요 (${s0} 잠듦). 아래 목록 맨 끝에 '전날'로 보여요.`);
+        return;
+      }
     }
     careSave(dayKey(careDay), "e" + Date.now().toString(36), entry); careForm(null);
   };
   if (k === "feed" || k === "pump") $("#cfA").focus?.();
+}
+// A short "saved" note under the care buttons (e.g. night sleep that went to the day before).
+let careFlashT = 0;
+function careFlash(msg) {
+  const n = $("#careFlash"); if (!n) return;
+  n.textContent = msg; n.hidden = false; clearTimeout(careFlashT);
+  careFlashT = setTimeout(() => { n.hidden = true; }, 8000);
 }
 function renderCare(ageDays, born) {
   if (!careDay) careDay = today0();
@@ -2308,16 +2322,36 @@ function feverNote(v, ageDays) {
   if (v >= 40) return "40도 이상이에요. 소아과에 바로 연락하세요. 축 처지거나 숨쉬기 힘들어 보이면 119에 연락하세요.";
   return "열이 있어요. 아래 '열이 날 때'를 보고, 열이 24시간 넘게 가거나 잘 안 먹고 기저귀가 마르면 소아과에 가세요.";
 }
-// For each fever reducer group, when the next dose is OK (only if the last dose was within 12 hours).
-function nextMedText() {
-  const seen = {}, out = [];
-  for (const e of careEntries(["med"])) {
-    const c = medClass(e.nm); if (!c || seen[MEDS[c][2]]) continue; seen[MEDS[c][2]] = 1;
-    if (Date.now() - e.at > 12 * 36e5) continue;
-    const next = new Date(+e.at + MEDS[c][1] * 36e5);
-    out.push(next <= Date.now() ? `${c === "acet" ? "아세트아미노펜" : "이부프로펜 계열"}은 지금 먹일 수 있는 간격이에요` : `다음 ${c === "acet" ? "아세트아미노펜" : "이부프로펜 계열"}은 ${hm(next)} 이후`);
+// Fever reducers: most doses in any 24 hours (식약처 허가 용법: 아세트아미노펜 1일 5회까지, 이부프로펜·덱시부프로펜 1일 3~4회).
+const MED_MAX = { acet: 5, nsaid: 4 }, MED_NM = { acet: "아세트아미노펜", nsaid: "이부프로펜 계열" };
+const babyAgeDays = () => Math.floor((today0() - birth()) / 864e5);
+const under3m = () => babyAgeDays() < 90;
+const under6m = () => { const b = birth(); return today0() < new Date(b.getFullYear(), b.getMonth() + 6, b.getDate()); };
+const MED_3M = "생후 3개월 전 아기는 해열제를 먹이기 전에 바로 소아과에 연락하는 게 원칙이에요. 다음 약도 소아과 안내에 따라 주세요.";
+const MED_6M = "이부프로펜·덱시부프로펜은 생후 6개월부터 먹이는 약이에요. 이미 먹였다면 너무 걱정하지 말고, 소아과에 연락해서 어떻게 할지 물어보세요.";
+// For each fever reducer group: when the next dose is OK (last dose within 12 hours), plus calm warnings
+// for age (under 3 months, NSAIDs under 6 months) and for reaching the most doses in 24 hours.
+function medStatus() {
+  const now = Date.now(), nx = [], warns = [];
+  const doses = careEntries(["med"]).map(e => ({ c: medClass(e.nm), at: +e.at })).filter(d => d.c && d.at <= now + 6e4 && now - d.at < 24 * 36e5);
+  if (doses.length && under3m()) return { nx: "", warns: [MED_3M] };
+  const when = d => (ymd(d) === ymd(new Date()) ? "" : "내일 ") + hm(d);
+  for (const g of ["acet", "nsaid"]) {
+    const list = doses.filter(d => MEDS[d.c][2] === g); if (!list.length) continue;
+    if (g === "nsaid" && under6m()) { warns.push(MED_6M); continue; }
+    const max = MED_MAX[g];
+    let next = new Date(list[0].at + MEDS[list[0].c][1] * 36e5);
+    if (list.length >= max) {
+      next = new Date(Math.max(+next, list[max - 1].at + 24 * 36e5));
+      warns.push(list.length > max
+        ? `최근 24시간 동안 ${MED_NM[g]}을 ${list.length}번 먹였어요. 하루 최대 ${max}번을 넘었어요. 더 먹이지 말고 소아과나 약국에 물어보세요.`
+        : `최근 24시간 동안 ${MED_NM[g]}을 ${max}번 먹였어요. 하루 최대 횟수라 ${when(next)} 전에는 더 먹이지 마세요. 열이 계속되면 소아과에 물어보세요.`);
+      nx.push(`다음 ${MED_NM[g]}은 ${when(next)} 이후`);
+    } else if (now - list[0].at <= 12 * 36e5) {
+      nx.push(next <= now ? `${MED_NM[g]}은 지금 먹일 수 있는 간격이에요 (24시간 중 ${list.length}/${max}번)` : `다음 ${MED_NM[g]}은 ${when(next)} 이후 (24시간 중 ${list.length}/${max}번)`);
+    }
   }
-  return out.join(" · ");
+  return { nx: nx.join(" · "), warns };
 }
 let hOpen = null, medSel = "acet";
 function healthForm(k) {
@@ -2334,6 +2368,8 @@ function healthForm(k) {
       el("div", { class: "chips" }, [...Object.entries(MEDS).map(([id, m]) => [id, m[0].replace("해열제 ", "")]), ["other", "다른 약"]].map(([id, nm]) =>
         el("button", { type: "button", "aria-pressed": String(medSel === id), text: nm, onclick: () => { medSel = id; healthForm("med"); } })))));
     if (medSel !== "other") kids.push(el("p", { class: "ask", style: "font-size:.78rem;color:var(--muted)", text: MEDS[medSel][3] }));
+    const mw = medSel === "other" ? "" : under3m() ? MED_3M : MEDS[medSel][2] === "nsaid" && under6m() ? MED_6M : "";
+    if (mw) kids.push(el("p", { class: "warnbox", role: "note", text: mw }));
     else kids.push(el("label", { style: "grid-column: 1 / -1" }, "약 이름", el("input", { type: "text", id: "hfNm", maxlength: "30", placeholder: "예: 유산균, 비타민D, 감기약", value: other, required: true })));
     kids.push(el("label", { style: "grid-column: 1 / -1" }, "얼마나 (선택)", el("input", { type: "text", id: "hfDs", maxlength: "20", placeholder: "예: 3ml", value: keep })));
   } else {
@@ -2389,13 +2425,13 @@ const HEALTH_SRCS = [
 function renderHealth(ageDays, born) {
   const cut = Date.now() - 72 * 36e5;
   const temps = careEntries(["temp"]).filter(e => e.v), meds = careEntries(["med"]), hosp = careEntries(["hosp"]), poops = careEntries(["poop"]).filter(e => e.at <= Date.now());
-  const lt = temps[0], lm = meds[0], nx = nextMedText();
+  const lt = temps[0], lm = meds[0], ms = medStatus(), nx = ms.nx;
   $("#hSum").replaceChildren(
     el("div", { class: "metric" }, el("span", { class: "k", text: "🌡️ 최근 체온" }), el("span", { class: "v" + (lt && tempLevel(lt.v) === "hot" ? " hot" : ""), text: lt ? `${fmtT(lt.v)}°` : "기록 없음" }),
       lt ? el("span", { class: "n", text: agoText(lt.at) }) : null),
     el("div", { class: "metric" }, el("span", { class: "k", text: "💊 최근 투약" }), el("span", { class: "v", style: "font-size:.95rem; font-family:inherit; font-weight:700", text: lm ? lm.nm.replace(/^해열제 \((.+)\)$/, "$1") : "기록 없음" }),
       lm ? el("span", { class: "n", text: agoText(lm.at) + (lm.ds ? ` · ${lm.ds}` : "") }) : null, nx ? el("span", { class: "n", text: nx }) : null));
-  const alert = lt && Date.now() - lt.at < 24 * 36e5 ? feverNote(lt.v, Math.round((lt.at - birth()) / 864e5)) : "";
+  const alert = [lt && Date.now() - lt.at < 24 * 36e5 ? feverNote(lt.v, Math.round((lt.at - birth()) / 864e5)) : "", ...ms.warns].filter((x, i, a) => x && a.indexOf(x) === i).join(" ");
   $("#hAlert").hidden = !alert; $("#hAlert").textContent = alert;
   const t72 = temps.filter(e => e.at >= cut);
   tempChart(t72);
@@ -2415,8 +2451,8 @@ function renderHealth(ageDays, born) {
   $("#hGuide").replaceChildren(...[
     born && ageDays < 90 ? "지금 영웅이는 생후 3개월 전이에요. 38.0도 이상이면 약을 먹이기 전에 바로 소아과에 연락하거나 응급실로 가세요." : "생후 3개월 전 아기가 38.0도 이상이면 약을 먹이기 전에 바로 소아과에 연락하거나 응급실로 가세요.",
     "보통 38.0도 이상을 열로 봐요. 귀·이마·겨드랑이로 잰 값은 조금씩 달라서, 같은 체온계로 같은 곳을 재서 비교하세요.",
-    "아세트아미노펜(타이레놀 등)은 4~6시간 간격이에요. 생후 12주 전에는 먹이기 전에 의사와 먼저 상의하세요.",
-    "이부프로펜·덱시부프로펜(부루펜·맥시부펜 등)은 생후 6개월부터, 6~8시간 간격이에요. 둘은 같은 계열이라 번갈아 먹이면 안 돼요.",
+    "아세트아미노펜(타이레놀·세토펜 등)은 4~6시간 간격, 하루 5번까지예요. 생후 12주 전에는 먹이기 전에 의사와 먼저 상의하세요.",
+    "이부프로펜·덱시부프로펜(부루펜·맥시부펜 등)은 생후 6개월부터, 6~8시간 간격, 하루 4번까지예요. 둘은 같은 계열이라 번갈아 먹이면 안 돼요.",
     "2살 전 아기가 열이 24시간 넘게 가거나, 잘 안 먹고 기저귀가 마르거나, 축 처지면 소아과에 가세요.",
   ].map(t => el("li", { text: t })));
   $("#hSrcs").replaceChildren(...HEALTH_SRCS.map(([n, u]) => el("li", {}, el("a", { href: u, target: "_blank", rel: "noopener noreferrer", text: n }))));
@@ -2628,10 +2664,25 @@ function shiftSettings() {
     el("label", { style: "grid-column: 1 / -1" }, "주간인 날 (아무 날이나)", el("input", { type: "date", id: "shA", value: shift.a, required: true })),
     el("label", { style: "grid-column: 1 / -1; display:flex; gap:8px; align-items:center; color:var(--ink); font-size:.88rem" }, on, "캘린더에 아빠 근무 보이기"),
     el("button", { class: "btn", type: "submit", text: "저장" }));
+  const apply = (a, off, clear) => {
+    shift.a = a; shift.off = off;
+    // Days that now match the new pattern are no longer changes; "clear" drops every hand-made change.
+    const o = clear ? {} : Object.fromEntries(Object.entries(shift.o).filter(([k, v]) => v !== shiftBase(`${k.slice(1, 5)}-${k.slice(5, 7)}-${k.slice(7, 9)}`)));
+    const fields = { a, off };
+    if (Object.keys(o).length !== Object.keys(shift.o).length) fields.o = o;
+    shift.o = o; closeSheet(); renderCal(); renderToday(); shiftWrite(fields);
+  };
   f.onsubmit = e => {
     e.preventDefault(); const a = $("#shA").value; if (!ymdOk(a)) return;
-    shift.a = a; shift.off = !on.checked; closeSheet(); renderCal(); renderToday();
-    shiftWrite({ a, off: shift.off });
+    const off = !on.checked, moved = Math.round((parseYmd(a) - parseYmd(shift.a)) / 864e5) % 4 !== 0, n = Object.keys(shift.o).length;
+    if (!moved || !n) { apply(a, off, false); return; }
+    // The pattern moved: ask whether the old hand-made changes (연차, 초과근무 등) should go.
+    f.replaceChildren(
+      el("p", { class: "ask", text: `근무 순서가 바뀌어요. 예전에 손으로 바꿔 둔 날이 ${n}일 있어요. 새 순서에 맞게 지울까요?` }),
+      el("p", { class: "ask", style: "font-size:.78rem;color:var(--muted)", text: "지우면 모든 날이 새 순서대로 보여요. 남겨 두면 연차·초과근무처럼 직접 바꾼 날은 그대로 '변경됨'으로 남아요." }),
+      el("div", { class: "row2" },
+        el("button", { class: "btn ghost", type: "button", text: "남겨 두기", onclick: () => apply(a, off, false) }),
+        el("button", { class: "btn", type: "button", text: "지우기", onclick: () => apply(a, off, true) })));
   };
   openSheet("교대근무 설정", f);
 }
@@ -2966,8 +3017,7 @@ function localCommand(s) {
   if (/소변|쉬야|오줌|쉬\s*(했|하|쌌|봤|함|1)|기저귀\s*쉬/.test(rest)) acts.push({ type: "care", k: "pee", date: today, t });
   if (/대변|응가|똥/.test(rest)) acts.push({ type: "care", k: "poop", date: today, t });
   if (!acts.length) return null;
-  const nx = acts.some(a => a.k === "med") ? (() => { const c = medClass(acts.find(a => a.k === "med").nm); return c ? `다음 ${c === "acet" ? "아세트아미노펜" : "이부프로펜 계열"}은 ${MEDS[c][1]}시간 뒤(${hm(new Date(Date.now() + MEDS[c][1] * 36e5))})부터예요.` : ""; })() : "";
-  return { reply: ["기록했어요.", note, nx].filter(Boolean).join(" "), actions: acts };
+  return { reply: ["기록했어요.", note].filter(Boolean).join(" "), actions: acts };
 }
 function botPrompt(text) {
   const now = new Date(), t0 = today0();
@@ -3017,7 +3067,7 @@ function execActions(acts) {
       if (a.k === "temp" && !(e.v >= 34 && e.v <= 43)) continue;
       careSave(day, id, e); undos.push(() => careDelete(day, id));
       const dd = parseYmd(date), dl = date === ymd(today0()) ? "" : `${dd.getMonth() + 1}/${dd.getDate()} `;
-      done.push(`${dl}${e.t} ${e.k === "temp" || e.k === "med" || e.k === "hosp" ? healthDesc(e) : e.k === "pump" ? `유축${e.ml ? ` ${e.ml}ml` : ""}${PUMP_SIDE[e.side] ? ` ${PUMP_SIDE[e.side]}` : ""}` : e.k === "feed" ? `${FEED_T[e.ft]}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}` : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60)}시간 ${e.min % 60}분` : CARE_K[e.k]} 기록`);
+      done.push(`${dl}${e.t} ${e.k === "temp" || e.k === "med" || e.k === "hosp" ? healthDesc(e) : e.k === "pump" ? `유축${e.ml ? ` ${e.ml}ml` : ""}${PUMP_SIDE[e.side] ? ` ${PUMP_SIDE[e.side]}` : ""}` : e.k === "feed" ? `${FEED_T[e.ft]}${e.ml ? ` ${e.ml}ml` : ""}${e.min ? ` ${e.min}분` : ""}` : e.k === "sleep" ? `잠 ${Math.floor(e.min / 60)}시간 ${e.min % 60}분` : CARE_K[e.k]} 기록${e.k === "sleep" && date !== ymd(today0()) ? ` (${date === ymd(new Date(today0() - 864e5 / 2)) ? "어제" : md(date)} 밤잠으로 저장)` : ""}`);
     } else if (a?.type === "vax" && Array.isArray(a.ids)) {
       const ids = a.ids.filter(id => VDOSE[id]).slice(0, 12), date = ymdOk(a.date) && a.date <= ymd(new Date()) ? a.date : ymd(new Date());
       if (!ids.length) continue;
@@ -3034,13 +3084,16 @@ function execActions(acts) {
       const dd = parseYmd(e.d); done.push(`${fmtDay(dd)}${e.d2 ? ` ~ ${fmtDay(parseYmd(e.d2))}` : ""} ${e.t} ${e.title} 일정 추가 (${WHO_EV[e.who][0]})`.replace(/  +/g, " "));
     }
   }
-  return { done, undo: undos.length ? () => undos.forEach(f => f()) : null };
+  // After a fever reducer is saved, add the next-dose time and any age / per-day warning to the reply.
+  let note = "";
+  if ((Array.isArray(acts) ? acts : []).some(a => a?.type === "care" && a.k === "med" && medClass(a.nm))) { const ms = medStatus(); note = [...ms.warns, ms.nx ? ms.nx + "." : ""].filter(Boolean).join(" "); }
+  return { done, undo: undos.length ? () => undos.forEach(f => f()) : null, note };
 }
 async function runBot(text) {
   text = str(text, 300); if (!text || botBusy) return;
   botLog.push({ r: "u", x: text }); $("#botIn").value = "";
   const local = localCommand(text);
-  if (local) { const r = execActions(local.actions); botLog.push({ r: "a", x: local.reply, done: r.done, undo: r.undo }); saveBot(); drawBot(); return; }
+  if (local) { const r = execActions(local.actions); botLog.push({ r: "a", x: [local.reply, r.note].filter(Boolean).join(" "), done: r.done, undo: r.undo }); saveBot(); drawBot(); return; }
   if (!getKey()) { botLog.push({ r: "a", x: "이 말은 제미나이가 필요해요. 오른쪽 위 설정에서 제미나이 API 키를 넣어 주세요." }); saveBot(); drawBot(); return; }
   botBusy = true; $("#botBtn").disabled = true; drawBot();
   try {
@@ -3048,7 +3101,7 @@ async function runBot(text) {
     const txt = (j.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
     let out; try { out = parseLooseJson(txt); } catch { out = { reply: str(txt, 600) }; }
     const r = execActions(out?.actions);
-    botLog.push({ r: "a", x: str(out?.reply, 800) || (r.done.length ? "했어요." : "잘 모르겠어요. 다르게 말해 주세요."), done: r.done, undo: r.undo });
+    botLog.push({ r: "a", x: [str(out?.reply, 800) || (r.done.length ? "했어요." : "잘 모르겠어요. 다르게 말해 주세요."), r.note].filter(Boolean).join(" "), done: r.done, undo: r.undo });
   } catch (e) { botLog.push({ r: "a", x: errText(e, "답을 만들지 못했어요. 잠시 뒤 다시 해 주세요.") }); }
   finally { botBusy = false; $("#botBtn").disabled = false; saveBot(); drawBot(); }
 }
