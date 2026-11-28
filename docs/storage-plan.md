@@ -5,7 +5,7 @@
 ## 왜 바꿔야 하나요
 
 지금은 수유·유축·소변·대변·잠·체온·투약·병원 기록(`care`), 일정과 교대근무(`events`, 그 안의 `events.shift`),
-예방접종(`vax`), 성장 기록(`growth`), 그리고 곧 들어올 할 일까지 전부 `families/{가족코드}` 문서 **하나**에 들어가요.
+예방접종(`vax`), 성장 기록(`growth`), 할 일(`events.todo`)까지 전부 `families/{가족코드}` 문서 **하나**에 들어가요.
 
 Firestore 문서 하나는 **최대 1MB**예요. 기록 하나가 이름표까지 합쳐 100~150바이트쯤이고,
 신생아 때는 하루 20~25개(수유 8~12, 소변 6~8, 대변 3~4, 잠 몇 번)를 기록하니 하루 약 3KB예요.
@@ -29,7 +29,7 @@ families/{가족코드}/care/{YYYYMM}       ← 한 달에 문서 하나
 families/{가족코드}/events/{일정id}     ← 일정 하나에 문서 하나
   d, d2, t, title, who
 
-families/{가족코드}/todos/{할일id}      ← 할 일 하나에 문서 하나 (할 일 기능이 합쳐진 뒤)
+families/{가족코드}/todos/{할일id}      ← 할 일 하나에 문서 하나 (지금은 events.todo)
 
 families/{가족코드}/tips, categories    ← 지금 그대로
 ```
@@ -71,7 +71,7 @@ families/{가족코드}/tips, categories    ← 지금 그대로
 
 ### 같이 바꿔야 하는 앱 부분
 
-- 기록 저장·삭제(`careSave`, `careDelete`), 일정 저장·삭제(`evSave`, `evDelete`), 교대근무 저장(`shiftWrite`), 할 일 저장.
+- 기록 저장·삭제(`careSave`, `careDelete`), 일정 저장·삭제(`evSave`, `evDelete`), 교대근무 저장(`shiftWrite`), 할 일 저장(지금 `events.todo` → `todos/{id}`).
 - 가족 문서 실시간 구독: 이번 달·지난달 `care` 문서와 `events`, `todos` 컬렉션 구독을 더해요.
 - 백업 파일 저장/불러오기: 새 구조에서 모아서 저장하고, **예전 백업 파일도 불러올 수 있게** 그대로 받아 줘요.
 - 가족 코드 없이 쓰는 모드(휴대폰 저장)는 Firestore 한도와 상관없어서 그대로 둬요.
