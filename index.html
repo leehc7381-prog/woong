@@ -146,6 +146,9 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .todos .delask { display: flex; gap: 4px; align-items: center; flex: none; }
 .todos .delask button { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--ink); background: none; font-size: .78rem; }
 .todos .delask .yes { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 700; }
+.todos li.clrdone { justify-content: flex-end; }
+.todos li.clrdone .delask { flex: 1; justify-content: flex-end; }
+.todos li.clrdone .delask .tx { font-size: .82rem; color: var(--muted); }
 .todos .empty { color: var(--muted); font-size: .86rem; padding: 4px 2px; border: 0; }
 .bot .qm, .bot .am { font-size: .9rem; border-radius: 14px; padding: 8px 12px; white-space: pre-wrap; line-height: 1.5; max-width: 88%; }
 .bot .qm { justify-self: end; background: var(--accent-soft); border-radius: 14px 14px 4px 14px; }
@@ -1666,7 +1669,7 @@ function openSettings() {
 async function exportBackup() {
   const data = { app: "yeongwoong-notes", version: 2, exportedAt: new Date().toISOString(),
     tips: await dumpCol("tips"), categories: await dumpCol("categories"),
-    care, growth, events: { ...events, shift }, vax: vaxDone, birthDate: birthDate ? ymd(birthDate) : "" };
+    care, growth, events: { ...events, shift, todo: todos }, vax: vaxDone, birthDate: birthDate ? ymd(birthDate) : "" };
   const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
   const d = new Date(); a.download = `영웅이노트-백업-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}.json`;
@@ -1682,19 +1685,22 @@ async function importBackup(file) {
     for (const r of j.tips || []) if (r?.id && r.data) await tipsCol.doc(String(r.id)).set(r.data);
     // Records are merged in: nothing already on this phone or in the family is removed.
     const c = readCare(j.care), g = readGrowth(j.growth), ev = readEvents(j.events), vx = readVax(j.vax);
+    // 할 일 too (added to backups later, so older files simply have none).
+    const td = readTodos(j.events?.todo), nTodo = Object.values(td).filter(v => !v.c).length;
+    if (nTodo) ev.todo = td;
     if (j.events?.shift) { const sh = readShift(j.events.shift); sh.o = { ...shift.o, ...sh.o }; ev.shift = sh; if (!fam) shift = sh; }
     const bd = /^\d{4}-\d{2}-\d{2}$/.test(j.birthDate || "") ? j.birthDate : "";
     const nCare = Object.values(c).reduce((s, d) => s + Object.keys(d).length, 0);
     if (fam) await fam.set({ care: c, growth: g, events: ev, vax: vx, ...(bd ? { birthDate: bd } : {}) }, { merge: true });
     else {
       for (const [d, day] of Object.entries(c)) care[d] = { ...(care[d] || {}), ...day };
-      Object.assign(growth.done, g.done); delete ev.shift; Object.assign(events, ev); Object.assign(vaxDone, vx);
+      Object.assign(growth.done, g.done); delete ev.shift; delete ev.todo; Object.assign(events, ev); Object.assign(todos, td); Object.assign(vaxDone, vx);
       lsSet("yw.care", JSON.stringify(care)); lsSet("yw.growth", JSON.stringify(growth)); saveLocalEvents();
       if (bd) lsSet("yw.birth", bd);
     }
     if (bd) { setBirth(bd); selStage = null; renderDday(); }
     render(); renderToday();
-    setStatus(`꿀팁 ${(j.tips || []).length}개${nCare ? `, 기록 ${nCare}개` : ""}를 불러왔어요.`);
+    setStatus(`꿀팁 ${(j.tips || []).length}개${nCare ? `, 기록 ${nCare}개` : ""}${nTodo ? `, 할 일 ${nTodo}개` : ""}를 불러왔어요.`);
   } catch { setStatus("이 파일은 불러올 수 없어요. 이 앱에서 저장한 백업 파일인지 확인해 주세요.", true); }
 }
 
@@ -2620,7 +2626,7 @@ function readEvents(x) {
   return out;
 }
 function readVax(x) { const o = {}; for (const [k, v] of Object.entries(x && typeof x === "object" ? x : {})) if (typeof v === "string") o[k] = v.slice(0, 10); return o; }
-function onFamilyEvents(ev, vx) { events = readEvents(ev); shift = readShift(ev?.shift); todos = readTodos(ev?.todo); vaxDone = readVax(vx); migrateVax(); if (curView() === "cal") renderCal(); if (curView() === "grow") renderGrow(); renderToday(); }
+function onFamilyEvents(ev, vx) { events = readEvents(ev); shift = readShift(ev?.shift); todos = readTodos(ev?.todo); vaxDone = readVax(vx); migrateVax(); if (fam) todoPrune(); if (curView() === "cal") renderCal(); if (curView() === "grow") renderGrow(); renderToday(); }
 function saveLocalEvents() { lsSet("yw.events", JSON.stringify({ events, vax: vaxDone, shift, todo: todos })); }
 
 // ---------- 아빠 교대근무: 4조 2교대 (주간 → 야간 → 비번 → 휴무) ----------
@@ -2884,8 +2890,6 @@ async function calCheck(e, on) {
   const id = calMarkId(e), t = ymd(today0());
   if (on) todos[id] = { x: str(e.title, 80) || "일정", c: true, d: t, done: true, dt: t, at: Date.now() }; else delete todos[id];
   renderTodos(); todoWrite(id);
-  // Marks from earlier days are no longer shown anywhere; clear them out.
-  for (const [k, v] of Object.entries(todos)) if (v.c && v.d < t) { delete todos[k]; todoWrite(k); }
 }
 function calItem({ e, done }) {
   const cb = el("input", { type: "checkbox", "aria-label": `${e.title} ${done ? "다시 하기" : "다 했어요"}` }); cb.checked = done;
@@ -2941,7 +2945,13 @@ function renderTodos() {
   for (const [k, list, ul, cnt, empty, top] of [["T", L.today, "#todoListT", "#todoCountT", "오늘 할 일이 없어요.", cal], ["L", L.later, "#todoList", "#todoCount", "할 일이 없어요.", []]]) {
     const n = list.length + top.length, left = list.filter(v => !v.done).length + top.filter(c => !c.done).length, hand = todoSort[k] === "hand";
     $(cnt).textContent = n ? `${left}개 남음` : "";
-    $(ul).replaceChildren(...(n ? [...top.map(calItem), ...list.map(v => todoItem(v, hand))] : [el("li", { class: "empty", text: empty })]));
+    const nDone = k === "L" ? list.filter(v => v.done).length : 0;
+    $(ul).replaceChildren(...(n ? [...top.map(calItem), ...list.map(v => todoItem(v, hand))] : [el("li", { class: "empty", text: empty })]),
+      ...(nDone ? [el("li", { class: "clrdone" }, todoDelAsk === "done:L"
+        ? el("span", { class: "delask" }, el("span", { class: "tx", text: `끝낸 일 ${nDone}개를 지울까요?` }),
+            el("button", { type: "button", class: "yes", text: "지울게요", onclick: () => { todoDelAsk = null; const ids = list.filter(v => v.done).map(v => v.id); ids.forEach(id => delete todos[id]); renderTodos(); todoWriteMany(ids); } }),
+            el("button", { type: "button", text: "취소", onclick: () => { todoDelAsk = null; renderTodos(); } }))
+        : el("button", { type: "button", class: "del", text: `끝낸 일 ${nDone}개 지우기`, onclick: () => { todoDelAsk = "done:L"; renderTodos(); } }))] : []));
     $(k === "T" ? "#todoSortT" : "#todoSort").replaceChildren(...TODO_SORT.map(([m, nm]) => el("button", { type: "button", "aria-pressed": String(todoSort[k] === m), text: nm,
       onclick: () => { todoSort[k] = m; lsSet("yw.todoSort", JSON.stringify(todoSort)); renderTodos(); } })));
   }
@@ -2950,6 +2960,16 @@ function todoListText() {
   const L = todoLists(), f = l => l.filter(v => !v.done).map(v => "· " + v.x).join("\n");
   const c = todayCalItems().filter(x => !x.done).map(x => `· ${x.e.t ? x.e.t + " " : ""}${x.e.title} (캘린더)`).join("\n");
   return `오늘 할 일\n${[c, f(L.today)].filter(Boolean).join("\n") || "· 없어요"}\n\n할 일\n${f(L.later) || "· 없어요"}`;
+}
+// Finished 오늘 할 일 stop showing the next day; remove them from storage once they are 3 days old.
+// Calendar check marks from earlier days go too. Runs at most once a day per phone.
+let todoPrunedOn = "";
+function todoPrune() {
+  const t0 = today0(), t = ymd(t0); if (todoPrunedOn === t) return; todoPrunedOn = t;
+  const cut = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 3)), gone = [];
+  for (const [id, v] of Object.entries(todos))
+    if ((v.c && v.d < t) || (v.d && v.done && (v.dt || v.d) < cut)) { delete todos[id]; gone.push(id); }
+  todoWriteMany(gone);
 }
 // One add form for both lists: type it, then pick where it goes.
 function todoAddForm(today) {
@@ -2969,13 +2989,15 @@ function setupTodos() {
   $("#todoAdd").addEventListener("click", () => todoAddForm(false));
   // A new day brings that day's calendar events in, even if the app stayed open past midnight.
   let day = ymd(new Date());
-  const tick = () => { const d = ymd(new Date()); if (d !== day) { day = d; renderToday(); } };
+  const tick = () => { const d = ymd(new Date()); if (d !== day) { day = d; todoPrune(); renderToday(); } };
   setInterval(tick, 60e3); document.addEventListener("visibilitychange", tick);
 }
 // Chat: "할 일 추가 기저귀 사기", "오늘 할 일 추가 분유 사기", "기저귀 사기 할 일에 넣어줘", "할 일 알려줘", "기저귀 사기 다 했어"
 function todoCommand(s) {
   let m;
-  if (Object.keys(todos).length && (m = s.match(/^(.+?)\s*(?:다\s*)?(?:했어|했음|했다|완료|끝났어|끝냈어|체크|샀어|챙겼어)/)) && !/알려|뭐|보여/.test(s)) {
+  // Baby-care words ("수유 했어", "대변 기록 완료") are records, not to-dos, unless it was clearly a purchase.
+  const careSay = /수유|분유|모유|유축|소변|대변|쉬\s*했|응가|기저귀|잠|재웠|깼|체온|열\s*(?:나|재)|해열제|투약|약\s*(?:먹|줬)|목욕|트림|먹였|ml|mL/.test(s) && !/샀어|챙겼어|주문/.test(s);
+  if (!careSay && Object.keys(todos).length && (m = s.match(/^(.+?)\s*(?:다\s*)?(?:했어|했음|했다|완료|끝났어|끝냈어|체크|샀어|챙겼어)/)) && !/알려|뭐|보여/.test(s)) {
     const q = m[1].replace(/(?:오늘\s*)?할\s*일\s*(?:중에|에서)?/, "").replace(/\s*(?:은|는|을|를)$/, "").trim();
     const hit = q.length >= 2 && Object.entries(todos).find(([, v]) => !v.c && !v.done && (v.x.includes(q) || q.includes(v.x)));
     if (hit) return { reply: "체크했어요.", actions: [{ type: "todo_done", id: hit[0] }] };
@@ -3349,7 +3371,7 @@ async function boot() {
   setupCal();
   setupBot();
   setupTodos();
-  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); const lv = JSON.parse(lsGet("yw.events") || "{}"); events = readEvents(lv.events); shift = readShift(lv.shift); todos = readTodos(lv.todo); vaxDone = readVax(lv.vax); migrateVax(); } catch {}
+  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); const lv = JSON.parse(lsGet("yw.events") || "{}"); events = readEvents(lv.events); shift = readShift(lv.shift); todos = readTodos(lv.todo); vaxDone = readVax(lv.vax); migrateVax(); if (!hasFirebase()) todoPrune(); } catch {}
   setBirth(lsGet("yw.birth"));
   showView();
   handleShortcut();
