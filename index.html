@@ -115,7 +115,41 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .tcell .v div { word-break: keep-all; overflow-wrap: anywhere; }
 .tcell .v div + div { margin-top: 2px; }
 .tcell .shw { color: var(--accent); } .tcell .shr { color: var(--danger); }
-.bot .bmsgs { display: grid; gap: 8px; max-height: 52vh; overflow-y: auto; }
+.gcard.bot { padding: 10px; gap: 8px; }
+.bot .bmsgs { display: grid; gap: 8px; max-height: 34vh; overflow-y: auto; }
+.bot .bmsgs:empty { display: none; }
+.bot .clr { justify-self: center; border: 0; background: none; color: var(--muted); font-size: .74rem; padding: 2px 8px; text-decoration: underline; }
+.gcard.bot { position: relative; z-index: 3; }
+/* Example chips float under the chat box while typing, so showing or hiding them never moves the page under a finger. */
+.bot .ask-chips { display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); padding: 8px; }
+.bot.open .ask-chips { display: flex; }
+#homeView { display: grid; gap: 12px; }
+.todo h3 small { font-weight: 400; font-size: .76rem; margin-left: 4px; }
+.todo .tadd { border: 1px solid var(--accent); color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: .84rem; }
+.tsort { display: flex; gap: 4px; margin-top: -6px; }
+.tsort button { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 3px 10px; font-size: .74rem; color: var(--muted); }
+.tsort button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.todos .late { flex: none; font-size: .68rem; font-weight: 700; color: var(--danger); border: 1px solid currentColor; border-radius: 6px; padding: 0 5px; line-height: 1.5; }
+.todos .grip { flex: none; touch-action: none; cursor: grab; color: var(--muted); font-size: 1.1rem; padding: 4px 2px; user-select: none; -webkit-user-select: none; }
+.todos li.drag { background: var(--accent-soft); border-radius: 10px; box-shadow: var(--shadow); position: relative; z-index: 2; }
+.todos .cal { flex: none; font-size: .7rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+.todoform input[type=text] { width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--surface-2); font: inherit; color: var(--ink); }
+.todoform { display: grid; gap: 12px; }
+.todo .ask-row input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: var(--surface-2); font: inherit; color: var(--ink); }
+.todos { list-style: none; margin: 0; padding: 0; display: grid; }
+.todos li { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-top: 1px solid var(--line); min-width: 0; }
+.todos li:first-child { border-top: 0; }
+.todos input[type=checkbox] { width: 22px; height: 22px; flex: none; accent-color: var(--accent); margin: 0; }
+.todos .tx { flex: 1; min-width: 0; font-size: .92rem; line-height: 1.4; word-break: keep-all; overflow-wrap: anywhere; }
+.todos li.done .tx { color: var(--muted); text-decoration: line-through; }
+.todos .del { flex: none; border: 0; background: none; color: var(--muted); font-size: .78rem; padding: 4px 6px; }
+.todos .delask { display: flex; gap: 4px; align-items: center; flex: none; }
+.todos .delask button { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--ink); background: none; font-size: .78rem; }
+.todos .delask .yes { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 700; }
+.todos li.clrdone { justify-content: flex-end; }
+.todos li.clrdone .delask { flex: 1; justify-content: flex-end; }
+.todos li.clrdone .delask .tx { font-size: .82rem; color: var(--muted); }
+.todos .empty { color: var(--muted); font-size: .86rem; padding: 4px 2px; border: 0; }
 .bot .qm, .bot .am { font-size: .9rem; border-radius: 14px; padding: 8px 12px; white-space: pre-wrap; line-height: 1.5; max-width: 88%; }
 .bot .qm { justify-self: end; background: var(--accent-soft); border-radius: 14px 14px 4px 14px; }
 .bot .am { justify-self: start; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; display: grid; gap: 6px; }
@@ -498,15 +532,24 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
   </nav>
 
   <div id="homeView" class="view">
-    <section class="today" id="today" aria-label="오늘"></section>
-    <section class="gcard bot" aria-label="영웅이 비서">
-      <div class="gcard-h"><h3>무엇을 도와드릴까요?</h3><button type="button" class="toggle" id="botClear">대화 지우기</button></div>
+    <section class="gcard bot" id="botBox" aria-label="영웅이 비서">
       <div class="bmsgs" id="botMsgs" aria-live="polite"></div>
       <div class="ask-chips" id="botChips"></div>
       <form id="botForm" class="ask-row">
-        <textarea id="botIn" rows="1" aria-label="비서에게 말하기" placeholder="예: 분유 80ml 기록해"></textarea>
+        <textarea id="botIn" rows="1" aria-label="비서에게 말하기" placeholder="무엇이든 말해 보세요"></textarea>
         <button class="btn" id="botBtn" type="submit">보내기</button>
       </form>
+    </section>
+    <section class="today" id="today" aria-label="오늘"></section>
+    <section class="gcard todo" aria-label="오늘 할 일">
+      <div class="gcard-h"><h3>오늘 할 일 <small id="todoCountT"></small></h3><button type="button" class="tadd" id="todoAddT">+ 추가</button></div>
+      <div class="tsort" id="todoSortT" role="group" aria-label="오늘 할 일 정렬"></div>
+      <ul class="todos" id="todoListT"></ul>
+    </section>
+    <section class="gcard todo" aria-label="할 일">
+      <div class="gcard-h"><h3>할 일 <small id="todoCount"></small></h3><button type="button" class="tadd" id="todoAdd">+ 추가</button></div>
+      <div class="tsort" id="todoSort" role="group" aria-label="할 일 정렬"></div>
+      <ul class="todos" id="todoList"></ul>
     </section>
   </div>
 
@@ -1626,7 +1669,7 @@ function openSettings() {
 async function exportBackup() {
   const data = { app: "yeongwoong-notes", version: 2, exportedAt: new Date().toISOString(),
     tips: await dumpCol("tips"), categories: await dumpCol("categories"),
-    care, growth, events: { ...events, shift }, vax: vaxDone, birthDate: birthDate ? ymd(birthDate) : "" };
+    care, growth, events: { ...events, shift, todo: todos }, vax: vaxDone, birthDate: birthDate ? ymd(birthDate) : "" };
   const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
   const d = new Date(); a.download = `영웅이노트-백업-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}.json`;
@@ -1642,19 +1685,22 @@ async function importBackup(file) {
     for (const r of j.tips || []) if (r?.id && r.data) await tipsCol.doc(String(r.id)).set(r.data);
     // Records are merged in: nothing already on this phone or in the family is removed.
     const c = readCare(j.care), g = readGrowth(j.growth), ev = readEvents(j.events), vx = readVax(j.vax);
+    // 할 일 too (added to backups later, so older files simply have none).
+    const td = readTodos(j.events?.todo), nTodo = Object.values(td).filter(v => !v.c).length;
+    if (nTodo) ev.todo = td;
     if (j.events?.shift) { const sh = readShift(j.events.shift); sh.o = { ...shift.o, ...sh.o }; ev.shift = sh; if (!fam) shift = sh; }
     const bd = /^\d{4}-\d{2}-\d{2}$/.test(j.birthDate || "") ? j.birthDate : "";
     const nCare = Object.values(c).reduce((s, d) => s + Object.keys(d).length, 0);
     if (fam) await fam.set({ care: c, growth: g, events: ev, vax: vx, ...(bd ? { birthDate: bd } : {}) }, { merge: true });
     else {
       for (const [d, day] of Object.entries(c)) care[d] = { ...(care[d] || {}), ...day };
-      Object.assign(growth.done, g.done); delete ev.shift; Object.assign(events, ev); Object.assign(vaxDone, vx);
+      Object.assign(growth.done, g.done); delete ev.shift; delete ev.todo; Object.assign(events, ev); Object.assign(todos, td); Object.assign(vaxDone, vx);
       lsSet("yw.care", JSON.stringify(care)); lsSet("yw.growth", JSON.stringify(growth)); saveLocalEvents();
       if (bd) lsSet("yw.birth", bd);
     }
     if (bd) { setBirth(bd); selStage = null; renderDday(); }
     render(); renderToday();
-    setStatus(`꿀팁 ${(j.tips || []).length}개${nCare ? `, 기록 ${nCare}개` : ""}를 불러왔어요.`);
+    setStatus(`꿀팁 ${(j.tips || []).length}개${nCare ? `, 기록 ${nCare}개` : ""}${nTodo ? `, 할 일 ${nTodo}개` : ""}를 불러왔어요.`);
   } catch { setStatus("이 파일은 불러올 수 없어요. 이 앱에서 저장한 백업 파일인지 확인해 주세요.", true); }
 }
 
@@ -2580,8 +2626,8 @@ function readEvents(x) {
   return out;
 }
 function readVax(x) { const o = {}; for (const [k, v] of Object.entries(x && typeof x === "object" ? x : {})) if (typeof v === "string") o[k] = v.slice(0, 10); return o; }
-function onFamilyEvents(ev, vx) { events = readEvents(ev); shift = readShift(ev?.shift); vaxDone = readVax(vx); migrateVax(); if (curView() === "cal") renderCal(); if (curView() === "grow") renderGrow(); renderToday(); }
-function saveLocalEvents() { lsSet("yw.events", JSON.stringify({ events, vax: vaxDone, shift })); }
+function onFamilyEvents(ev, vx) { events = readEvents(ev); shift = readShift(ev?.shift); todos = readTodos(ev?.todo); vaxDone = readVax(vx); migrateVax(); if (fam) todoPrune(); if (curView() === "cal") renderCal(); if (curView() === "grow") renderGrow(); renderToday(); }
+function saveLocalEvents() { lsSet("yw.events", JSON.stringify({ events, vax: vaxDone, shift, todo: todos })); }
 
 // ---------- 아빠 교대근무: 4조 2교대 (주간 → 야간 → 비번 → 휴무) ----------
 // Kept inside the events map as events.shift = { a: a 주간 date, off, o: { dYYYYMMDD: label } }, so the security rules stay the same.
@@ -2780,6 +2826,195 @@ function setupCal() {
   $("#calAddBtn").addEventListener("click", () => evForm(calSel || ymd(today0()), $("#evForm").hidden));
 }
 
+// ---------- 할 일 (shared to-do) ----------
+// Kept inside the events map as events.todo = { id: { x, d?, done, at, dt? } } so the security rules stay the same.
+// d = the day it was put on "오늘 할 일" (unfinished ones stay there until done); no d = the general "할 일" list.
+let todos = {}, todoDelAsk = null;
+// How each list is sorted on this phone: time (added order), name (가나다), hand (dragged order, shared via o).
+const TODO_SORT = [["time", "시간순"], ["name", "이름순"], ["hand", "직접"]];
+const todoSort = { T: "time", L: "time" };
+try { const x = JSON.parse(lsGet("yw.todoSort") || "{}"); for (const k of ["T", "L"]) if (TODO_SORT.some(([m]) => m === x[k])) todoSort[k] = x[k]; } catch {}
+function readTodos(x) {
+  const out = {};
+  for (const [id, t] of Object.entries(x && typeof x === "object" ? x : {})) {
+    if (!/^[a-z0-9]{1,30}$/i.test(id) || !t || !str(t.x, 80)) continue;
+    out[id] = { x: str(t.x, 80), done: t.done === true, at: +t.at || 0 };
+    if (ymdOk(t.d)) out[id].d = t.d;
+    if (ymdOk(t.dt)) out[id].dt = t.dt;
+    if (t.c === true) out[id].c = true;
+    if (Number.isFinite(t.o)) out[id].o = t.o;
+  }
+  return out;
+}
+async function todoWrite(id) {
+  try { if (fam) await fam.update({ [`events.todo.${id}`]: todos[id] || firebase.firestore.FieldValue.delete() }); else saveLocalEvents(); }
+  catch { showBanner("할 일을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+}
+async function todoWriteMany(ids) {
+  if (!ids.length) return;
+  try { if (fam) await fam.update(Object.fromEntries(ids.map(id => [`events.todo.${id}`, todos[id] || firebase.firestore.FieldValue.delete()]))); else saveLocalEvents(); }
+  catch { showBanner("할 일을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+}
+function todoAdd(x, today) {
+  x = str(x, 80); if (!x) return null;
+  const id = "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  todos[id] = { x, done: false, at: Date.now() }; if (today) todos[id].d = ymd(today0());
+  renderTodos(); todoWrite(id); return id;
+}
+function todoSet(id, patch) {
+  if (!todos[id]) return; Object.assign(todos[id], patch);
+  if (todos[id].done) todos[id].dt = ymd(today0()); else delete todos[id].dt;
+  renderTodos(); todoWrite(id);
+}
+function todoDel(id) { delete todos[id]; renderTodos(); todoWrite(id); }
+// What each card shows. 오늘: dated items not yet done, plus ones finished today. 할 일: undated items, done ones last.
+function todoLists() {
+  const t = ymd(today0()), all = Object.entries(todos).filter(([, v]) => !v.c).map(([id, v]) => ({ id, ...v }));
+  const by = mode => (a, b) => (a.done - b.done) || (mode === "name" ? a.x.localeCompare(b.x, "ko") : mode === "hand" ? (a.o ?? a.at) - (b.o ?? b.at) : 0) || (a.at - b.at);
+  return {
+    today: all.filter(v => v.d && v.d <= t && (!v.done || v.dt === t)).sort(by(todoSort.T)),
+    later: all.filter(v => !v.d || v.d > t).sort(by(todoSort.L)),
+  };
+}
+// Today's calendar events show on top of 오늘 할 일. They come from the calendar each day, so tomorrow they are gone by themselves.
+// Checking one stores a small mark { c: true, d: today, done } in todos; vaccines and checkups use their real done mark instead.
+const calMarkId = e => ("k" + ymd(today0()).replace(/-/g, "") + String(e.id).replace(/[^a-z0-9]/gi, "")).slice(0, 30);
+function todayCalItems() {
+  const t = ymd(today0());
+  return allEvents().filter(e => evOverlaps(e, t, t) && (!e.vax || e.d === t))
+    .sort((a, b) => (a.t || "99").localeCompare(b.t || "99"))
+    .map(e => ({ e, done: e.vax ? !!e.done : !!todos[calMarkId(e)]?.done }));
+}
+async function calCheck(e, on) {
+  if (e.vax) { if (!!e.done !== on) vaxToggle(e.id); return; }
+  const id = calMarkId(e), t = ymd(today0());
+  if (on) todos[id] = { x: str(e.title, 80) || "일정", c: true, d: t, done: true, dt: t, at: Date.now() }; else delete todos[id];
+  renderTodos(); todoWrite(id);
+}
+function calItem({ e, done }) {
+  const cb = el("input", { type: "checkbox", "aria-label": `${e.title} ${done ? "다시 하기" : "다 했어요"}` }); cb.checked = done;
+  cb.onchange = () => calCheck(e, cb.checked);
+  return el("li", { class: done ? "done" : "" }, cb, el("span", { class: "tx", text: `${e.t ? e.t + " " : ""}${e.title}` }),
+    el("a", { class: "cal", href: "#cal", text: "캘린더" }));
+}
+function todoItem(v, hand) {
+  const cb = el("input", { type: "checkbox", "aria-label": `${v.x} ${v.done ? "다시 하기" : "다 했어요"}` }); cb.checked = v.done;
+  cb.onchange = () => todoSet(v.id, { done: cb.checked });
+  const t0 = today0(), old = v.d && !v.done && v.d < ymd(t0);
+  const yest = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 1));
+  const grip = hand && !v.done ? el("span", { class: "grip", "aria-hidden": "true", text: "⠿" }) : null;
+  if (grip) grip.addEventListener("pointerdown", e => todoDragStart(e, v.id));
+  return el("li", { class: v.done ? "done" : "", "data-id": v.id }, grip, cb,
+    old ? el("span", { class: "late", title: `${md(v.d)}부터 못 끝낸 일`, "aria-label": `${md(v.d)}부터 밀린 일`, text: v.d === yest ? "어제" : md(v.d) }) : null,
+    el("span", { class: "tx", text: v.x }),
+    todoDelAsk === v.id ? el("span", { class: "delask" },
+        el("button", { type: "button", class: "yes", "aria-label": `${v.x} 정말 지우기`, text: "지울게요", onclick: () => { todoDelAsk = null; todoDel(v.id); } }),
+        el("button", { type: "button", text: "취소", onclick: () => { todoDelAsk = null; renderTodos(); } }))
+      : el("button", { type: "button", class: "del", "aria-label": `${v.x} 지우기`, text: "지우기", onclick: () => { todoDelAsk = v.id; renderTodos(); } }));
+}
+// Drag by the ⠿ handle (mouse or finger). Rows move live; on release the list's order is saved as o = 0, 1, 2… for everyone.
+let todoDragging = false;
+function todoDragStart(e, id) {
+  const li = e.target.closest("li"), ul = li.parentElement; if (!li || !ul) return;
+  e.preventDefault(); todoDragging = true;
+  li.classList.add("drag");
+  const rows = () => [...ul.querySelectorAll("li[data-id]")].filter(r => r.querySelector(".grip"));
+  const move = ev => {
+    const y = ev.clientY;
+    for (const r of rows()) {
+      if (r === li) continue;
+      const b = r.getBoundingClientRect();
+      if (y < b.top + b.height / 2 && r.compareDocumentPosition(li) & Node.DOCUMENT_POSITION_FOLLOWING) { ul.insertBefore(li, r); break; }
+      if (y > b.top + b.height / 2 && r.compareDocumentPosition(li) & Node.DOCUMENT_POSITION_PRECEDING) { r.after(li); }
+    }
+  };
+  const end = () => {
+    window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", end); window.removeEventListener("pointercancel", end);
+    li.classList.remove("drag"); todoDragging = false;
+    const changed = [];
+    rows().forEach((r, i) => { const t = todos[r.dataset.id]; if (t && t.o !== i) { t.o = i; changed.push(r.dataset.id); } });
+    renderTodos(); todoWriteMany(changed);
+  };
+  // Listen on the window: moving the row in the page would drop a capture held by the handle.
+  window.addEventListener("pointermove", move); window.addEventListener("pointerup", end); window.addEventListener("pointercancel", end);
+}
+function renderTodos() {
+  if (todoDragging) return;
+  if (!$("#todoList")) return;
+  const L = todoLists(), cal = todayCalItems();
+  for (const [k, list, ul, cnt, empty, top] of [["T", L.today, "#todoListT", "#todoCountT", "오늘 할 일이 없어요.", cal], ["L", L.later, "#todoList", "#todoCount", "할 일이 없어요.", []]]) {
+    const n = list.length + top.length, left = list.filter(v => !v.done).length + top.filter(c => !c.done).length, hand = todoSort[k] === "hand";
+    $(cnt).textContent = n ? `${left}개 남음` : "";
+    const nDone = k === "L" ? list.filter(v => v.done).length : 0;
+    $(ul).replaceChildren(...(n ? [...top.map(calItem), ...list.map(v => todoItem(v, hand))] : [el("li", { class: "empty", text: empty })]),
+      ...(nDone ? [el("li", { class: "clrdone" }, todoDelAsk === "done:L"
+        ? el("span", { class: "delask" }, el("span", { class: "tx", text: `끝낸 일 ${nDone}개를 지울까요?` }),
+            el("button", { type: "button", class: "yes", text: "지울게요", onclick: () => { todoDelAsk = null; const ids = list.filter(v => v.done).map(v => v.id); ids.forEach(id => delete todos[id]); renderTodos(); todoWriteMany(ids); } }),
+            el("button", { type: "button", text: "취소", onclick: () => { todoDelAsk = null; renderTodos(); } }))
+        : el("button", { type: "button", class: "del", text: `끝낸 일 ${nDone}개 지우기`, onclick: () => { todoDelAsk = "done:L"; renderTodos(); } }))] : []));
+    $(k === "T" ? "#todoSortT" : "#todoSort").replaceChildren(...TODO_SORT.map(([m, nm]) => el("button", { type: "button", "aria-pressed": String(todoSort[k] === m), text: nm,
+      onclick: () => { todoSort[k] = m; lsSet("yw.todoSort", JSON.stringify(todoSort)); renderTodos(); } })));
+  }
+}
+function todoListText() {
+  const L = todoLists(), f = l => l.filter(v => !v.done).map(v => "· " + v.x).join("\n");
+  const c = todayCalItems().filter(x => !x.done).map(x => `· ${x.e.t ? x.e.t + " " : ""}${x.e.title} (캘린더)`).join("\n");
+  return `오늘 할 일\n${[c, f(L.today)].filter(Boolean).join("\n") || "· 없어요"}\n\n할 일\n${f(L.later) || "· 없어요"}`;
+}
+// Finished 오늘 할 일 stop showing the next day; remove them from storage once they are 3 days old.
+// Calendar check marks from earlier days go too. Runs at most once a day per phone.
+let todoPrunedOn = "";
+function todoPrune() {
+  const t0 = today0(), t = ymd(t0); if (todoPrunedOn === t) return; todoPrunedOn = t;
+  const cut = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 3)), gone = [];
+  for (const [id, v] of Object.entries(todos))
+    if ((v.c && v.d < t) || (v.d && v.done && (v.dt || v.d) < cut)) { delete todos[id]; gone.push(id); }
+  todoWriteMany(gone);
+}
+// One add form for both lists: type it, then pick where it goes.
+function todoAddForm(today) {
+  let where = today;
+  const inp = el("input", { type: "text", id: "todoNew", maxlength: "80", placeholder: "예: 기저귀 사기", autocomplete: "off", "aria-label": "할 일 적기" });
+  const seg = el("div", { class: "seg", role: "group", "aria-label": "어디에 넣을까요" });
+  const draw = () => seg.replaceChildren(...[[true, "오늘 할 일"], [false, "할 일"]].map(([v, nm]) =>
+    el("button", { type: "button", "aria-pressed": String(where === v), text: nm, onclick: () => { where = v; draw(); inp.focus(); } })));
+  draw();
+  const f = el("form", { class: "todoform" }, inp, seg, el("button", { class: "btn", type: "submit", text: "추가" }));
+  f.onsubmit = e => { e.preventDefault(); if (todoAdd(inp.value, where)) closeSheet(); else inp.focus(); };
+  openSheet("할 일 추가", f);
+  setTimeout(() => inp.focus(), 50);
+}
+function setupTodos() {
+  $("#todoAddT").addEventListener("click", () => todoAddForm(true));
+  $("#todoAdd").addEventListener("click", () => todoAddForm(false));
+  // A new day brings that day's calendar events in, even if the app stayed open past midnight.
+  let day = ymd(new Date());
+  const tick = () => { const d = ymd(new Date()); if (d !== day) { day = d; todoPrune(); renderToday(); } };
+  setInterval(tick, 60e3); document.addEventListener("visibilitychange", tick);
+}
+// Chat: "할 일 추가 기저귀 사기", "오늘 할 일 추가 분유 사기", "기저귀 사기 할 일에 넣어줘", "할 일 알려줘", "기저귀 사기 다 했어"
+function todoCommand(s) {
+  let m;
+  // Baby-care words ("수유 했어", "대변 기록 완료") are records, not to-dos, unless it was clearly a purchase.
+  const careSay = /수유|분유|모유|유축|소변|대변|쉬\s*했|응가|기저귀|잠|재웠|깼|체온|열\s*(?:나|재)|해열제|투약|약\s*(?:먹|줬)|목욕|트림|먹였|ml|mL/.test(s) && !/샀어|챙겼어|주문/.test(s);
+  if (!careSay && Object.keys(todos).length && (m = s.match(/^(.+?)\s*(?:다\s*)?(?:했어|했음|했다|완료|끝났어|끝냈어|체크|샀어|챙겼어)/)) && !/알려|뭐|보여/.test(s)) {
+    const q = m[1].replace(/(?:오늘\s*)?할\s*일\s*(?:중에|에서)?/, "").replace(/\s*(?:은|는|을|를)$/, "").trim();
+    const hit = q.length >= 2 && Object.entries(todos).find(([, v]) => !v.c && !v.done && (v.x.includes(q) || q.includes(v.x)));
+    if (hit) return { reply: "체크했어요.", actions: [{ type: "todo_done", id: hit[0] }] };
+  }
+  if (!/할\s*일|투두/.test(s)) return null;
+  const today = /오늘\s*할\s*일|오늘\s*(?:에|로)?\s*할/.test(s);
+  m = s.match(/(?:오늘\s*)?(?:할\s*일|투두)\s*(?:에|로|목록에)?\s*(?:추가|넣어|등록|적어)(?:\s*해)?(?:\s*줘|\s*주세요)?\s*[:：]?\s*(.+)$/);
+  if (m && /^(?:해|줘|주세요|요|해\s*줘|해\s*주세요)[.!~]*$/.test(m[1].trim())) m = null;
+  m = m || s.match(/^(.+?)\s*(?:을|를)?\s*(?:오늘\s*)?(?:할\s*일|투두)\s*(?:에|로|목록에)?\s*(?:추가|넣어|등록|적어)/);
+  if (m) {
+    const items = m[1].replace(/\s*(?:해\s*줘|해\s*주세요|해줘|해)\s*$/, "").split(/\s*(?:,|、|그리고)\s*/).map(x => str(x.trim(), 80)).filter(Boolean).slice(0, 10);
+    if (items.length) return { reply: `${today ? "오늘 할 일" : "할 일"}에 넣었어요.`, actions: items.map(x => ({ type: "todo", x, today })) };
+  }
+  if (/알려|뭐|보여|목록|남은|\?|있어/.test(s)) return { reply: todoListText() };
+  return null;
+}
+
 // ---------- Home: today summary + assistant chat ----------
 // Most recent feeding as a Date, whatever day it was logged on.
 function lastFeedAt() {
@@ -2808,23 +3043,24 @@ function careSummary(d) {
 }
 function renderToday() {
   const box = $("#today"); if (!box || curView() !== "home") return;
+  renderTodos();
   const t0 = today0(), c = careSummary(t0);
   let ago = "";
   const lf = lastFeedAt();
   if (lf) { const mins = Math.round((Date.now() - lf) / 6e4); ago = `마지막 수유 ${mins >= 60 ? Math.floor(mins / 60) + "시간 " : ""}${mins % 60}분 전`; }
   const up = allEvents().filter(e => evEnd(e) >= ymd(t0) && !(e.vax && e.done)).sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99"))).slice(0, 3);
   box.replaceChildren(
+    el("a", { class: "tcell", href: "#cal" }, el("span", { class: "k", text: "다가오는 일정" }),
+      el("span", { class: "v" }, ...(() => { const a = shiftOn(ymd(t0)), b = shiftOn(ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + 1))); return a ? [el("div", {}, "아빠 ", el("b", { class: a.work ? "shw" : "shr", text: a.l }), " · 내일 ", el("b", { class: b.work ? "shw" : "shr", text: b.l }))] : []; })(),
+        ...(up.length ? up.map(e => { return el("div", { text: `${evRange(e)} ${e.title.replace(/^\S+ /, e.vax ? "" : "$&")}` }); }) : [el("div", { text: "일정이 없어요" })]))),
     el("a", { class: "tcell", href: "#grow" }, el("span", { class: "k", text: "오늘 기록" }),
       el("span", { class: "v" }, el("div", { text: `수유 ${c.feeds}번${c.ml ? ` · ${c.ml}ml` : ""}` }), el("div", { text: `소변 ${c.pee} · 대변 ${c.poop}` }), c.pump ? el("div", { text: `유축 ${c.pump}번${c.pumpMl ? ` · ${c.pumpMl}ml` : ""}` }) : null,
         (() => { const lt = careEntries(["temp"]).find(e => e.v); return lt && Date.now() - lt.at < 24 * 36e5 ? el("div", { class: tempLevel(lt.v) === "hot" ? "shr" : "", text: `체온 ${fmtT(lt.v)}° · ${agoText(lt.at)}` }) : null; })(),
-        el("div", { text: ago || (c.any ? "" : "아직 기록이 없어요") }))),
-    el("a", { class: "tcell", href: "#cal" }, el("span", { class: "k", text: "다가오는 일정" }),
-      el("span", { class: "v" }, ...(() => { const a = shiftOn(ymd(t0)), b = shiftOn(ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + 1))); return a ? [el("div", {}, "아빠 ", el("b", { class: a.work ? "shw" : "shr", text: a.l }), " · 내일 ", el("b", { class: b.work ? "shw" : "shr", text: b.l }))] : []; })(),
-        ...(up.length ? up.map(e => { return el("div", { text: `${evRange(e)} ${e.title.replace(/^\S+ /, e.vax ? "" : "$&")}` }); }) : [el("div", { text: "일정이 없어요" })]))));
+        el("div", { text: ago || (c.any ? "" : "아직 기록이 없어요") }))));
 }
 
 let botLog = [], botBusy = false;
-const BOT_CHIPS = ["분유 80ml 기록해", "유축 100ml 기록해", "체온 37.8 기록", "해열제 먹였어", "소변 기록", "12월 일정 알려줘", "12월 5일 연차", "이번 주 근무 알려줘", "내일 오후 3시 소아과 일정 추가해", "다음 예방접종 언제야?", "오늘 기록 요약해줘"];
+const BOT_CHIPS = ["할 일 추가 기저귀 사기", "오늘 할 일 추가 분유 사기", "분유 80ml 기록해", "유축 100ml 기록해", "체온 37.8 기록", "해열제 먹였어", "소변 기록", "12월 일정 알려줘", "12월 5일 연차", "이번 주 근무 알려줘", "내일 오후 3시 소아과 일정 추가해", "다음 예방접종 언제야?", "오늘 기록 요약해줘"];
 function saveBot() { lsSet("yw.bot", JSON.stringify(botLog.slice(-40).map(m => ({ r: m.r, x: m.x, done: m.done })))); }
 function drawBot() {
   const box = $("#botMsgs");
@@ -2832,7 +3068,7 @@ function drawBot() {
     : el("div", { class: "am" }, el("span", { text: m.x }),
         (m.done || []).length ? el("span", { class: "done", text: "✓ " + m.done.join("\n✓ ") }) : null,
         m.undo ? el("button", { type: "button", class: "toggle", text: "되돌리기", onclick: () => { m.undo(); m.undo = null; m.done = (m.done || []).map(x => x + " (되돌림)"); saveBot(); drawBot(); } }) : null));
-  if (!botLog.length) kids.push(el("div", { class: "am" }, el("span", { text: "수유·유축·기저귀·잠·체온·투약 기록이나 일정 추가, 일정·기록 질문을 말로 해 보세요." })));
+  if (botLog.length) kids.push(el("button", { type: "button", class: "clr", text: "대화 지우기", onclick: () => { botLog = []; saveBot(); drawBot(); } }));
   if (botBusy) kids.push(el("div", { class: "am" }, el("div", { class: "working" }, el("span", { class: "spin" }), el("span", { text: "생각하는 중이에요…" }))));
   box.replaceChildren(...kids); box.scrollTop = box.scrollHeight;
 }
@@ -2882,6 +3118,7 @@ function shiftLabelFrom(s) {
 function shiftListText(days) { return days.map(ds => { const d = parseYmd(ds), sh = shiftOn(ds); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]}) ${sh.l}${sh.chg ? ` (원래 ${sh.base})` : ""}`; }).join("\n"); }
 // Common commands are handled on the phone, so they cost no Gemini requests.
 function localCommand(s) {
+  const td = todoCommand(s); if (td) return td;
   const now = new Date(), today = ymd(now), all = allEvents().sort((a, b) => (a.d + (a.t || "99")).localeCompare(b.d + (b.t || "99")));
   let m;
   // 아빠 교대근무: "12월 5일 연차", "내일 초과 야간", "5일~7일 휴가", "12월 5일 원래대로", "이번 주 근무 알려줘"
@@ -2986,6 +3223,7 @@ function botPrompt(text) {
 - 예방접종 맞음: {"type":"vax","ids":["아래 목록의 id"],"date":"YYYY-MM-DD"} 잠은 t=잠든 시각, min=잔 시간(분), date=잠든 날짜(밤 11시에 자서 아침에 깼으면 전날 날짜). 시간 말이 없으면 지금 시각.
 - 일정 추가: {"type":"event","date":"YYYY-MM-DD","date2":"여러 날이면 마지막 날 YYYY-MM-DD, 하루면 빈 문자열","t":"HH:MM 또는 빈 문자열","title":"짧은 제목","who":"mom|dad|baby|all"}
 - 아빠 교대근무 바꾸기: {"type":"shift","date":"YYYY-MM-DD","label":"주간|야간|비번|휴무|연차|초)주간|초)야간|지정근무|병가|휴가 등 8자 이내, 원래 순서로 되돌리면 빈 문자열"}
+- 할 일 추가: {"type":"todo","x":"짧은 할 일","today":오늘 할 일이면 true 아니면 false}, 할 일 다 함: {"type":"todo_done","id":"아래 목록의 id"}
 - 기록이나 일정을 묻는 말이면 actions 없이 아래 자료만 보고 답해. 자료에 없으면 없다고 해.
 - 육아 정보 질문이면 1~3문장으로 짧게 답하고, 자세한 건 꿀팁 탭에서 물어보라고 해. 걱정되는 증상이면 소아과나 119를 먼저 말해.
 - 날짜나 시간이 애매하면 가장 그럴듯하게 정하고 reply에 어떻게 정했는지 적어.
@@ -2995,6 +3233,9 @@ ${evs}
 
 [최근 기록]
 ${days}
+
+[할 일 (id 내용 상태)]
+${Object.entries(todos).filter(([, v]) => !v.done && !v.c).slice(0, 40).map(([id, v]) => `${id} ${v.x}${v.d ? " (오늘 할 일)" : ""}`).join("\n") || "(없음)"}
 
 [최근 72시간 체온·투약·병원]
 ${careEntries(["temp", "med", "hosp"]).filter(e => Date.now() - e.at < 72 * 36e5).slice(0, 20).map(e => `${ymd(e.at)} ${e.t} ${healthDesc(e)}`).join("\n") || "(없음)"}
@@ -3027,6 +3268,11 @@ function execActions(acts) {
     } else if (a?.type === "shift" && ymdOk(a.date) && typeof a.label === "string" && !shift.off) {
       const prev = shiftSet(a.date, a.label), date = a.date; undos.push(() => shiftSet(date, prev));
       const sh = shiftOn(date); done.push(`${fmtDay(parseYmd(date))} 아빠 ${sh.l}${sh.chg ? "" : " (원래 순서)"}`);
+    } else if (a?.type === "todo" && str(a.x, 80)) {
+      const id = todoAdd(a.x, a.today === true); if (!id) continue;
+      undos.push(() => todoDel(id)); done.push(`${a.today === true ? "오늘 할 일" : "할 일"}: ${todos[id].x}`);
+    } else if (a?.type === "todo_done" && todos[a.id] && !todos[a.id].done) {
+      const id = a.id; todoSet(id, { done: true }); undos.push(() => todoSet(id, { done: false })); done.push(`${todos[id].x} 다 했어요`);
     } else if (a?.type === "event" && ymdOk(a.date) && str(a.title, 60)) {
       const id = "e" + Date.now().toString(36) + done.length, e = { d: a.date, t: /^\d{2}:\d{2}$/.test(a.t || "") ? a.t : "", title: str(a.title, 60), who: WHO_EV[a.who] ? a.who : "all" };
       if (ymdOk(a.date2) && a.date2 > a.date && a.date2 <= ymd(new Date(parseYmd(a.date).getTime() + 90 * 864e5))) e.d2 = a.date2;
@@ -3057,7 +3303,10 @@ function setupBot() {
   $("#botChips").replaceChildren(...BOT_CHIPS.map(t => el("button", { type: "button", text: t, onclick: () => { $("#botIn").value = t; $("#botIn").focus(); } })));
   $("#botForm").addEventListener("submit", e => { e.preventDefault(); runBot($("#botIn").value); });
   $("#botIn").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); runBot($("#botIn").value); } });
-  $("#botClear").addEventListener("click", () => { botLog = []; saveBot(); drawBot(); });
+  // Example chips show only while the box is in use, so the home stays compact.
+  const box = $("#botBox");
+  $("#botIn").addEventListener("focus", () => box.classList.add("open"));
+  document.addEventListener("pointerdown", e => { if (!box.contains(e.target)) box.classList.remove("open"); });
   drawBot();
 }
 
@@ -3121,7 +3370,8 @@ async function boot() {
   setupGrow();
   setupCal();
   setupBot();
-  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); const lv = JSON.parse(lsGet("yw.events") || "{}"); events = readEvents(lv.events); shift = readShift(lv.shift); vaxDone = readVax(lv.vax); migrateVax(); } catch {}
+  setupTodos();
+  try { growth = readGrowth(JSON.parse(lsGet("yw.growth") || "{}")); care = readCare(JSON.parse(lsGet("yw.care") || "{}")); const lv = JSON.parse(lsGet("yw.events") || "{}"); events = readEvents(lv.events); shift = readShift(lv.shift); todos = readTodos(lv.todo); vaxDone = readVax(lv.vax); migrateVax(); if (!hasFirebase()) todoPrune(); } catch {}
   setBirth(lsGet("yw.birth"));
   showView();
   handleShortcut();
