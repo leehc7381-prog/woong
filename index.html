@@ -360,6 +360,8 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .rec { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: .82rem; padding: 6px 2px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .rec .d { color: var(--muted); }
 .rec button { border: 0; background: none; color: var(--muted); font-size: .8rem; }
+.rec .rtx { text-align: left; color: var(--ink); font-size: inherit; padding: 2px 0; min-width: 0; font-variant-numeric: tabular-nums; }
+.recs .more { justify-self: start; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--ink); padding: 6px 14px; font-size: .82rem; margin-top: 6px; }
 .ms { display: grid; gap: 10px; }
 .ms h4 { margin: 0; font-size: .76rem; color: var(--muted); letter-spacing: .04em; }
 .ms .grp { display: grid; gap: 4px; }
@@ -510,6 +512,8 @@ details.orig pre { white-space: pre-wrap; font-family: var(--f-body); font-size:
 .confirm { background: var(--surface); border: 1px solid var(--danger); border-radius: 12px; padding: 12px; display: grid; gap: 10px; }
 .note { font-size: .8rem; color: var(--muted); margin: 0; }
 .banner { font-size: .85rem; background: var(--surface); border-radius: 12px; padding: 10px 14px; color: var(--muted); }
+.banner.alert { color: var(--danger); border: 1px solid currentColor; cursor: pointer; }
+.banner.alert small { color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) {
   .sheet { animation: up .22s ease-out; }
   @keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
@@ -939,7 +943,10 @@ function showView() {
 function render() { renderCats(); renderList(); const v = curView(); if (v === "grow") renderGrow(); if (v === "home") renderToday(); }
 
 // ---------- Sheet ----------
+let sheetOnClose = null;   // called once when the current sheet goes away (closed or replaced)
+function sheetGone() { const f = sheetOnClose; sheetOnClose = null; if (f) f(); }
 function openSheet(title, body) {
+  sheetGone();
   const b = $("#sheetBody"); b.replaceChildren(
     el("div", { class: "sheet-h" }, el("h2", { id: "sheetTitle", text: title }), el("button", { class: "x", "aria-label": "닫기", onclick: closeSheet, text: "✕" })),
     body);
@@ -947,6 +954,7 @@ function openSheet(title, body) {
   document.body.style.overflow = "hidden";
 }
 function closeSheet() {
+  sheetGone();
   $("#sheet").hidden = true; $("#scrim").hidden = true; document.body.style.overflow = "";
   images.forEach(i => URL.revokeObjectURL(i.url)); images = []; draft = null;
 }
@@ -1388,7 +1396,17 @@ function tipChat(t, ref) {
 $("#addBtn").addEventListener("click", openAdd);
 $("#q").addEventListener("input", e => { query = e.target.value; renderList(); });
 
-function showBanner(msg) { const b = $("#banner"); b.textContent = msg; b.hidden = !msg; }
+// Two kinds of banner: a calm note (replaced freely) and a save problem, which stays until tapped.
+let bannerInfo = "", bannerAlert = "";
+function showBanner(msg) { bannerInfo = msg || ""; paintBanner(); }
+function alertBanner(msg) { bannerAlert = msg || ""; paintBanner(); }
+function paintBanner() {
+  const b = $("#banner"); if (!b) return;
+  const m = bannerAlert || bannerInfo;
+  b.replaceChildren(m, bannerAlert ? el("small", { text: " · 눌러서 닫기" }) : "");
+  b.hidden = !m; b.classList.toggle("alert", !!bannerAlert);
+}
+$("#banner").addEventListener("click", () => { if (bannerAlert) alertBanner(""); });
 
 // ---------- Local storage (IndexedDB) with the same shape the page uses ----------
 const LocalDB = (() => {
@@ -1441,7 +1459,11 @@ const LocalDB = (() => {
 const GBASE = "https://generativelanguage.googleapis.com";
 const LS = { key: "yw.geminiKey", model: "yw.geminiModel", seeded: "yw.seeded", family: "yw.family", autoOff: "yw.autoOff" };
 const lsGet = k => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
-const lsSet = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} };
+// Saving on this phone can fail (storage full, private mode). Say so instead of losing it quietly.
+const lsSet = (k, v) => {
+  try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); return true; }
+  catch { alertBanner("이 휴대폰에 저장하지 못했어요. 휴대폰 저장 공간이 부족하거나 비공개 모드일 수 있어요. 설정에서 백업 파일을 저장해 두세요."); return false; }
+};
 let familyKey = "";
 function getKey() { return lsGet(LS.key) || familyKey; }
 
@@ -1673,14 +1695,18 @@ function openSettings() {
 }
 
 async function exportBackup() {
-  const data = { app: "yeongwoong-notes", version: 2, exportedAt: new Date().toISOString(),
+  let allCare;
+  try { allCare = await careForBackup(); }
+  catch { const m = "백업하려면 모든 달의 기록을 받아 와야 해서 인터넷 연결이 필요해요. 연결을 확인하고 다시 해 주세요."; setStatus(m, true); alertBanner(m); return false; }
+  const data = { app: "yeongwoong-notes", version: 3, exportedAt: new Date().toISOString(),
     tips: await dumpCol("tips"), categories: await dumpCol("categories"),
-    care, growth, events: { ...events, shift, todo: todos }, vax: vaxDone, birthDate: birthDate ? ymd(birthDate) : "" };
+    care: allCare, growth, events: { ...events, shift, todo: todos }, vax: vaxDone, birthDate: birthDate ? ymd(birthDate) : "" };
   const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
   const d = new Date(); a.download = `영웅이노트-백업-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}.json`;
   document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   setStatus("백업 파일을 저장했어요.");
+  return true;
 }
 async function importBackup(file) {
   if (!file) return;
@@ -1697,7 +1723,11 @@ async function importBackup(file) {
     if (j.events?.shift) { const sh = readShift(j.events.shift); sh.o = { ...shift.o, ...sh.o }; ev.shift = sh; if (!fam) shift = sh; }
     const bd = /^\d{4}-\d{2}-\d{2}$/.test(j.birthDate || "") ? j.birthDate : "";
     const nCare = Object.values(c).reduce((s, d) => s + Object.keys(d).length, 0);
-    if (fam) await fam.set({ care: c, growth: g, events: ev, vax: vx, ...(bd ? { birthDate: bd } : {}) }, { merge: true });
+    if (fam && logsOn) {
+      // Each month goes to its own logs doc. merge keeps every record that is already there.
+      await Promise.all(Object.entries(byMonth(c)).map(([m, cc]) => logRef(m).set({ care: cc }, { merge: true })));
+      await fam.set({ growth: g, events: ev, vax: vx, ...(bd ? { birthDate: bd } : {}) }, { merge: true });
+    } else if (fam) await fam.set({ care: c, growth: g, events: ev, vax: vx, ...(bd ? { birthDate: bd } : {}) }, { merge: true });
     else {
       for (const [d, day] of Object.entries(c)) care[d] = { ...(care[d] || {}), ...day };
       Object.assign(growth.done, g.done); delete ev.shift; delete ev.todo; Object.assign(events, ev); Object.assign(todos, td); Object.assign(vaxDone, vx);
@@ -1839,6 +1869,7 @@ async function syncFeed() {
 }
 
 function startLocal() {
+  closeMonths(); logsOn = false; olderCare = null;
   fam = null; familyKey = "";
   db = LocalDB;
   const seed = !lsGet(LS.seeded); lsSet(LS.seeded, "1");
@@ -1850,13 +1881,14 @@ function startLocal() {
 
 function startFamily(code, isNew) {
   const fs = firebase.firestore();
+  closeMonths(); logsOn = false; famData = {}; legacyRaw = {}; olderCare = null; moveDone = false; straggleSeen.clear();
   fam = fs.doc(`families/${code}`);
   db = { collection: n => fs.collection(`families/${code}/${n}`) };
   attach(isNew);
   setTimeout(maybeHandleShare, 600);
   unsubs.push(fam.onSnapshot(s => {
     familyKey = str(s.data()?.geminiKey, 200);
-    onFamilyGrowth(s.data()?.growth); onFamilyCare(s.data()?.care); onFamilyEvents(s.data()?.events, s.data()?.vax);
+    onFamilyGrowth(s.data()?.growth); onFamilyCare(s.data()); onFamilyEvents(s.data()?.events, s.data()?.vax);
     const bd = str(s.data()?.birthDate, 10); if (bd && bd !== (birthDate && ymd(birthDate))) { setBirth(bd); selStage = null; renderDday(); render(); }
     const off = s.data()?.autoFeed === false;
     if (off !== autoOff) { autoOff = off; applyVisible(); render(); if (!off) syncFeed(); }
@@ -2145,16 +2177,221 @@ function healthFields(e) {
   if (e.k === "hosp") return { nm: str(e.nm, 30) || "병원", memo: str(e.memo, 120) };
   return {};
 }
-function onFamilyCare(x) { care = readCare(x); if (curView() === "grow") renderGrow(); renderToday(); }
+// ---------- Care storage ----------
+// Old way: family doc field care.{dYYYYMMDD}.{id}. That one doc hits Firestore's 1MB limit after about a year.
+// New way (family doc logsV: 2): families/{code}/logs/{YYYY-MM} = { care: { dYYYYMMDD: { id: entry } } }.
+// Every write touches one record only, so two phones saving at the same moment never overwrite each other.
+const newCareId = () => "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6).padEnd(4, "0");
+const monthOfDay = dk => `${dk.slice(1, 5)}-${dk.slice(5, 7)}`;
+const monthOfDate = d => ymd(d).slice(0, 7);
+const monthShift = (m, n) => monthOfDate(new Date(+m.slice(0, 4), +m.slice(5, 7) - 1 + n, 1));
+const LOGS_MAX = 4;                  // months listened to at once (this month and last month always)
+const MOVE_GRACE = 36e5;             // phone clocks differ: ids stamped up to an hour before the move may be newer
+const MOVE_KEEP = 30 * 864e5;        // the old family-doc copy stays this long after the move
+let logsOn = false, famData = {}, legacyRaw = {};
+const logMonths = new Map();         // "YYYY-MM" -> { raw, ready, used, unsub }
+let olderCare = null;                // all months, fetched once for "이전 기록 더 보기"
+const FV = () => firebase.firestore.FieldValue;
+const logsCol = () => fam.collection("logs");
+const logRef = m => logsCol().doc(m);
+const recPath = (day, id) => new firebase.firestore.FieldPath("care", day, id);
+const idTime = id => { const t = parseInt(String(id).slice(1, 9), 36); return Number.isFinite(t) ? t : Infinity; };
+const stable = v => JSON.stringify(v, (k, x) => x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map(y => [y, x[y]])) : x);
+const careDays = raw => Object.entries(raw && typeof raw === "object" ? raw : {}).filter(([d, day]) => /^d\d{8}$/.test(d) && day && typeof day === "object");
+function byMonth(raw) { const out = {}; for (const [d, day] of careDays(raw)) (out[monthOfDay(d)] ||= {})[d] = day; return out; }
+const countRecs = raw => careDays(raw).reduce((s, [, d]) => s + Object.keys(d).length, 0);
+function idsOf(raw) { const s = new Set(); for (const [, day] of careDays(raw)) for (const id of Object.keys(day)) s.add(id); return s; }
+
+function mergeCare() {
+  if (!fam || !logsOn) { if (fam) care = readCare(legacyRaw); return; }
+  const all = {};
+  for (const { raw } of logMonths.values()) for (const [d, day] of careDays(raw)) all[d] = { ...(all[d] || {}), ...day };
+  care = readCare(all);
+}
+function rebuildCare() { mergeCare(); if (curView() === "grow") renderGrow(); renderToday(); }
+const monthReady = m => !fam || !logsOn || !!logMonths.get(m)?.ready;
+function openMonth(m) {
+  const had = logMonths.get(m);
+  if (had) { had.used = Date.now(); return; }
+  const x = { raw: {}, ready: false, used: Date.now(), unsub: null };
+  logMonths.set(m, x);
+  x.unsub = logRef(m).onSnapshot({ includeMetadataChanges: true }, s => {
+    if (logMonths.get(m) !== x) return;
+    x.raw = s.data()?.care || {};
+    // A month nobody wrote yet shows as empty only once the server said so (not from an empty cache).
+    x.ready = s.exists || !s.metadata.fromCache;
+    rebuildCare(); straggle();
+  }, () => { if (logMonths.get(m) !== x) return; x.ready = true; rebuildCare(); alertBanner("기록을 불러오지 못했어요. 앱을 완전히 닫았다가 다시 열어 주세요."); });
+}
+function closeMonths() { for (const x of logMonths.values()) try { x.unsub?.(); } catch {} logMonths.clear(); }
+// Keep this month and last month open, plus any the 기록 tab needs. Close the ones looked at least recently.
+function syncMonths(extra = []) {
+  if (!fam || !logsOn) return false;
+  const cur = monthOfDate(today0()), need = [...new Set([cur, monthShift(cur, -1), ...extra])];
+  need.forEach(openMonth);
+  const spare = [...logMonths.entries()].filter(([m]) => !need.includes(m)).sort((a, b) => a[1].used - b[1].used);
+  let closed = false;
+  while (logMonths.size > LOGS_MAX && spare.length) { const [m, x] = spare.shift(); try { x.unsub?.(); } catch {} logMonths.delete(m); closed = true; }
+  if (closed) mergeCare();
+  return closed;
+}
+async function allLogs(source) {
+  const snap = await logsCol().get(source ? { source } : undefined), out = {};
+  snap.docs.forEach(d => { for (const [dk, day] of careDays(d.data()?.care)) out[dk] = { ...(out[dk] || {}), ...day }; });
+  return out;
+}
+// After the move, a record deleted here may still sit in the old copy. Tidy it there too when the rules allow it,
+// so it is not picked up again as a record an old app version wrote.
+function legacyForget(day, id) {
+  if (legacyRaw[day]?.[id] && idTime(id) >= (+famData.logsMovedAt || 0) - MOVE_GRACE)
+    fam.update({ [`care.${day}.${id}`]: FV().delete() }).catch(() => {});
+}
+const SAVE_FAIL = "기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", DEL_FAIL = "기록을 지우지 못했어요. 인터넷 연결을 확인해 주세요.";
+function careLocal(fn) { fn(care); if (olderCare) fn(olderCare); renderGrow(); renderToday(); }
 async function careSave(day, id, e) {
-  (care[day] ||= {})[id] = e; renderGrow(); renderToday();
-  try { if (fam) await fam.update({ [`care.${day}.${id}`]: e }); else lsSet("yw.care", JSON.stringify(care)); }
-  catch { showBanner("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요."); }
+  careLocal(c => { (c[day] ||= {})[id] = e; });
+  try {
+    if (!fam) lsSet("yw.care", JSON.stringify(care));
+    else if (logsOn) await logRef(monthOfDay(day)).set({ care: { [day]: { [id]: e } } }, { mergeFields: [recPath(day, id)] });
+    else await fam.update({ [`care.${day}.${id}`]: e });
+  } catch { alertBanner(SAVE_FAIL); }
 }
 async function careDelete(day, id) {
-  if (care[day]) delete care[day][id]; renderGrow(); renderToday();
-  try { if (fam) await fam.update({ [`care.${day}.${id}`]: firebase.firestore.FieldValue.delete() }); else lsSet("yw.care", JSON.stringify(care)); }
-  catch { showBanner("기록을 지우지 못했어요. 인터넷 연결을 확인해 주세요."); }
+  careLocal(c => { if (c[day]) delete c[day][id]; });
+  try {
+    if (!fam) lsSet("yw.care", JSON.stringify(care));
+    else if (logsOn) { const p = logRef(monthOfDay(day)).update({ [`care.${day}.${id}`]: FV().delete() }); legacyForget(day, id); await p; }
+    else await fam.update({ [`care.${day}.${id}`]: FV().delete() });
+  } catch { alertBanner(DEL_FAIL); }
+}
+// An edit that moves a record to another day (maybe another month): add the new spot and remove the old one together.
+async function careMove(from, day, id, e) {
+  if (from === day) return careSave(day, id, e);
+  careLocal(c => { if (c[from]) delete c[from][id]; (c[day] ||= {})[id] = e; });
+  try {
+    if (!fam) lsSet("yw.care", JSON.stringify(care));
+    else if (logsOn) {
+      const b = firebase.firestore().batch();
+      b.set(logRef(monthOfDay(day)), { care: { [day]: { [id]: e } } }, { mergeFields: [recPath(day, id)] });
+      b.update(logRef(monthOfDay(from)), { [`care.${from}.${id}`]: FV().delete() });
+      const p = b.commit(); legacyForget(from, id); await p;
+    } else await fam.update({ [`care.${day}.${id}`]: e, [`care.${from}.${id}`]: FV().delete() });
+  } catch { alertBanner(SAVE_FAIL); }
+}
+
+// Family doc snapshot: which way records are stored, and the old copy while it is still there.
+function onFamilyCare(d) {
+  famData = d || {};
+  legacyRaw = famData.care && typeof famData.care === "object" ? famData.care : {};
+  const on = famData.logsV === 2;
+  if (on !== logsOn) { logsOn = on; if (on) syncMonths(); else closeMonths(); }
+  rebuildCare();
+  if (!on) moveLogs(); else { straggle(); dropLegacy(); }
+}
+
+// One-time move from the family doc to logs/{YYYY-MM}. Safe to run on both phones at once:
+// every record keeps its id, so writing it twice gives the same result.
+let moving = false, moveDone = false;
+async function moveLogs() {
+  if (moving || moveDone || !fam) return;
+  moving = true;
+  const me = fam;
+  let n = countRecs(legacyRaw);
+  try {
+    if (n && !lsGet("yw.logsAsk")) await askBackupBeforeMove();
+    if (fam !== me) return;
+    const fresh = (await me.get({ source: "server" })).data() || {};
+    if (fresh.logsV === 2) { moveDone = true; return; }         // the other phone finished first
+    const src = fresh.care || {}, months = byMonth(src); n = countRecs(src);
+    await Promise.all(Object.entries(months).map(([m, c]) => me.collection("logs").doc(m).set({ care: c }, { merge: true })));
+    if (!n) await me.collection("logs").doc(monthOfDate(today0())).get({ source: "server" });   // can we use logs at all?
+    // Read every month back from the server: each original record must be there with the same content.
+    for (const [m, c] of Object.entries(months)) {
+      const got = (await me.collection("logs").doc(m).get({ source: "server" })).data()?.care || {};
+      for (const [dk, day] of careDays(c)) for (const [id, e] of Object.entries(day))
+        if (stable(got[dk]?.[id]) !== stable(e)) throw { code: "mismatch" };
+    }
+    await me.set({ logsV: 2, logsMovedAt: Date.now() }, { merge: true });
+    moveDone = true;
+  } catch (err) {
+    if (err?.code === "unavailable" || navigator.onLine === false) return;   // offline: try again when back online
+    moveDone = true;   // once per app start
+    if (n) alertBanner("기록을 새 저장 방식으로 옮기지 못했어요. 기록은 그대로 있고 지금까지처럼 저장돼요. 앱을 다시 열면 다시 시도해요.");
+  } finally { moving = false; }
+}
+window.addEventListener("online", () => { if (fam && !logsOn) moveLogs(); });
+function askBackupBeforeMove() {
+  return new Promise(done => {
+    const finish = () => { lsSet("yw.logsAsk", "1"); done(); };
+    const st = el("div", { class: "status", id: "aiStatus", hidden: true });
+    openSheet("기록 저장 방식 바꾸기", el("div", { style: "display:grid;gap:14px" },
+      el("p", { text: "기록이 오래 쌓여도 저장이 잘 되도록 달별로 나눠 저장하는 방식으로 옮겨요. 기록은 지워지지 않아요." }),
+      el("p", { text: "옮기기 전에 백업 파일을 저장할까요?" }), st,
+      el("div", { class: "actions" },
+        el("button", { class: "btn", text: "백업 저장하고 옮기기", onclick: async e => { e.target.disabled = true; await exportBackup(); closeSheet(); } }),
+        el("button", { class: "btn ghost", text: "건너뛰기", onclick: closeSheet }))));
+    sheetOnClose = finish;
+  });
+}
+// While the old copy is kept: records an old app version wrote there after the move are copied into logs.
+let straggling = false;
+const straggleSeen = new Set();
+async function straggle() {
+  if (!fam || !logsOn || straggling) return;
+  const movedAt = +famData.logsMovedAt || 0, cands = [];
+  for (const [d, day] of careDays(legacyRaw)) for (const [id, e] of Object.entries(day)) {
+    if (idTime(id) < movedAt - MOVE_GRACE || straggleSeen.has(id)) continue;
+    const x = logMonths.get(monthOfDay(d));
+    if (x && !x.ready) return;                       // wait for that month, then look again
+    if (x && Object.values(x.raw).some(dd => dd && dd[id])) continue;
+    cands.push([d, id, e]);
+  }
+  if (!cands.length) return;
+  straggling = true;
+  const me = fam;
+  try {
+    const have = idsOf(await allLogs("server")), add = {};
+    for (const [d, id, e] of cands) if (!have.has(id)) ((add[monthOfDay(d)] ||= {})[d] ||= {})[id] = e;
+    await Promise.all(Object.entries(add).map(([m, c]) => me.collection("logs").doc(m).set({ care: c }, { merge: true })));
+    cands.forEach(([, id]) => straggleSeen.add(id));
+  } catch {} finally { straggling = false; }
+}
+// 30 days after the move: check once more that everything is in logs, then remove the old copy. Safe to repeat.
+let dropping = false;
+async function dropLegacy() {
+  const movedAt = +famData.logsMovedAt || 0;
+  if (!fam || !logsOn || dropping || !("care" in famData) || !movedAt || Date.now() - movedAt < MOVE_KEEP) return;
+  dropping = true;
+  const me = fam;
+  try {
+    const legacy = (await me.get({ source: "server" })).data()?.care;
+    if (!legacy) return;
+    const late = [];   // records that may have been written after the move
+    for (const [d, day] of careDays(legacy)) for (const [id, e] of Object.entries(day)) if (idTime(id) >= movedAt - MOVE_GRACE) late.push([d, id, e]);
+    let have = idsOf(await allLogs("server"));
+    const add = {};
+    for (const [d, id, e] of late) if (!have.has(id)) ((add[monthOfDay(d)] ||= {})[d] ||= {})[id] = e;
+    if (Object.keys(add).length) {
+      await Promise.all(Object.entries(add).map(([m, c]) => me.collection("logs").doc(m).set({ care: c }, { merge: true })));
+      have = idsOf(await allLogs("server"));
+    }
+    if (late.some(([, id]) => !have.has(id))) return;
+    await me.update({ care: FV().delete() });
+  } catch {} finally { dropping = false; }
+}
+// Backups hold every month from the server, plus anything still only in the old copy.
+async function careForBackup() {
+  if (!fam) return care;
+  let logs = {};
+  try { logs = await allLogs("server"); } catch (e) { if (logsOn) throw e; }
+  const out = {}, have = idsOf(logs), movedAt = +famData.logsMovedAt || 0;
+  for (const [d, day] of careDays(logs)) out[d] = { ...day };
+  for (const [d, day] of careDays(legacyRaw)) for (const [id, e] of Object.entries(day)) {
+    if (have.has(id)) continue;
+    if (logsOn && idTime(id) < movedAt - MOVE_GRACE) continue;   // moved and checked, then deleted by the family
+    (out[d] ||= {})[id] = e;
+  }
+  return out;
 }
 // Typical ranges by age in days (AAP, CDC, AASM).
 function careNorms(d) {
@@ -2224,14 +2461,61 @@ function careForm(k) {
       // Fell asleep later than the wake-up time (e.g. 23:00 → 06:00): it started the day before.
       if (toM(s0) >= toM(t)) {
         const pd = new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1);
-        careSave(dayKey(pd), "e" + Date.now().toString(36), entry); careForm(null);
+        careSave(dayKey(pd), newCareId(), entry); careForm(null);
         careFlash(`${careDay.getTime() === today0().getTime() ? "어제" : `${pd.getMonth() + 1}월 ${pd.getDate()}일`} 밤잠으로 저장했어요 (${s0} 잠듦). 아래 목록 맨 끝에 '전날'로 보여요.`);
         return;
       }
     }
-    careSave(dayKey(careDay), "e" + Date.now().toString(36), entry); careForm(null);
+    careSave(dayKey(careDay), newCareId(), entry); careForm(null);
   };
   if (k === "feed" || k === "pump") $("#cfA").focus?.();
+}
+// Change a saved record: time, date, amount and details. A new date moves it (to another month too).
+function careEdit(r) {
+  const k = r.k, day0 = r.day, d0 = `${day0.slice(1, 5)}-${day0.slice(5, 7)}-${day0.slice(7, 9)}`;
+  const st = { ft: r.ft || "formula", side: r.side || "b", c: r.c || "", tx: r.tx || "" };
+  const toM = x => +x.slice(0, 2) * 60 + +x.slice(3), fromM = m => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+  const inp = (id, a) => el("input", { id, ...a });
+  const seg = (label, map, key) => el("div", { class: "seg", role: "group", "aria-label": label }, Object.entries(map).map(([id, nm]) =>
+    el("button", { type: "button", "aria-pressed": String(st[key] === id), text: nm, onclick: e => { st[key] = id; e.target.parentNode.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === e.target))); } })));
+  const chips = (label, map, key, sw) => el("div", { class: "pick", role: "group", "aria-label": label }, label,
+    el("div", { class: "chips" }, Object.entries(map).map(([id, v]) => el("button", { type: "button", "aria-pressed": String(st[key] === id),
+      onclick: e => { st[key] = st[key] === id ? "" : id; e.currentTarget.parentNode.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", "false")); if (st[key]) e.currentTarget.setAttribute("aria-pressed", "true"); } },
+      sw ? el("span", { class: "sw", style: `--sw: ${v[1]}`, "aria-hidden": "true" }) : null, sw ? v[0] : v))));
+  const kids = [el("label", {}, k === "sleep" ? "잠든 날짜" : "날짜", inp("ceD", { type: "date", value: d0, max: ymd(new Date()), required: true })),
+    el("label", {}, k === "sleep" ? "잠든 시간" : "시간", inp("ceT", { type: "time", value: r.t, required: true }))];
+  if (k === "feed") kids.push(seg("수유 종류", FEED_T, "ft"),
+    el("label", {}, "ml (분유·유축 모유)", inp("ceA", { type: "number", min: "0", max: "400", step: "5", inputmode: "numeric", value: r.ml || "" })),
+    el("label", {}, "분 (직접 수유)", inp("ceM", { type: "number", min: "0", max: "180", step: "1", inputmode: "numeric", value: r.min || "" })));
+  if (k === "pump") kids.push(seg("어느 쪽", PUMP_SIDE, "side"),
+    el("label", {}, "ml", inp("ceA", { type: "number", min: "0", max: "400", step: "5", inputmode: "numeric", value: r.ml || "" })),
+    el("label", {}, "분 (선택)", inp("ceM", { type: "number", min: "0", max: "120", step: "1", inputmode: "numeric", value: r.min || "" })));
+  if (k === "sleep") kids.push(el("label", { style: "grid-column: 1 / -1" }, "깬 시간", inp("ceW", { type: "time", value: fromM(toM(r.t) + (r.min || 0)), required: true })));
+  if (k === "poop") kids.push(chips("색깔", POOP_C, "c", true), chips("모양", POOP_X, "tx", false));
+  if (k === "temp") kids.push(el("label", { style: "grid-column: 1 / -1" }, "체온 (°C)", inp("ceV", { type: "number", min: "34", max: "43", step: "0.1", inputmode: "decimal", value: r.v || "", required: true })));
+  if (k === "med") kids.push(el("label", { style: "grid-column: 1 / -1" }, "약 이름", inp("ceN", { type: "text", maxlength: "30", value: r.nm || "", required: true })),
+    el("label", { style: "grid-column: 1 / -1" }, "얼마나 (선택)", inp("ceS", { type: "text", maxlength: "20", value: r.ds || "" })));
+  if (k === "hosp") kids.push(el("label", { style: "grid-column: 1 / -1" }, "병원 이름", inp("ceN", { type: "text", maxlength: "30", value: r.nm || "", required: true })),
+    el("label", { style: "grid-column: 1 / -1" }, "왜 갔나요 · 들은 말 (선택)", inp("ceS", { type: "text", maxlength: "120", value: r.memo || "" })));
+  kids.push(el("div", { class: "row2" }, el("button", { class: "btn ghost", type: "button", text: "취소", onclick: closeSheet }),
+    el("button", { class: "btn", type: "submit", text: "고친 내용 저장" })));
+  const f = el("form", { class: "recform" }, ...kids);
+  f.onsubmit = ev => {
+    ev.preventDefault();
+    const d = $("#ceD").value, t = $("#ceT").value;
+    if (!ymdOk(d) || d > ymd(new Date()) || !/^\d{2}:\d{2}$/.test(t)) return;
+    const e = { k, t, ft: "", ml: 0, min: 0 }, num = (id, max) => Math.max(0, Math.min(max, Math.round(+$(id).value || 0)));
+    if (k === "feed") { e.ft = FEED_T[st.ft] ? st.ft : "formula"; e.ml = num("#ceA", 400); e.min = num("#ceM", 180); }
+    if (k === "pump") { e.side = st.side; e.ml = num("#ceA", 400); e.min = num("#ceM", 120); }
+    if (k === "sleep") { const w = $("#ceW").value; if (!/^\d{2}:\d{2}$/.test(w)) return; let dur = toM(w) - toM(t); if (dur <= 0) dur += 1440; e.min = dur; }
+    if (k === "poop") { if (st.c) e.c = st.c; if (st.tx) e.tx = st.tx; }
+    if (k === "temp") { const v = Math.round(+$("#ceV").value * 10) / 10; if (!(v >= 34 && v <= 43)) return; e.v = v; }
+    if (k === "med") { e.nm = str($("#ceN").value, 30); if (!e.nm) return; e.ds = str($("#ceS").value, 20); }
+    if (k === "hosp") { e.nm = str($("#ceN").value, 30); if (!e.nm) return; e.memo = str($("#ceS").value, 120); }
+    closeSheet();
+    careMove(day0, "d" + d.replace(/-/g, ""), r.id, e);
+  };
+  openSheet(`${CARE_ICON[k]} ${CARE_K[k]} 기록 고치기`, f);
 }
 // A short "saved" note under the care buttons (e.g. night sleep that went to the day before).
 let careFlashT = 0;
@@ -2246,6 +2530,8 @@ function renderCare(ageDays, born) {
   $("#dayLabel").textContent = `${careDay.getMonth() + 1}월 ${careDay.getDate()}일${isToday ? " (오늘)" : ""}`;
   $("#dayNext").disabled = isToday;
   const dk = dayKey(careDay), pk = dayKey(new Date(careDay.getFullYear(), careDay.getMonth(), careDay.getDate() - 1));
+  syncMonths([monthOfDay(dk), monthOfDay(pk)]);
+  const loading = !monthReady(monthOfDay(dk)) || !monthReady(monthOfDay(pk));
   const list = Object.entries(care[dk] || {}).map(([id, e]) => ({ id, day: dk, ...e })).sort((a, b) => b.t.localeCompare(a.t));
   // Sleep from the night before that ran past midnight is shown at the bottom of this day too.
   const carried = Object.entries(care[pk] || {}).filter(([, e]) => e.k === "sleep" && +e.t.slice(0, 2) * 60 + +e.t.slice(3) + e.min > 1440)
@@ -2257,7 +2543,7 @@ function renderCare(ageDays, born) {
   const lf = isToday ? lastFeedAt() : null;
   if (lf) { const ago = Math.round((Date.now() - lf) / 6e4); last = ` · 마지막 ${ago >= 60 ? `${Math.floor(ago / 60)}시간 ` : ""}${ago % 60}분 전`; }
   const low = ([min], v) => !isToday && list.length && min && v < min;   // only judge finished days
-  const card = (k, v, sub, norm, warn) => el("div", { class: "metric" }, el("span", { class: "k", text: CARE_K[k] }), el("span", { class: "v", text: v }),
+  const card = (k, v, sub, norm, warn) => el("div", { class: "metric" }, el("span", { class: "k", text: CARE_K[k] }), el("span", { class: "v", text: loading ? "…" : v }),
     sub ? el("span", { class: "n", text: sub }) : null, el("span", { class: "n" + (warn ? " warn" : ""), text: (warn ? "보통보다 적어요 · " : k === "pump" ? "" : "보통 ") + norm.replace(/^보통 /, "") }));
   $("#careSum").replaceChildren(
     card("feed", `${feeds.length}번`, (ml ? `총 ${ml}ml` : "") + last || null, N.feed[1], low(N.feed, feeds.length)),
@@ -2272,13 +2558,14 @@ function renderCare(ageDays, born) {
     : e.k === "temp" || e.k === "med" || e.k === "hosp" ? healthDesc(e) : CARE_K[e.k];
   const flag = e => e.k === "poop" && e.c && POOP_C[e.c][2] && !(e.c === "black" && dAge >= 0 && dAge < 4);
   const icon = CARE_ICON;
-  $("#careList").replaceChildren(...[...list, ...carried].map(e => el("div", { class: "rec" },
-    el("span", { class: "d", text: (e.prev ? "전날 " : "") + e.t }), el("span", {}, `${icon[e.k]} ${desc(e)}`, flag(e) ? el("span", { class: "warn", text: " · 소아과에 물어보세요" }) : null),
+  $("#careList").replaceChildren(...(loading && !list.length && !carried.length ? [el("p", { class: "empty-s", text: "불러오는 중이에요…" })] : []), ...[...list, ...carried].map(e => el("div", { class: "rec" },
+    el("span", { class: "d", text: (e.prev ? "전날 " : "") + e.t }),
+    el("button", { type: "button", class: "rtx", "aria-label": `${e.prev ? "전날 " : ""}${e.t} ${CARE_K[e.k]} 기록 고치기`, onclick: () => careEdit(e) }, `${icon[e.k]} ${desc(e)}`, flag(e) ? el("span", { class: "warn", text: " · 소아과에 물어보세요" }) : null),
     careDelAsk === e.id ? el("span", { class: "delask" },
         el("button", { type: "button", class: "yes", "aria-label": `${e.t} ${CARE_K[e.k]} 기록 정말 지우기`, text: "지울게요", onclick: () => { careDelAsk = null; careDelete(e.day, e.id); } }),
         el("button", { type: "button", text: "취소", onclick: () => { careDelAsk = null; renderGrow(); } }))
       : el("button", { type: "button", "aria-label": `${e.t} ${CARE_K[e.k]} 기록 지우기`, text: "지우기", onclick: () => { careDelAsk = e.id; renderGrow(); } }))));
-  $("#careNote").textContent = !list.length ? (born ? "위 버튼을 누르고 확인하면 기록돼요. 엄마 아빠 휴대폰에 같이 보여요." : "태어나면 위 버튼으로 수유, 기저귀, 잠을 기록해 보세요. 엄마 아빠 휴대폰에 같이 보여요.")
+  $("#careNote").textContent = loading ? "이 날 기록을 불러오는 중이에요. 잠시만 기다려 주세요." : list.length || carried.length ? `기록을 누르면 시간이나 양을 고칠 수 있어요. ${N.ml}. 소변이 계속 적거나 잘 안 먹으면 소아과에 물어보세요.` : !list.length ? (born ? "위 버튼을 누르고 확인하면 기록돼요. 엄마 아빠 휴대폰에 같이 보여요." : "태어나면 위 버튼으로 수유, 기저귀, 잠을 기록해 보세요. 엄마 아빠 휴대폰에 같이 보여요.")
     : `${N.ml}. 소변이 계속 적거나 잘 안 먹으면 소아과에 물어보세요.`;
 }
 
@@ -2345,9 +2632,9 @@ function healthDesc(e) {
   if (e.k === "hosp") return `${e.nm}${e.memo ? " · " + e.memo : ""}`;
   return CARE_K[e.k] || "";
 }
-function careEntries(kinds) {
+function careEntries(kinds, src = care) {
   const out = [];
-  for (const [d, day] of Object.entries(care)) {
+  for (const [d, day] of Object.entries(src)) {
     const y = +d.slice(1, 5), m = +d.slice(5, 7) - 1, dd = +d.slice(7, 9);
     for (const [id, e] of Object.entries(day)) if (kinds.includes(e.k)) { const [h, mi] = e.t.split(":").map(Number); out.push({ id, day: d, at: new Date(y, m, dd, h, mi), ...e }); }
   }
@@ -2439,12 +2726,13 @@ function healthForm(k) {
     if (k === "med") { e.nm = medSel === "other" ? str($("#hfNm").value, 30) : MEDS[medSel][0]; if (!e.nm) return; e.ds = str($("#hfDs").value, 20); }
     if (k === "hosp") { e.nm = str($("#hfNm").value, 30); if (!e.nm) return; e.memo = str($("#hfMemo").value, 120); }
     healthForm(null);
-    careSave("d" + d.replace(/-/g, ""), "e" + Date.now().toString(36), e);
+    careSave("d" + d.replace(/-/g, ""), newCareId(), e);
   };
   (k === "temp" ? $("#hfV") : k === "med" ? $("#hfDs") : $("#hfNm"))?.focus?.();
 }
 function hRecRow(e, main, cls) {
-  return el("div", { class: "rec" }, el("span", { class: "d", text: whenText(e.at) }), el("span", { class: cls || "" }, main),
+  return el("div", { class: "rec" }, el("span", { class: "d", text: whenText(e.at) }),
+    el("button", { type: "button", class: "rtx " + (cls || ""), "aria-label": `${whenText(e.at)} ${CARE_K[e.k]} 기록 고치기`, onclick: () => careEdit(e) }, main),
     careDelAsk === e.id ? el("span", { class: "delask" },
         el("button", { type: "button", class: "yes", "aria-label": `${whenText(e.at)} ${CARE_K[e.k]} 기록 정말 지우기`, text: "지울게요", onclick: () => { careDelAsk = null; careDelete(e.day, e.id); } }),
         el("button", { type: "button", text: "취소", onclick: () => { careDelAsk = null; renderGrow(); } }))
@@ -2472,9 +2760,23 @@ const HEALTH_SRCS = [
   ["미국소아과학회(AAP) · 열이 날 때 소아과에 연락할 때", "https://www.healthychildren.org/English/health-issues/conditions/fever/Pages/When-to-Call-the-Pediatrician.aspx"],
   ["미국소아과학회(AAP) · 열과 아기", "https://www.healthychildren.org/English/health-issues/conditions/fever/Pages/Fever-and-Your-Baby.aspx"],
 ];
+let olderBusy = false;
+async function loadOlderCare() {
+  if (olderBusy || !fam) return;
+  olderBusy = true; renderGrow();
+  try { olderCare = await allLogs(); } catch { alertBanner("이전 기록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요."); }
+  olderBusy = false; renderGrow();
+}
+// Open months as they are now, older months from the one-time fetch.
+function historyCare() {
+  if (!olderCare) return care;
+  const old = {};
+  for (const [d, day] of careDays(olderCare)) if (!logMonths.get(monthOfDay(d))?.ready) old[d] = day;
+  return { ...readCare(old), ...care };
+}
 function renderHealth(ageDays, born) {
   const cut = Date.now() - 72 * 36e5;
-  const temps = careEntries(["temp"]).filter(e => e.v), meds = careEntries(["med"]), hosp = careEntries(["hosp"]), poops = careEntries(["poop"]).filter(e => e.at <= Date.now());
+  const temps = careEntries(["temp"]).filter(e => e.v), meds = careEntries(["med"]), hosp = careEntries(["hosp"], historyCare()), poops = careEntries(["poop"]).filter(e => e.at <= Date.now());
   const lt = temps[0], lm = meds[0], ms = medStatus(), nx = ms.nx;
   $("#hSum").replaceChildren(
     el("div", { class: "metric" }, el("span", { class: "k", text: "🌡️ 최근 체온" }), el("span", { class: "v" + (lt && tempLevel(lt.v) === "hot" ? " hot" : ""), text: lt ? `${fmtT(lt.v)}°` : "기록 없음" }),
@@ -2488,7 +2790,9 @@ function renderHealth(ageDays, born) {
   $("#hTemp").replaceChildren(...(t72.length ? t72.map(e => hRecRow(e, `${fmtT(e.v)}°C${tempLevel(e.v) === "hot" ? " · 열" : tempLevel(e.v) === "warm" ? " · 미열" : ""}`, "tv " + tempLevel(e.v))) : [emptyS("기록 없음")]));
   const m72 = meds.filter(e => e.at >= cut);
   $("#hMed").replaceChildren(...(m72.length ? m72.map(e => hRecRow(e, healthDesc(e))) : [emptyS("기록 없음")]));
-  $("#hHosp").replaceChildren(...(hosp.length ? hosp.slice(0, 10).map(e => hRecRow(e, el("span", {}, e.nm, e.memo ? el("small", { text: e.memo }) : null))) : [emptyS("기록 없음")]));
+  // Whole-period lists show the months that are open; older ones come with "이전 기록 더 보기".
+  $("#hHosp").replaceChildren(...(hosp.length ? hosp.slice(0, olderCare ? 200 : 10).map(e => hRecRow(e, el("span", {}, e.nm, e.memo ? el("small", { text: e.memo }) : null))) : [emptyS(olderCare || !fam || !logsOn ? "기록 없음" : "최근 두 달은 기록 없음")]),
+    ...(fam && logsOn && !olderCare ? [el("button", { type: "button", class: "more", text: olderBusy ? "불러오는 중이에요…" : "이전 기록 더 보기", disabled: olderBusy, onclick: loadOlderCare })] : []));
   // Gaps between the last 8 poops (7 gaps), newest first.
   const gaps = poops.slice(0, 8).map((e, i, a) => i + 1 < a.length ? { at: e.at, m: Math.round((e.at - a[i + 1].at) / 6e4) } : null).filter(Boolean);
   if (gaps.length) {
@@ -3016,14 +3320,15 @@ function todoListText() {
   const c = todayCalItems().filter(x => !x.done).map(x => `· ${x.e.t ? x.e.t + " " : ""}${x.e.title} (캘린더)`).join("\n");
   return `오늘 할 일\n${[c, f(L.today)].filter(Boolean).join("\n") || "· 없어요"}\n\n할 일\n${f(L.later) || "· 없어요"}`;
 }
-// Finished 오늘 할 일 stop showing the next day; remove them from storage once they are 3 days old.
+// Finished 오늘 할 일 stop showing the next day. Finished to-dos leave storage 60 days after they were done
+// (backups made before then still have them).
 // Calendar check marks from earlier days go too. Runs at most once a day per phone.
 let todoPrunedOn = "";
 function todoPrune() {
   const t0 = today0(), t = ymd(t0); if (todoPrunedOn === t) return; todoPrunedOn = t;
-  const cut = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 3)), gone = [];
+  const cut = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 60)), gone = [];
   for (const [id, v] of Object.entries(todos))
-    if ((v.c && v.d < t) || (v.d && v.done && (v.dt || v.d) < cut)) { delete todos[id]; gone.push(id); }
+    if ((v.c && v.d < t) || (v.done && (v.dt || v.d || (v.at ? ymd(new Date(v.at)) : t)) < cut)) { delete todos[id]; gone.push(id); }
   todoWriteMany(gone);
 }
 // One add form for both lists: type it, then pick where it goes.
@@ -3044,7 +3349,7 @@ function setupTodos() {
   $("#todoAdd").addEventListener("click", () => todoAddForm(false));
   // A new day brings that day's calendar events in, even if the app stayed open past midnight.
   let day = ymd(new Date());
-  const tick = () => { const d = ymd(new Date()); if (d !== day) { day = d; todoPrune(); renderToday(); } };
+  const tick = () => { const d = ymd(new Date()); if (d !== day) { day = d; todoPrune(); if (syncMonths()) rebuildCare(); renderToday(); } };
   setInterval(tick, 60e3); document.addEventListener("visibilitychange", tick);
 }
 // Chat: "할 일 추가 기저귀 사기", "오늘 할 일 추가 분유 사기", "기저귀 사기 할 일에 넣어줘", "할 일 알려줘", "기저귀 사기 다 했어"
@@ -3307,7 +3612,7 @@ function execActions(acts) {
     if (a?.type === "care" && CARE_K[a.k]) {
       let date = ymdOk(a.date) ? a.date : ymd(today0());
       if (a.k === "sleep" && date === ymd(today0()) && /^\d{2}:\d{2}$/.test(a.t || "") && a.t > hm(new Date())) { const t0 = today0(); date = ymd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 1)); }
-      const day = "d" + date.replace(/-/g, ""), id = "e" + Date.now().toString(36) + done.length;
+      const day = "d" + date.replace(/-/g, ""), id = newCareId();
       const e = { k: a.k, t: /^\d{2}:\d{2}$/.test(a.t || "") ? a.t : hm(new Date()), ft: a.k === "feed" ? (FEED_T[a.ft] ? a.ft : (+a.ml ? "formula" : "breast")) : "",
         ml: a.k === "feed" || a.k === "pump" ? Math.max(0, Math.min(400, Math.round(+a.ml || 0))) : 0, min: Math.max(0, Math.min(1440, Math.round(+a.min || 0))), ...healthFields(a) };
       if (a.k === "temp" && !(e.v >= 34 && e.v <= 43)) continue;
