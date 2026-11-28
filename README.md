@@ -9,6 +9,6 @@
 - `manifest.webmanifest`, `icon-*.png`: 홈 화면 앱 설정
 
 ## 데이터
-- `families/{가족코드}`: `{ createdAt, geminiKey? }`
+- `families/{가족코드}`: `{ createdAt, geminiKey?, autoFeed?, birthDate?, growth, care, events, vax }` (보안 규칙이 이 필드만 허용해요)
 - `families/{가족코드}/tips/{id}`: 꿀팁
 - `families/{가족코드}/categories/{id}`: AI가 새로 만든 카테고리
