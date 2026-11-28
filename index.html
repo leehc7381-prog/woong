@@ -181,6 +181,9 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .ev small { display: block; color: var(--muted); font-size: .74rem; }
 .ev.vdone .ti { text-decoration: line-through; color: var(--muted); }
 .ev button { border: 0; background: none; color: var(--muted); font-size: .8rem; }
+.ev .delask { display: flex; gap: 4px; align-items: center; }
+.ev .delask button { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--ink); }
+.ev .delask .yes { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 700; }
 .tab[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 .grow-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .grow-h h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; margin: 0; }
@@ -2120,7 +2123,7 @@ const VAX = [
   ["v15", 15, 0, "DTaP 4차", "생후 15~18개월"],
 ];
 const CHECK_EV = [["c1", 0, 14, "1차 영유아검진", "생후 14~35일"], ["c2", 4, 0, "2차 영유아검진", "생후 4~6개월"], ["c3", 9, 0, "3차 영유아검진", "생후 9~12개월"], ["c4", 18, 0, "4차 영유아검진", "생후 18~24개월"]];
-let events = {}, vaxDone = {}, calMode = "month", calCursor = null, calSel = null;
+let events = {}, vaxDone = {}, calMode = "month", calCursor = null, calSel = null, evDelAsk = null;
 const ymdOk = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "");
 const parseYmd = v => { const [y, m, d] = v.split("-").map(Number); return new Date(y, m - 1, d); };
 function readEvents(x) {
@@ -2265,7 +2268,7 @@ function renderCal() {
       if (i >= 35 && d.getMonth() !== m) break;
       const es = evsOn(list, ds), sh = shiftOn(ds), max = sh ? 3 : 4;
       cells.push(el("button", { type: "button", class: (d.getMonth() !== m ? "out " : "") + (ds === todayS ? "today" : ""), "aria-pressed": String(ds === calSel),
-        "aria-label": `${fmtDay(d)}${sh ? ` 아빠 ${sh.l}` : ""} 일정 ${es.length}개`, onclick: () => { calSel = ds; shiftPickOpen = false; evForm(null, false); renderCal(); } },
+        "aria-label": `${fmtDay(d)}${sh ? ` 아빠 ${sh.l}` : ""} 일정 ${es.length}개`, onclick: () => { calSel = ds; shiftPickOpen = false; evDelAsk = null; evForm(null, false); renderCal(); } },
         el("span", { class: "dn" + (d.getDay() === 0 ? " sun" : d.getDay() === 6 ? " sat" : ""), text: String(d.getDate()) }),
         sh ? el("span", { class: `cc sh ${sh.work ? "work" : "rest"}${sh.chg ? " chg" : ""}`, text: sh.l }) : null,
         ...es.slice(0, es.length > max ? max - 1 : max).map(e => el("span", { class: "cc" + (e.vax && e.done ? " vdone" : "") + (e.d2 ? " span" + (ds === e.d ? " s" : "") + (ds === e.d2 ? " e" : "") : ""), style: `--cc: var(${WHO_EV[e.who][1]})`,
@@ -2279,7 +2282,7 @@ function renderCal() {
     const rows = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + i), ds = ymd(d), es = evsOn(list, ds), sh = shiftOn(ds);
-      rows.push(el("button", { type: "button", "aria-pressed": String(ds === calSel), onclick: () => { calSel = ds; shiftPickOpen = false; evForm(null, false); renderCal(); } },
+      rows.push(el("button", { type: "button", "aria-pressed": String(ds === calSel), onclick: () => { calSel = ds; shiftPickOpen = false; evDelAsk = null; evForm(null, false); renderCal(); } },
         el("span", { class: "dl" + (ds === todayS ? " today" : ""), text: `${d.getMonth() + 1}/${d.getDate()} ${DOW[d.getDay()]}` }),
         el("span", { class: "it" }, sh ? el("span", {}, el("span", { class: `shpill ${sh.work ? "work" : "rest"}`, style: "font-size:.72rem;padding:0 8px", text: "아빠 " + sh.l })) : null,
           ...(es.length ? es.map(e => el("span", { style: `--cc: var(${WHO_EV[e.who][1]})` }, el("i"), `${e.t && ds === e.d ? e.t + " " : ""}${e.title}${e.d2 ? ` (${evRange(e)})` : ""}`)) : sh ? [] : [el("span", { style: "color:var(--muted)", text: "–" })]))));
@@ -2303,7 +2306,9 @@ function renderCal() {
     el("span", { class: "tm", text: e.d2 ? (calSel === e.d && e.t ? e.t : "종일") : e.t || "하루" }),
     el("span", {}, el("span", { class: "ti" }, el("i"), e.title), el("small", { text: e.vax ? (e.done ? `${e.done} 완료 · ` : "") + e.note : WHO_EV[e.who][0] + (e.d2 ? ` · ${evRange(e)} (${Math.round((parseYmd(e.d2) - parseYmd(e.d)) / 864e5) + 1}일)` : "") })),
     e.vax ? el("button", { type: "button", text: e.done ? "완료 취소" : "완료", disabled: !e.done && e.d > todayS, title: !e.done && e.d > todayS ? "그날이 되면 체크할 수 있어요" : null, onclick: () => vaxToggle(e.id) })
-      : el("button", { type: "button", "aria-label": `${e.title} 지우기`, text: "지우기", onclick: () => evDelete(e.id) }))) : [el("p", { class: "note", text: "일정이 없어요." })]));
+      : evDelAsk === e.id ? el("span", { class: "delask" }, el("button", { type: "button", class: "yes", "aria-label": `${e.title} 정말 지우기`, text: "지울게요", onclick: () => { evDelAsk = null; evDelete(e.id); } }),
+          el("button", { type: "button", text: "취소", onclick: () => { evDelAsk = null; renderCal(); } }))
+      : el("button", { type: "button", "aria-label": `${e.title} 지우기`, text: "지우기", onclick: () => { evDelAsk = e.id; renderCal(); } }))) : [el("p", { class: "note", text: "일정이 없어요." })]));
 }
 function setupCal() {
   document.querySelectorAll("#calView .seg.mini button").forEach(b => b.addEventListener("click", () => { calMode = b.dataset.m; calCursor = calSel ? parseYmd(calSel) : today0(); renderCal(); }));
