@@ -125,6 +125,11 @@ img.th { object-fit: cover; display: block; background: var(--surface-2); }
 .seg.mini { grid-column: auto; width: 96px; }
 .seg.mini button { padding: 4px 0; }
 .btn.sm { padding: 5px 12px; font-size: .82rem; }
+#calGrid { touch-action: pan-y; }
+#calGrid.slide-l { animation: calInL .22s ease-out; } #calGrid.slide-r { animation: calInR .22s ease-out; }
+@keyframes calInL { from { transform: translateX(24px); opacity: .4; } to { transform: none; opacity: 1; } }
+@keyframes calInR { from { transform: translateX(-24px); opacity: .4; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #calGrid.slide-l, #calGrid.slide-r { animation: none; } }
 .cal-h, .cal-m { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .cal-h span { text-align: center; font-size: .72rem; color: var(--muted); padding: 2px 0 6px; }
 .cal-h span:first-child, .cal-m .dn.sun { color: var(--danger); }
@@ -2314,6 +2319,17 @@ function setupCal() {
   document.querySelectorAll("#calView .seg.mini button").forEach(b => b.addEventListener("click", () => { calMode = b.dataset.m; calCursor = calSel ? parseYmd(calSel) : today0(); renderCal(); }));
   const move = n => { const c = calCursor || today0(); calCursor = calMode === "month" ? new Date(c.getFullYear(), c.getMonth() + n, 1) : new Date(c.getFullYear(), c.getMonth(), c.getDate() + 7 * n); renderCal(); };
   $("#calPrev").addEventListener("click", () => move(-1)); $("#calNext").addEventListener("click", () => move(1));
+  // Swipe left/right on the grid: left = next, right = previous. Mostly-sideways moves only, so scrolling the page still works.
+  const g = $("#calGrid"); let sx = 0, sy = 0, st = 0, swiped = false;
+  g.addEventListener("touchstart", e => { if (e.touches.length !== 1) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); swiped = false; }, { passive: true });
+  g.addEventListener("touchend", e => {
+    const t = e.changedTouches[0]; if (!t || !st) return;
+    const dx = t.clientX - sx, dy = t.clientY - sy; st = 0;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    swiped = true; setTimeout(() => { swiped = false; }, 400); const n = dx < 0 ? 1 : -1; move(n);
+    g.classList.remove("slide-l", "slide-r"); void g.offsetWidth; g.classList.add(n > 0 ? "slide-l" : "slide-r");
+  }, { passive: true });
+  g.addEventListener("click", e => { if (swiped) { e.stopPropagation(); e.preventDefault(); swiped = false; } }, true);
   $("#calAddBtn").addEventListener("click", () => evForm(calSel || ymd(today0()), $("#evForm").hidden));
 }
 
